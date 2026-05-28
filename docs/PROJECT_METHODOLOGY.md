@@ -1,11 +1,11 @@
 # PROJECT_METHODOLOGY.md
 <!-- 
-  STATUS: SKELETON — Ready for Pod A prose completion
+  STATUS: DRAFT — Awaiting Kerem approval of [NEEDS KEREM APPROVAL] items
   AUTHOR: Pod B (Architecture, Logic & Risk)
   REVIEWER: Pod B (before merge)
   APPROVER: Kerem (product owner)
-  VERSION: 0.1-skeleton
-  LAST UPDATED: [DATE]
+  VERSION: 0.2
+  LAST UPDATED: 2026-05-28
   PATH: /docs/PROJECT_METHODOLOGY.md
 
   INSTRUCTIONS FOR POD A:
@@ -699,9 +699,7 @@ and request the missing items from Pod A before starting.
 | Kerem approval status — approved / not required (with reason) | ✅ |
 | Synthetic data examples where relevant | ✅ |
 
-[POD A: FILL — Add the issue template that enforces this checklist.
-The template should be placed at `.github/ISSUE_TEMPLATE/feature.md`
-and linked from this section.]
+Issue template: [`.github/ISSUE_TEMPLATE/feature.md`](../.github/ISSUE_TEMPLATE/feature.md)
 
 ---
 
@@ -724,9 +722,7 @@ Pod C must not merge a PR that does not meet this standard.
 | No real personal data used in tests or examples | ✅ |
 | PR description explains what changed and why | ✅ |
 
-[POD A: FILL — Add the PR template that enforces this checklist.
-The template should be placed at `.github/PULL_REQUEST_TEMPLATE.md`
-and linked from this section.]
+PR template: [`.github/PULL_REQUEST_TEMPLATE.md`](../.github/PULL_REQUEST_TEMPLATE.md)
 
 ---
 
@@ -1049,16 +1045,25 @@ The following rules are mandatory:
 
 | Version | Date | Author | Summary of Changes |
 |---|---|---|---|
-| 0.1-skeleton | [DATE] | Pod B | Initial skeleton produced. Awaiting Pod A prose completion. |
+| 0.1 | 2026-05-28 | Pod B | Initial skeleton produced |
+| 0.2 | 2026-05-28 | Pod A | All sections completed. Pod B review passed. Awaiting Kerem approval. |
 
 ---
 
 <!-- END OF DOCUMENT -->
-<!-- 
+<!--
   NEXT STEPS:
   1. Pod A: Fill all [POD A: FILL] sections with complete prose.
   2. Pod B: Review completed draft for architectural accuracy and completeness.
   3. Kerem: Approve all [NEEDS KEREM APPROVAL] items.
   4. Pod C: Commit approved version to /docs/PROJECT_METHODOLOGY.md via PR.
   5. All pods: Load this document at the start of every new session.
+
+  POD C COMMIT CHECKLIST:
+  [x] Fill [DATE] placeholders in Section 28.3 revision log with actual commit dates
+  [x] Extract Section 14 issue template to .github/ISSUE_TEMPLATE/feature.md
+  [x] Extract Section 15 PR template to .github/PULL_REQUEST_TEMPLATE.md
+  [ ] Open PR — do not self-merge
+  [ ] Tag Kerem for approval of all [NEEDS KEREM APPROVAL] items
+  [ ] Tag Pod B as required reviewer before merge
 -->
