@@ -1049,7 +1049,7 @@ The following rules are mandatory:
 
 | Version | Date | Author | Summary of Changes |
 |---|---|---|---|
-| 0.1-skeleton | [DATE] | Pod B | Initial skeleton produced. Awaiting Pod A prose completion. |
+| 0.1-skeleton | 2026-06-01 | Pod B | Initial skeleton produced. Awaiting Pod A prose completion. |
 
 ---
 
