@@ -1,6 +1,6 @@
 # Pod Traffic Workflow
 
-Version: 1.0  
+Version: 1.1  
 Project: Adeks Platform  
 Owner: Kerem  
 Status: Approved; ready to commit  
@@ -282,6 +282,7 @@ Recommended section:
 | Requires Pod B review | Yes / No |
 | Requires Pod C implementation | Yes / No |
 | Requires Pod D audit/prototype review | Yes / No |
+| Repo context checked (freshness) | Yes / No / N/A |
 | Ready to commit | Yes / No |
 ```
 
@@ -621,6 +622,7 @@ A document is ready to commit when all required conditions are met.
 | Locked principles are respected | Yes |
 | Synthetic data only | Yes |
 | Pod B review completed if document touches mandatory-review areas | Yes |
+| Freshness declaration present for §5.1 mandatory-review documents | Yes |
 | Kerem approval received | Yes |
 | Status updated | Yes |
 
@@ -637,6 +639,7 @@ A document is not ready to commit if:
 - It contains architecture decisions that Pod B has not reviewed
 - It assigns implementation work without acceptance criteria
 - It relies on chat context that is not captured in the document
+- It is tagged `Needs repo reconciliation` or `Blocked by missing repo context` under §16.4
 
 ---
 
@@ -799,7 +802,146 @@ Pod A defines flow
 
 ---
 
-## 16. Approved Governance Decisions
+## 16. Agent Session Sync Protocol
+
+Agents do not have reliable dynamic shared memory. Every pod session must reconstruct current project state from GitHub before producing durable output.
+
+This section defines the minimum sync protocol for starting and ending agent sessions.
+
+A **substantial session/output** means any pod work that produces or materially changes a document, ADR, GitHub issue draft, PR description, PR review comment, implementation handoff, decision note, or other project artifact intended to guide future work.
+
+---
+
+### 16.1 Start-of-Session Sync
+
+Before starting meaningful work, each pod must inspect the latest available project context.
+
+| Source | Required? | Purpose |
+|---|---:|---|
+| `/docs/POD_TRAFFIC_WORKFLOW.md` | Yes | Workflow, routing, approval rules |
+| Relevant `/docs/*.md` files | Yes | Current product, planning, architecture, and process state |
+| Relevant ADRs | When applicable | Durable architecture and technical decisions |
+| Relevant GitHub issues | When applicable | Work scope, implementation units, and acceptance criteria |
+| Relevant PRs | When applicable | Current implementation and review state |
+| Latest Kerem instruction | Yes | Current human direction |
+
+If an agent cannot access GitHub directly, Kerem should paste the relevant file excerpts or provide a handoff/context packet.
+
+---
+
+### 16.2 Freshness Declaration
+
+Every substantial pod output should include a short freshness note.
+
+For documents or outputs that define, alter, or materially affect any §5.1 mandatory-review area, the freshness declaration **must** be present.
+
+The freshness note should live inside the output document, GitHub issue draft, PR description, or PR review comment. It should not be created as a separate file unless Kerem explicitly asks for a separate reconciliation artifact.
+
+Recommended format:
+
+```markdown
+## Context Freshness
+
+| Item | Status |
+|---|---|
+| Repo context checked | Yes / No |
+| Relevant docs checked | List paths |
+| Relevant ADRs checked | List paths / Not applicable |
+| Relevant issues checked | List issue numbers / Not applicable |
+| Relevant PRs checked | List PR numbers / Not applicable |
+| Known stale areas | None / List |
+```
+
+The freshness declaration does not make an output automatically approved. It only states what context the pod checked before producing the output.
+
+---
+
+### 16.3 Stale Context Rule
+
+An agent output should be treated as stale if it was produced without checking the relevant committed docs, ADRs, issues, or PRs.
+
+Stale output may still be useful as a draft, but it should not be treated as authoritative until reconciled with GitHub.
+
+---
+
+### 16.4 Sync Failure Handling
+
+If a pod cannot verify the latest GitHub state, it must clearly mark its output with one of the following statuses.
+
+| Status | Meaning |
+|---|---|
+| Draft from provided context | Based only on pasted, uploaded, or otherwise provided context |
+| Needs repo reconciliation | Must be checked against GitHub before commit, implementation, or approval |
+| Blocked by missing repo context | Cannot safely proceed without current repo state |
+
+Outputs tagged `Needs repo reconciliation` or `Blocked by missing repo context` are not ready to commit under §11.2.
+
+---
+
+### 16.5 End-of-Session Output Rule
+
+At the end of a substantial session, the pod should produce one of the following durable outputs:
+
+- Commit-ready markdown
+- GitHub issue draft
+- ADR draft
+- PR review comment
+- Handoff packet
+- Open question for Kerem
+- Reconciliation note explaining what changed
+
+Important decisions must not remain only in chat.
+
+---
+
+### 16.6 No Hidden Source-of-Truth Rule
+
+This section does not create a separate source-of-truth rule. It applies the control-plane principle in §2 and the source-of-truth rules in §12.1 to individual agent sessions.
+
+Agent memory, chat history, local reasoning, and uncommitted drafts are not durable project state.
+
+If a decision, requirement, rule, or approval matters, it must be captured in one of the repository-backed control-plane artifacts described in §2 and §12.1.
+
+---
+
+### 16.7 Minimum Handoff Requirement
+
+When transferring work from one pod to another, the sending pod must provide enough context for the receiving pod to continue without relying on hidden chat history.
+
+Field definitions are governed by §7.1 and §8. This subsection defines only the minimum gate for handoff completeness.
+
+Minimum handoff content:
+
+| Item | Required? |
+|---|---:|
+| Source documents or links | Yes |
+| Current task objective | Yes |
+| Scope | Yes |
+| Non-goals | Yes |
+| Assumptions | Yes, if any |
+| Open questions | Yes, if any |
+| Required review path | Yes |
+| Expected output | Yes |
+
+The existing handoff packet format in §8 should be used for larger or higher-risk transfers.
+
+---
+
+### 16.8 Practical Rule
+
+Before acting, each pod should ask:
+
+> “What is the latest committed source of truth for this topic?”
+
+After acting, each pod should ask:
+
+> “Where will this output live in GitHub?”
+
+If the answer to the second question is unclear, the output should be treated as temporary and non-authoritative.
+
+---
+
+## 17. Approved Governance Decisions
 
 The following governance decisions are approved by Kerem.
 
@@ -809,10 +951,11 @@ The following governance decisions are approved by Kerem.
 | PQ-002 | Should Pod D perform periodic full-project consistency audits? | Yes. Minimum audits should occur before Phase 1 go-live, before Phase 2 begins, and before Phase 3 tenant architecture is implemented. |
 | PQ-003 | Should the repo include `/docs/templates/`? | Yes. The repo should include `/docs/templates/` to reduce handoff and review format drift. |
 | PQ-004 | Should PR approval rules differ between documentation-only PRs and code PRs? | Yes. Code PRs always require Kerem approval. Documentation-only PRs may use lighter review but must not merge without Kerem visibility. The final PR approval rule should be captured in an ADR. |
+| PQ-005 | Should every agent session sync to GitHub and declare freshness before producing durable output? | Every substantial pod session must reconstruct current project state from GitHub before producing durable output. Freshness declarations are required for documents and outputs touching §5.1 mandatory-review areas. Outputs tagged `Needs repo reconciliation` or `Blocked by missing repo context` are not ready to commit until reconciled. |
 
 ---
 
-## 17. Document Status
+## 18. Document Status
 
 | Item | Status |
 |---|---|
@@ -824,7 +967,7 @@ The following governance decisions are approved by Kerem.
 
 ---
 
-## 18. Summary
+## 19. Summary
 
 The Adeks Platform workflow depends on a clear separation of responsibilities:
 
