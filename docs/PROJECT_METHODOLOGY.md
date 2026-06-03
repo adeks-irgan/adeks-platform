@@ -5,15 +5,15 @@
   AUTHOR: Pod B (Architecture, Logic & Risk)
   REVIEWER: Pod B (before merge)
   APPROVER: Kerem (product owner)
-  VERSION: 0.2
-  LAST UPDATED: [DATE — Pod C to fill at commit]
+  VERSION: 0.3
+  LAST UPDATED: 2026-06-03
   PATH: /docs/PROJECT_METHODOLOGY.md
 
-  POD A: Completed v0.2. All sections filled. Pod B review: APPROVED.
+  POD A: Completed v0.3 draft. Added §16.1 Automatic Handoff Prompt Rule. Pod B review: APPROVED.
   POD C COMMIT INSTRUCTIONS:
   1. Fill [DATE — Pod C to fill at commit] in Section 28.3 with today's date (YYYY-MM-DD).
   2. Commit this file exactly as provided — no rewrites or simplifications.
-  3. Verify STATUS = "DRAFT" and VERSION = "0.2" in this header before committing.
+  3. Verify STATUS = "DRAFT" and VERSION = "0.3" in this header before committing.
   4. Use the separately provided corrected feature.md for .github/ISSUE_TEMPLATE/feature.md.
   5. Use the separately provided corrected PULL_REQUEST_TEMPLATE.md for .github/PULL_REQUEST_TEMPLATE.md.
   6. Do not merge to main. Open PR and tag Kerem for approval.
@@ -54,6 +54,7 @@ dated revision entry at the bottom of this file.
 14. [Definition of Ready](#14-definition-of-ready)
 15. [Definition of Done](#15-definition-of-done)
 16. [Inter-Pod Handoff Protocol](#16-inter-pod-handoff-protocol)
+    - [16.1 Automatic Handoff Prompt Rule](#161-automatic-handoff-prompt-rule)
 17. [Escalation and Conflict Resolution](#17-escalation-and-conflict-resolution)
 18. [Feature Discovery Pipeline](#18-feature-discovery-pipeline)
 19. [ADR Policy](#19-adr-policy)
@@ -1665,6 +1666,37 @@ Handoff package minimum fields:
 
 A handoff is accepted only when the receiving pod can act without relying on unstated context.
 
+### 16.1 Automatic Handoff Prompt Rule
+
+At the end of any AI pod session that produces outputs requiring action
+from another pod, the producing pod must automatically generate a
+ready-to-send handoff prompt for each receiving pod, without waiting to
+be asked.
+
+Each generated prompt must:
+- Be copy-paste ready into the receiving pod's tool, with no editing required
+- Follow the handoff package minimum fields defined in Section 16
+- Name the exact input files to attach (repository paths)
+- State the exact task and the expected output artifact
+- Reference the constraints and locked principles relevant to the task as
+  they exist in the current /docs — reference them, do not restate a
+  private copy that can drift
+- Specify the reviewer and approver per the Section 16 transition table
+  and the Section 28.1 ownership table; do not invent a reviewer
+
+This rule applies whenever a session produces an artifact another pod must
+act on, including: reviewed documents, ADRs, decision records, schemas,
+API contracts, state machines, audit reports, monitoring specs, and
+prototype/spike specifications.
+
+If a required handoff prompt was already produced earlier in the same
+session and nothing changed after it, the pod reuses it verbatim rather
+than regenerating it.
+
+Handoffs to Kerem follow the "Any pod → Kerem" row of the Section 16
+table: a written decision request with options, recommendation, impact,
+and the default if no action is taken — not a tool prompt.
+
 ---
 
 ## 17. Escalation and Conflict Resolution
@@ -2256,25 +2288,22 @@ The following rules are mandatory:
 | ------------ | ------ | ------ | ----------------------------------------------------------- |
 | 0.1 | [DATE] | Pod B | Initial skeleton produced |
 | 0.2 | 2026-06-02 | Pod A | All sections completed. Pod B review passed. Awaiting Kerem approval. |
+| 0.3 | 2026-06-03 | Pod A | Added §16.1 Automatic Handoff Prompt Rule (unified, all pods). Pod B drafted, Pod B reviewed. |
 
 ---
 
 <!-- END OF DOCUMENT -->
 
 <!--
-  STATUS: Pod A complete. Pod B approved. Awaiting Pod C commit + Kerem approval.
+  STATUS: Pod A complete. Awaiting Pod B review, Pod C PR, and Kerem approval.
 
   POD C COMMIT CHECKLIST — complete every item before opening PR:
   [ ] git fetch --prune && git checkout main && git pull origin main
-  [ ] git checkout -b docs/kerem-decisions-v2
-  [ ] Fill [DATE — Pod C to fill at commit] in Section 28.3 v0.2 row with today's date
+  [ ] git checkout -b docs/project-methodology-v0.3-handoff-rule
+  [ ] Fill [DATE] in Section 28.3 v0.3 row with today's date (YYYY-MM-DD)
   [ ] Confirm header STATUS = "DRAFT — Awaiting Kerem approval of [NEEDS KEREM APPROVAL] items"
-  [ ] Confirm header VERSION = "0.2"
+  [ ] Confirm header VERSION = "0.3"
   [ ] Commit /docs/PROJECT_METHODOLOGY.md — this file, no content changes
-  [ ] Commit /docs/KEREM_DECISIONS.md — provided separately, no changes
-  [ ] Create .github/ISSUE_TEMPLATE/feature.md — from corrected file, NOT Section 14 template
-  [ ] Create .github/PULL_REQUEST_TEMPLATE.md — from corrected file, NOT Section 15 template
-  [ ] Confirm all 4 files exist on branch before opening PR
   [ ] Open PR — do NOT self-merge
   [ ] Tag Kerem for final approval
 -->
