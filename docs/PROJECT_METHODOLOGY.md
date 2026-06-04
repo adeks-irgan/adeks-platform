@@ -5,8 +5,8 @@
   AUTHOR: Pod B (Architecture, Logic & Risk)
   REVIEWER: Pod B (before merge)
   APPROVER: Kerem (product owner)
-  VERSION: 0.3
-  LAST UPDATED: 2026-06-03
+  VERSION: 0.4
+  LAST UPDATED: 2026-06-04
   PATH: /docs/PROJECT_METHODOLOGY.md
 
   POD A: Completed v0.3 draft. Added §16.1 Automatic Handoff Prompt Rule. Pod B review: APPROVED.
@@ -95,6 +95,18 @@ If a chat session says one thing and a committed repository document says anothe
 If two pods disagree, the disagreement must be written down in the appropriate GitHub issue, PR comment, ADR discussion, or document review note. Pod B may recommend a resolution for technical, architectural, security, or KVKK matters. Pod A may recommend a resolution for product, scope, user, or business-rule matters. Kerem makes the final decision whenever the disagreement affects product direction, operational policy, customer experience, financial logic, legal exposure, or scope.
 
 No AI session output is binding by itself because AI sessions are temporary, incomplete records. They may miss prior context, be superseded by repository changes, or contain unreviewed assumptions. The repository prevents drift by making decisions durable, reviewable, and auditable.
+
+### 1.2 Repository-Controlled Pod Context Principles
+
+The project adopts the Repository-Controlled Pod Context model (ADR-013). The following structural rules govern how pods load and handle context:
+
+| Principle | Rule |
+|---|---|
+| One canonical methodology source | `/docs/PROJECT_METHODOLOGY.md` is the sole canonical source for methodology, lifecycle, review gates, approval gates, handoff, escalation, ADR policy, security/KVKK process, and AI session continuity. No other file may establish parallel methodology rules. |
+| Context routing is separate from methodology | `/docs/AGENT_CONTEXT_MANIFEST.md` (to be added in PR-3) tells each pod what files to load for a given task type. It routes context; it does not define governance. |
+| Decision state is indexed, not established, in the decision index | `/docs/PROJECT_DECISION_INDEX.md` mirrors ADRs, methodology, and Kerem decisions. It does not establish decisions. If the index conflicts with an ADR, the ADR wins. |
+| Pod instruction snapshots are reference-only | Files under `/docs/pod-instructions/` and `/CLAUDE.md` are canonical copies of platform instructions. They must not embed volatile live state such as full locked-decision tables, open-question lists, or current sprint status. |
+| Behaviour-changing PRs require a Pod Impact Matrix | Any PR that changes pod behaviour, responsibilities, review or approval gates, context-loading rules, output format, methodology, templates, or external platform instructions must include a Pod Impact Matrix and Instruction Update Packet. |
 
 ---
 
@@ -2256,6 +2268,15 @@ The following rules are mandatory:
    pod proposing architecture, or a planning pod approving security decisions)
    is operating outside its role. Kerem is the check on this.
 
+6. **Git commands must be explicit.** Whenever any pod asks Kerem to branch,
+   commit, open a PR, merge, remove, move, archive, restore, tag, fetch, or
+   pull, the pod must provide exact git or GitHub CLI commands. Commands must
+   be scoped, safe, and review-aware. A pod must not tell Kerem to merge until
+   all required review, CI, and approval gates are complete. If an exact
+   command cannot be confirmed, the pod must say so explicitly rather than
+   omitting the step. This rule applies to all pods (Pod A, Pod B, Pod C,
+   Pod D) whenever they direct repository actions.
+
 ---
 
 ## 28. Document Governance and Revision History
@@ -2289,6 +2310,22 @@ The following rules are mandatory:
 | 0.1 | [DATE] | Pod B | Initial skeleton produced |
 | 0.2 | 2026-06-02 | Pod A | All sections completed. Pod B review passed. Awaiting Kerem approval. |
 | 0.3 | 2026-06-03 | Pod A | Added §16.1 Automatic Handoff Prompt Rule (unified, all pods). Pod B drafted, Pod B reviewed. |
+| 0.4 | 2026-06-04 | Pod A / Pod C | Added §1.2 Repository-Controlled Pod Context Principles and §27 rule 6 git-command requirement. Records Kerem-approved MD-2…MD-6 in §28.4. Commits ADR-013, proposal v0.2, and implementation plan v0.1. Pod B reviewed. |
+
+### 28.4 Kerem Decisions — Repository-Controlled Pod Context
+
+**Decision date:** 2026-06-04
+**Decision source:** Kerem chat approval to Pod A
+**Scope:** Repository-Controlled Pod Context methodology consolidation
+**Canonical record:** This section; mirrored in `/docs/PROJECT_DECISION_INDEX.md` §4
+
+| ID | Decision | Kerem Decision |
+|---|---|---|
+| MD-2 | Approve methodology-consolidation direction | Approved |
+| MD-3 | Record consolidation as both ADR-013 and methodology §28 revision | Approved |
+| MD-4 | Approve `PROJECT_DECISION_INDEX.md` ownership as Pod B sole owner, with Pod A reviewer on product/business-impacting rows | Approved |
+| MD-5 | Approve `/docs/POD_TRAFFIC_WORKFLOW.md` permanent stub plus full archive at `/docs/archive/POD_TRAFFIC_WORKFLOW_v1.1.md` | Approved |
+| MD-6 | Approve conditional Pod Impact Matrix: one universal PR gate question, full matrix + Instruction Update Packet only when yes | Approved |
 
 ---
 
