@@ -5,11 +5,11 @@
   AUTHOR: Pod A
   REVIEWER: Pod B (before merge)
   APPROVER: Kerem (product owner)
-  VERSION: 0.4
-  LAST UPDATED: 2026-06-04
+  VERSION: 0.5
+  LAST UPDATED: 2026-06-05
   PATH: /docs/PROJECT_METHODOLOGY.md
 
-  POD A: Completed v0.3 draft. Added §16.1 Automatic Handoff Prompt Rule. Pod B review: APPROVED.
+  POD A: Completed v0.5 draft. RCPC bundle migrated PQ-002 mandatory Pod D audit cadence and workflow archive/stub references. Pod B review required.
 -->
 
 ---
@@ -251,6 +251,16 @@ A Pod D audit report should be structured as:
 ```
 
 Audit findings are not automatically scope changes or architecture decisions. Each finding must be routed. Product findings go to Pod A and Kerem. Architecture or security findings go to Pod B. Implementation defects go to Pod C. Monitoring gaps go to Pod D and Pod B. Kerem decides whether major findings change scope, launch timing, or operational policy.
+
+**Mandatory audit cadence — PQ-002 (Kerem-approved).** Pod D MUST run a full-project consistency audit at the following minimum gates:
+
+| Gate | Required Pod D audit |
+|---|---|
+| Before Phase 1 go-live | Full-project consistency audit covering product, methodology, UX, monitoring, release-readiness, and cross-document alignment. |
+| Before Phase 2 begins | Full-project consistency audit covering Phase 1 learnings, PC-client readiness, Selcafe transition implications, monitoring, and cross-document alignment. |
+| Before Phase 3 tenant architecture is implemented | Full-project consistency audit covering SaaS readiness, tenant-management assumptions, commercialization implications, monitoring, and cross-document alignment. |
+
+The audit report must return structured findings and routing. It does not replace Pod B architecture/security review, Pod C implementation review, or Kerem approval.
 
 ### 2.6 Kerem — Product Owner
 
@@ -925,6 +935,8 @@ For each transition, `/docs/PHASE_GATES.md` must define measurable criteria. At 
 | Phase 10 → Next Phase 1 | Metrics reviewed, learning documented, next iteration direction approved |
 
 Gate criteria require Kerem's explicit approval to pass. Pod B may block a gate for unresolved architecture, data, security, or KVKK risk. Pod C may block a gate if implementation readiness is insufficient. Pod D may flag UX, audit, or monitoring gaps, but Kerem decides whether those gaps block phase transition unless the gap is security/KVKK-related.
+
+Per PQ-002, the mandatory Pod D full-project consistency audit must be completed before Phase 1 go-live, before Phase 2 begins, and before Phase 3 tenant architecture is implemented.
 
 ---
 
@@ -2304,6 +2316,7 @@ The following rules are mandatory:
 | 0.2 | 2026-06-02 | Pod A | All sections completed. Pod B review passed. Awaiting Kerem approval. |
 | 0.3 | 2026-06-03 | Pod A | Added §16.1 Automatic Handoff Prompt Rule (unified, all pods). Pod B drafted, Pod B reviewed. |
 | 0.4 | 2026-06-04 | Pod A / Pod C | Added §1.2 Repository-Controlled Pod Context Principles and §27 rule 6 git-command requirement. Records Kerem-approved MD-2…MD-6 in §28.4. Commits ADR-013, proposal v0.2, and implementation plan v0.1. Pod B reviewed. |
+| 0.5 | 2026-06-05 | Pod A | RCPC bundle: migrated PQ-002 Pod D audit cadence; workflow file archived/stubbed. |
 
 ### 28.4 Kerem Decisions — Repository-Controlled Pod Context
 
