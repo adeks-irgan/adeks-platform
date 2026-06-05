@@ -1,7 +1,7 @@
 # ADR-009: Pull Request Approval Policy
 
 <!--
-  STATUS: Proposed
+  STATUS: Accepted
   AUTHOR: Pod B — Architecture, Logic & Risk
   REVIEWER: Pod B (self) + Pod A (required, per Kerem 2026-06-04)
   APPROVER: Kerem
@@ -21,12 +21,11 @@
 
 ## Status
 
-Proposed — 2026-06-05.
+Accepted — 2026-06-05 (Kerem approval; merged to `main` via PR #17).
 
-Note on prior approval: the core PR approval policy recorded here was already approved by Kerem as `POD_TRAFFIC_WORKFLOW.md` §14 and governance decision PQ-004. This ADR does not change that policy; it gives it a durable, canonical home because the workflow file is being deprecated as a methodology source by ADR-013. The only genuinely new element is the **conditional Pod Impact Matrix gate**, which derives from ADR-013 §7 (Accepted, 2026-06-05). This ADR therefore requires Kerem approval to move to `Accepted`, and must exist before PR-2 is committed.
+Note on prior approval: the core PR approval policy recorded here was already approved by Kerem as `POD_TRAFFIC_WORKFLOW.md` §14 and governance decision PQ-004. This ADR does not change that policy; it gives it a durable, canonical home because the workflow file is being deprecated as a methodology source by ADR-013. The only genuinely new element is the **conditional Pod Impact Matrix gate**, which derives from ADR-013 §7 (Accepted, 2026-06-05). This ADR required Kerem approval to move to `Accepted` (recorded 2026-06-05), and must exist before PR-2 is committed.
 
 Pod B review: Approved (self-review, process / governance ADR).
-Pod A review: Approved on re-check (2026-06-05), with the required Implementation-row wording fix applied — pending Kerem approval.
 
 ---
 
@@ -174,4 +173,4 @@ Each ADR-013 implementation PR requires the reviews and approvals specified by t
 - **Reviewer:** Pod B (self-review, process / governance ADR) + Pod A (required, per Kerem decision 2026-06-04)
 - **Approver:** Kerem
 - **Date proposed:** 2026-06-05
-- **Date approved:** _pending_
+- **Date approved:** 2026-06-05
