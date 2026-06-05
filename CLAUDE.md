@@ -119,46 +119,25 @@ If unsure whether an issue touches one of these areas, assume Pod B review is re
 
 ---
 
-## 7. Locked Technical Decisions
+## 7. Technical Decisions — Canonical Source
 
-These are locked unless Kerem and Pod B approve a formal change:
+This file does not list locked technical decisions. Current decision state lives in:
 
-| Area | Decision |
-|---|---|
-| Language | TypeScript throughout |
-| Backend | NestJS |
-| Frontend | Next.js |
-| Architecture | Modular monolith |
-| Customer app | PWA first |
-| Database family | PostgreSQL |
-| Phase 2 PC client candidate | Electron + TypeScript |
-| Local gateway candidate | TypeScript/Node.js inside Adeks local network |
-| Integration pattern | CafeManagementAdapter |
-| Current legacy adapter | SelcafeAdapter |
-| Future native engine | AdeksNativeCafeEngine |
+- `/docs/PROJECT_DECISION_INDEX.md` §1 — Locked technical decisions (ADRs win on conflict)
+- `/docs/AGENT_CONTEXT_MANIFEST.md` — which files to load before a decision-touching task
 
-Do not split the platform into microservices.
+Two standing architectural guardrails that change only via an ADR + Kerem approval:
 
-Do not treat Selcafe as the core domain model.
+- Do not split the platform into microservices (modular monolith).
+- Do not treat Selcafe as the core domain model.
 
 ---
 
-## 8. Not Yet Decided
+## 8. Not-Yet-Decided Items
 
-Do not assume final decisions for:
+This file does not list candidate or deferred decisions. See `/docs/PROJECT_DECISION_INDEX.md` §2 for current not-locked / deferred state (e.g. ORM, tenancy strategy, caching layer, queue system, real-time transport, payment provider, SMS/email/push provider, hosting/deployment model).
 
-- ORM
-- Tenancy strategy
-- Caching layer
-- Queue system
-- Real-time transport
-- Payment provider
-- SMS/email/push provider
-- Hosting and deployment model
-
-Prisma may be considered, but it is not locked.
-
-If implementation requires one of these decisions, stop and flag it for Kerem and Pod B.
+If implementation requires one of these decisions, stop and flag it for Kerem and Pod B. Do not assume a default.
 
 ---
 
