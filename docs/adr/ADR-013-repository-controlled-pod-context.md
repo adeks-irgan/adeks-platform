@@ -1,7 +1,7 @@
 # ADR-013: Repository-Controlled Pod Context
 
 <!--
-  STATUS: Proposed
+  STATUS: Accepted
   AUTHOR: Pod B — Architecture, Logic & Risk
   REVIEWER: Pod B (self) + Pod A (required, per Kerem 2026-06-04)
   APPROVER: Kerem
@@ -22,7 +22,7 @@
 
 ## Status
 
-Proposed — awaiting Kerem approval.
+Accepted — 2026-06-05.
 Pod B review: Approved (self-review, methodology / process ADR).
 Pod A review: Approved-with-comments (2026-06-04); comment addressed in this revision.
 
@@ -205,4 +205,4 @@ The companion ADR for PR approval policy is **ADR-009**, which must exist before
 - **Reviewer:** Pod B (self-review, methodology / process ADR) + Pod A (required, per Kerem decision 2026-06-04)
 - **Approver:** Kerem
 - **Date proposed:** 2026-06-04
-- **Date approved:** _pending Kerem approval_
+- **Date approved:** 2026-06-05
