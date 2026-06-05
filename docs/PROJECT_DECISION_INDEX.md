@@ -70,7 +70,7 @@
 | ADR-006 | Wallet append-only ledger | High | Backlog — principle locked, ADR to write |
 | ADR-007 | Loyalty append-only ledger | High | Backlog — principle locked, ADR to write |
 | ADR-008 | Schema-per-tenant tenancy strategy | (was High) | **Deferred by Kerem 2026-06-04** — not to be drafted until Kerem revisits |
-| ADR-009 | PR approval policy | High | **Accepted** — 2026-06-05 (Kerem approval); merged to `main` (PR #17). Canonical home: `/docs/adr/ADR-009-pr-approval-policy.md`. Absorbs `POD_TRAFFIC_WORKFLOW.md` §14 + the conditional PR Pod Impact Matrix gate (MD-6). **Enforcement pending:** PR-template §3 trigger strictness + §4 conditional gate land in ADR-013 PR-4. |
+| ADR-009 | PR approval policy | High | **Accepted** — 2026-06-05 (Kerem approval); merged to `main` (PR #17). Canonical home: `/docs/adr/ADR-009-pr-approval-policy.md`. Absorbs `POD_TRAFFIC_WORKFLOW.md` §14 + the conditional PR Pod Impact Matrix gate (MD-6). **Enforcement live:** PR-template §3 triggers + §4 behavior-change gate reconciled in PR-4. |
 | ADR-010 | Real-time transport selection | Phase 2 | Backlog (Phase 2) |
 | ADR-011 | Payment provider | Phase 2 | Backlog (Phase 2) |
 | ADR-012 | Feature flag tool selection | Before Phase 1 go-live | Backlog — **assigned to Pod B** (K-04) |

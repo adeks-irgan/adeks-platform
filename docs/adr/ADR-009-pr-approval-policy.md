@@ -158,8 +158,8 @@ Kerem is the sole final approver for any merge. Pod B is the architecture, logic
 | Step | Where | PR |
 |---|---|---|
 | This ADR lands in `/docs/adr/` | `/docs/adr/ADR-009-pr-approval-policy.md` | **PR-2** (companion to ADR-013; ADR-009 must exist before PR-2 is committed) |
-| Risk-category review triggers (§3) | `.github/PULL_REQUEST_TEMPLATE.md` → "Review Triggers" | Partially present; PR-4 must reconcile Selcafe, database/schema migration, and security-sensitive trigger strictness with ADR-009 |
-| Conditional Pod Impact Matrix gate (§4) | `.github/PULL_REQUEST_TEMPLATE.md` → universal yes/no question + matrix + update-packet block | **PR-4** |
+| Risk-category review triggers (§3) | `.github/PULL_REQUEST_TEMPLATE.md` → "Review Triggers" | Reconciled in PR-4 — template §3 triggers now match ADR-009 §3 (Selcafe + DB/schema migration → Pod B + Kerem; security-sensitive row added). |
+| Conditional Pod Impact Matrix gate (§4) | `.github/PULL_REQUEST_TEMPLATE.md` → universal yes/no question + matrix + update-packet block | Added in PR-4. |
 | Decision index row update | `/docs/PROJECT_DECISION_INDEX.md` — ADR-009 row → `Proposed (PR #17 open)` now; → `Accepted` on Kerem approval | This PR (Proposed) + approving PR (Accepted) |
 | Branch protection on `main` | GitHub repo settings (no direct pushes; PR required) | Recommended; aligns with §1 |
 
