@@ -26,7 +26,7 @@ Proposed — 2026-06-05.
 Note on prior approval: the core PR approval policy recorded here was already approved by Kerem as `POD_TRAFFIC_WORKFLOW.md` §14 and governance decision PQ-004. This ADR does not change that policy; it gives it a durable, canonical home because the workflow file is being deprecated as a methodology source by ADR-013. The only genuinely new element is the **conditional Pod Impact Matrix gate**, which derives from ADR-013 §7 (Accepted, 2026-06-05). This ADR therefore requires Kerem approval to move to `Accepted`, and must exist before PR-2 is committed.
 
 Pod B review: Approved (self-review, process / governance ADR).
-Pod A review: Needs-revision (2026-06-05); revisions PA-1, PA-2, PA-3 addressed in this revision — pending Pod A re-check.
+Pod A review: Approved on re-check (2026-06-05), with the required Implementation-row wording fix applied — pending Kerem approval.
 
 ---
 
@@ -159,7 +159,7 @@ Kerem is the sole final approver for any merge. Pod B is the architecture, logic
 | Step | Where | PR |
 |---|---|---|
 | This ADR lands in `/docs/adr/` | `/docs/adr/ADR-009-pr-approval-policy.md` | **PR-2** (companion to ADR-013; ADR-009 must exist before PR-2 is committed) |
-| Risk-category review triggers (§3) | `.github/PULL_REQUEST_TEMPLATE.md` → "Review Triggers" | Already present (live) |
+| Risk-category review triggers (§3) | `.github/PULL_REQUEST_TEMPLATE.md` → "Review Triggers" | Partially present; PR-4 must reconcile Selcafe, database/schema migration, and security-sensitive trigger strictness with ADR-009 |
 | Conditional Pod Impact Matrix gate (§4) | `.github/PULL_REQUEST_TEMPLATE.md` → universal yes/no question + matrix + update-packet block | **PR-4** |
 | Decision index row update | `/docs/PROJECT_DECISION_INDEX.md` — ADR-009 row → `Proposed (PR #17 open)` now; → `Accepted` on Kerem approval | This PR (Proposed) + approving PR (Accepted) |
 | Branch protection on `main` | GitHub repo settings (no direct pushes; PR required) | Recommended; aligns with §1 |
