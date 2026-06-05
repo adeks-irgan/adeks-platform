@@ -30,14 +30,16 @@ Before implementation, check the relevant committed project documents.
 
 Core documents:
 
-- `/docs/POD_TRAFFIC_WORKFLOW.md`
+- `/docs/PROJECT_METHODOLOGY.md` — canonical methodology, lifecycle, review/approval gates, handoff, escalation, ADR policy, security/KVKK process, session continuity
+- `/docs/AGENT_CONTEXT_MANIFEST.md` — which files to load for a given task type
+- `/docs/PROJECT_DECISION_INDEX.md` — current decision state (locked / deferred / not locked); ADRs win on conflict
 - `/docs/PROJECT_BRIEF.md`
+- Relevant ADRs under `/docs/adr/`
 - Relevant files under `/docs/`
-- Relevant ADRs under `/adr/` or `/docs/adr/` if present
+
+`/docs/POD_TRAFFIC_WORKFLOW.md` is **deprecated** (ADR-013) and is now a pointer stub only — do not treat it as a methodology source. Its rules live in `PROJECT_METHODOLOGY.md`; the full historical version is at `/docs/archive/POD_TRAFFIC_WORKFLOW_v1.1.md`.
 
 If a GitHub issue contradicts a committed document, stop and flag the contradiction to Kerem.
-
-Do not resolve contradictions yourself.
 
 ---
 
