@@ -3,7 +3,7 @@
 <!--
   STATUS: Proposed
   AUTHOR: Pod B — Architecture, Logic & Risk
-  REVIEWER: Pod B (self, methodology-process ADR)
+  REVIEWER: Pod B (self) + Pod A (required, per Kerem 2026-06-04)
   APPROVER: Kerem
   DATE: 2026-06-04
   CANONICAL REPO PATH: /docs/adr/ADR-013-repository-controlled-pod-context.md
@@ -22,9 +22,8 @@
 
 ## Status
 
-**Proposed** — awaiting Kerem approval.
-
-Pod B review: **Approved** (Pod B is author and reviewer; Kerem is approver per the methodology's ADR authorship table — methodology / process-decision ADR type).
+Proposed — awaiting Pod A review and Kerem approval.
+Pod A review: Required — pending (per Kerem decision 2026-06-04).
 
 ---
 
@@ -201,7 +200,7 @@ The companion ADR for PR approval policy is **ADR-009**, which must exist before
 ## Approval
 
 - **Author:** Pod B — Architecture, Logic & Risk
-- **Reviewer:** Pod B (process / methodology ADR; Pod A review optional)
+- **Reviewer:** Pod B (self-review, methodology / process ADR) + Pod A (required, per Kerem decision 2026-06-04)
 - **Approver:** Kerem
 - **Date proposed:** 2026-06-04
 - **Date approved:** _pending Kerem approval_
