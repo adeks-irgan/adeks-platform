@@ -1,5 +1,7 @@
 # Adeks Platform — Repository-Controlled Pod Context Implementation Plan
 
+> Committed 2026-06-04 (PR-1) as the implementation-of-record for PR-1…PR-5. Pod B review is complete. The "Ready to commit: No" status in §13 reflects the pre-review drafting state and is retained for history.
+
 **Version:** v0.1  
 **Date:** 2026-06-04  
 **Author:** Pod A — Product & Planning  

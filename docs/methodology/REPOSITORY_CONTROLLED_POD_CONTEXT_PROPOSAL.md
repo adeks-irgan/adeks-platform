@@ -1,5 +1,7 @@
 # Adeks Platform — Repository-Controlled Pod Context Proposal
 
+> Committed 2026-06-04 (PR-1) as a historical decision packet. MD-2…MD-6 were approved by Kerem on 2026-06-04. Operative methodology is ADR-013 + PROJECT_METHODOLOGY.md §1.2 and §27. The status fields below reflect the pre-approval drafting state and are retained for history.
+
 **Version:** v0.2  
 **Date:** 2026-06-04  
 **Author:** Pod A — Product & Planning  

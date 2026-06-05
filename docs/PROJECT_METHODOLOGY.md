@@ -2,7 +2,7 @@
 
 <!-- 
   STATUS: DRAFT — Awaiting Kerem approval of [NEEDS KEREM APPROVAL] items
-  AUTHOR: Pod B (Architecture, Logic & Risk)
+  AUTHOR: Pod A
   REVIEWER: Pod B (before merge)
   APPROVER: Kerem (product owner)
   VERSION: 0.4
@@ -10,13 +10,6 @@
   PATH: /docs/PROJECT_METHODOLOGY.md
 
   POD A: Completed v0.3 draft. Added §16.1 Automatic Handoff Prompt Rule. Pod B review: APPROVED.
-  POD C COMMIT INSTRUCTIONS:
-  1. Fill [DATE — Pod C to fill at commit] in Section 28.3 with today's date (YYYY-MM-DD).
-  2. Commit this file exactly as provided — no rewrites or simplifications.
-  3. Verify STATUS = "DRAFT" and VERSION = "0.3" in this header before committing.
-  4. Use the separately provided corrected feature.md for .github/ISSUE_TEMPLATE/feature.md.
-  5. Use the separately provided corrected PULL_REQUEST_TEMPLATE.md for .github/PULL_REQUEST_TEMPLATE.md.
-  6. Do not merge to main. Open PR and tag Kerem for approval.
 -->
 
 ---
@@ -2307,7 +2300,7 @@ The following rules are mandatory:
 
 | Version      | Date   | Author | Summary of Changes                                          |
 | ------------ | ------ | ------ | ----------------------------------------------------------- |
-| 0.1 | [DATE] | Pod B | Initial skeleton produced |
+| 0.1 | unknown | Pod B | Initial skeleton produced |
 | 0.2 | 2026-06-02 | Pod A | All sections completed. Pod B review passed. Awaiting Kerem approval. |
 | 0.3 | 2026-06-03 | Pod A | Added §16.1 Automatic Handoff Prompt Rule (unified, all pods). Pod B drafted, Pod B reviewed. |
 | 0.4 | 2026-06-04 | Pod A / Pod C | Added §1.2 Repository-Controlled Pod Context Principles and §27 rule 6 git-command requirement. Records Kerem-approved MD-2…MD-6 in §28.4. Commits ADR-013, proposal v0.2, and implementation plan v0.1. Pod B reviewed. |
@@ -2330,17 +2323,3 @@ The following rules are mandatory:
 ---
 
 <!-- END OF DOCUMENT -->
-
-<!--
-  STATUS: Pod A complete. Awaiting Pod B review, Pod C PR, and Kerem approval.
-
-  POD C COMMIT CHECKLIST — complete every item before opening PR:
-  [ ] git fetch --prune && git checkout main && git pull origin main
-  [ ] git checkout -b docs/project-methodology-v0.3-handoff-rule
-  [ ] Fill [DATE] in Section 28.3 v0.3 row with today's date (YYYY-MM-DD)
-  [ ] Confirm header STATUS = "DRAFT — Awaiting Kerem approval of [NEEDS KEREM APPROVAL] items"
-  [ ] Confirm header VERSION = "0.3"
-  [ ] Commit /docs/PROJECT_METHODOLOGY.md — this file, no content changes
-  [ ] Open PR — do NOT self-merge
-  [ ] Tag Kerem for final approval
--->
