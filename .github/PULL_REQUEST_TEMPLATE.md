@@ -53,21 +53,43 @@ Closes #
 # pnpm build → success
 ```
 
-## Review Triggers
+## Review Triggers (ADR-009 §3)
 
-<!-- Check every category that applies to this PR. Unchecked = not applicable. -->
+<!-- Check every category that applies. Unchecked = not applicable. Authoritative source: ADR-009 §3. -->
 
-- [ ] **Wallet ledger logic** → Kerem + Pod B required before merge
-- [ ] **Loyalty ledger logic** → Kerem + Pod B required before merge
-- [ ] **Authentication or authorisation** → Pod B required before merge
+- [ ] **Wallet ledger logic** → Pod B + Kerem required before merge
+- [ ] **Loyalty ledger logic** → Pod B + Kerem required before merge
+- [ ] **Payment logic** → Pod B + Kerem required before merge
+- [ ] **Refund logic** → Pod B + Kerem required before merge
 - [ ] **Customer personal data handling** → Pod B + Kerem required before merge
-- [ ] **Selcafe adapter changes** → Pod B required before merge
+- [ ] **Security-sensitive PR** (incl. security-sensitive admin actions) → Pod B + Kerem required before merge
+- [ ] **Selcafe adapter or Selcafe integration changes** → Pod B + Kerem required before merge
+- [ ] **Database / schema migration** → Pod B + Kerem required before merge
+- [ ] **Authentication or authorisation** → Pod B required before merge
 - [ ] **Audit log schema or logic** → Pod B required before merge
-- [ ] **Database migration** → Pod B required before merge
-- [ ] **Payment logic** → Kerem + Pod B required before merge
 - [ ] **Admin privilege changes** → Kerem required before merge
-- [ ] **Refund logic** → Kerem + Pod B required before merge
 - [ ] **None of the above** → Standard review only
+
+## Process / Behavior-Change Gate (ADR-009 §4)
+
+**Does this PR change pod behavior, responsibilities, review/approval gates, context-loading rules, output format, locked/deferred decision state, methodology, templates, or external AI-platform instructions?**
+
+- [ ] No → skip the rest of this section.
+- [ ] Yes → complete the matrix and packet below before merge.
+
+### Pod Impact Matrix
+| Pod | Impacted? | Reason | Required Follow-Up |
+|---|---|---|---|
+| Pod A | Yes / No | | |
+| Pod B | Yes / No | | |
+| Pod C | Yes / No | | |
+| Pod D | Yes / No | | |
+
+### Instruction Update Packet
+- [ ] Completed using `/docs/templates/INSTRUCTION_UPDATE_PACKET.md` and included/linked.
+- [ ] `PROJECT_DECISION_INDEX.md` updated if decision state changed.
+- [ ] `AGENT_CONTEXT_MANIFEST.md` updated if required context changed.
+- [ ] Affected pod instruction snapshots updated; external platform re-paste noted if required.
 
 ## Documentation
 
@@ -113,6 +135,7 @@ Documents updated:
 - [ ] Tests written and passing
 - [ ] CI passes (lint, type-check, test, build)
 - [ ] Required reviews completed (see Review Triggers above)
+- [ ] Behavior-change gate answered; Pod Impact Matrix + Instruction Update Packet included if "Yes" (ADR-009 §4)
 - [ ] Documentation updated if behaviour changed
 - [ ] Migration reviewed by Pod B if schema changed
 - [ ] Rollback notes included if deployment-impacting
