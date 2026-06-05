@@ -22,8 +22,9 @@
 
 ## Status
 
-Proposed — awaiting Pod A review and Kerem approval.
-Pod A review: Required — pending (per Kerem decision 2026-06-04).
+Proposed — awaiting Kerem approval.
+Pod B review: Approved (self-review, methodology / process ADR).
+Pod A review: Approved-with-comments (2026-06-04); comment addressed in this revision.
 
 ---
 
@@ -141,6 +142,7 @@ This requirement is enforced via a conditional gate in the standard PR template 
 - **External platform re-paste is a manual step.** Because AI platforms do not have a live sync mechanism, Kerem or the assigned operator must manually re-paste updated instruction text after relevant PRs merge. This is a permanent operational responsibility.
 - **Manifest maintenance.** `AGENT_CONTEXT_MANIFEST.md` must be kept current as new task types, files, and ADRs are added. A stale manifest produces incorrect context-loading guidance.
 - **Template set requires upkeep.** Five templates (`HANDOFF_PACKET.md`, `POD_B_REVIEW.md`, `DECISION_ESCALATION.md`, `INSTRUCTION_UPDATE_PACKET.md`, `CONTEXT_FRESHNESS.md`) must be maintained. Format changes require the same PR ceremony as methodology changes.
+- **Pod A takes on artifact custodianship.** Pod A becomes author/custodian of `AGENT_CONTEXT_MANIFEST.md`, the Pod-A-owned templates (`HANDOFF_PACKET.md`, `DECISION_ESCALATION.md`, `INSTRUCTION_UPDATE_PACKET.md`, `CONTEXT_FRESHNESS.md`), and the Pod A instruction snapshot, subject to Pod B review and Kerem approval where the change is behavior-changing. Pod B remains owner of `POD_B_REVIEW.md` and `PROJECT_DECISION_INDEX.md`.
 
 ### What is constrained
 
