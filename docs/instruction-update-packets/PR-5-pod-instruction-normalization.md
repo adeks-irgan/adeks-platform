@@ -76,4 +76,16 @@ No change in PR-5. Pod D snapshot does not yet exist in the repo; creation requi
 
 ## Tracked Gap (raised by PR-5)
 
-`/docs/pod-instructions/` contains only the Pod B snapshot. `POD_A_CHATGPT_INSTRUCTIONS.md` and `POD_D_GEMINI_GEM_INSTRUCTIONS.md` — referenced by ADR-013 §5, the ADR-013 Implementation table, and this template's External Platform table — do not exist. PR-5 deliberately does not fabricate them. Follow-up: Pod A authors the Pod A snapshot (custodian per ADR-013); Kerem assigns the Pod D snapshot owner.
+**STATUS: RESOLVED — 2026-06-06**
+
+Both files were created and merged in PR #23 (`docs/pod-instruction-snapshots-pr5`, merged 2026-06-06).
+Full closure documentation in: `/docs/instruction-update-packets/PR-5-gap-closure-snapshot-creation.md`
+
+| Item | Resolution |
+|---|---|
+| `POD_A_CHATGPT_INSTRUCTIONS.md` | Created and merged PR #23, 2026-06-06. |
+| `POD_D_GEMINI_GEM_INSTRUCTIONS.md` | Created and merged PR #23, 2026-06-06. `SYNC BASIS` confirms normalized from live Gem text supplied by Kerem 2026-06-06. |
+| Pod D authorship (Pod A authored) | Governance sign-off recorded in PR-5-gap-closure-snapshot-creation.md. Kerem approved Pod A acting as one-time author for this normalization. |
+| Manifest status update | `planned`/`missing` → `exists` done in `docs/pr5-gap-closure-snapshot-governance` PR. |
+
+~~`/docs/pod-instructions/` contains only the Pod B snapshot. `POD_A_CHATGPT_INSTRUCTIONS.md` and `POD_D_GEMINI_GEM_INSTRUCTIONS.md` — referenced by ADR-013 §5, the ADR-013 Implementation table, and this template's External Platform table — do not exist. PR-5 deliberately does not fabricate them. Follow-up: Pod A authors the Pod A snapshot (custodian per ADR-013); Kerem assigns the Pod D snapshot owner.~~

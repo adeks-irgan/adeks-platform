@@ -4,6 +4,10 @@
   SNAPSHOT TYPE: External AI platform instruction (ChatGPT Project, Pod A)
   CANONICAL REPO PATH: /docs/pod-instructions/POD_A_CHATGPT_INSTRUCTIONS.md
   LAST SYNCED TO PLATFORM: 2026-06-06
+  SYNC BASIS: Pod A authored as ADR-013 §5-compliant bootloader; content normalized
+  from live ChatGPT Project instruction text and existing pod role definitions.
+  Kerem signed off on Pod A authorship for this one-time normalization (recorded
+  in /docs/instruction-update-packets/PR-5-gap-closure-snapshot-creation.md).
   AUTHORITY: Reference-only bootloader (ADR-013 §5).
   This file MUST NOT embed volatile state — no locked-decision tables, no
   open-question / not-yet-locked lists, no ADR counts or status, no sprint or
