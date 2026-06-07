@@ -97,25 +97,28 @@ Never:
 
 ---
 
-## 6. Mandatory Pod B Review Triggers
+## 6. Mandatory Review Triggers (ADR-009 §3)
 
-Stop and require Pod B sign-off before implementation if the issue touches:
+The following categories require the listed approvals before implementation begins and before PR merge. Authoritative source: ADR-009 §3. Where a PR matches multiple rows, the strictest requirement governs.
 
-- Wallet
-- Loyalty
-- Authentication
-- Authorization
-- Payments
-- Refunds
-- Customer data
-- KVKK/privacy data handling
-- Selcafe integration
-- Audit logs
-- Schema migrations
-- Reservation state machine
-- Security-sensitive admin actions
+| Risk Category | Required Before Implementation and Merge |
+|---|---|
+| Wallet ledger logic | Pod B + Kerem |
+| Loyalty ledger logic | Pod B + Kerem |
+| Payment logic | Pod B + Kerem |
+| Refund logic | Pod B + Kerem |
+| Customer personal data handling | Pod B + Kerem |
+| Security-sensitive PR (incl. security-sensitive admin actions) | Pod B + Kerem |
+| Selcafe adapter or Selcafe integration changes | Pod B + Kerem |
+| Database / schema migration | Pod B + Kerem |
+| Authentication or authorization | Pod B |
+| Audit log schema or logic | Pod B |
+| Admin privilege changes | Kerem |
+| None of the above | Standard review only |
 
 If unsure whether an issue touches one of these areas, assume Pod B review is required.
+
+Stop and get the required sign-off before opening a PR in any of these categories.
 
 ---
 
@@ -236,7 +239,14 @@ Do not merge PRs yourself.
 
 Code PRs always require Kerem approval before merge.
 
-Security-sensitive PRs also require Pod B review.
+Apply the full ADR-009 §3 trigger table (§6 above) to determine required reviewers before merge:
+
+- Database / schema migration → Pod B + Kerem required before merge
+- Selcafe adapter or Selcafe integration changes → Pod B + Kerem required before merge
+- Wallet, loyalty, payment, refund, customer personal data, security-sensitive PRs → Pod B + Kerem required before merge
+- Authentication or authorization → Pod B required before merge
+- Audit log schema or logic → Pod B required before merge
+- Admin privilege changes → Kerem required before merge
 
 ---
 
@@ -265,7 +275,8 @@ PR summary must include:
 - Linked issue
 - Tests run
 - Risk notes
-- Whether Pod B review is required/completed
+- Which ADR-009 §3 risk category applies (if any)
+- Whether Pod B review is required/completed (see §6 trigger table)
 - Whether Kerem approval is required
 
 ---
