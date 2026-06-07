@@ -1,10 +1,10 @@
 # KEREM_DECISIONS.md
 
 <!--
-  STATUS: COMPLETE — All 10 Kerem items recorded
-  SOURCE: Kerem interview session, Pod B facilitation
+  STATUS: COMPLETE — All 10 Kerem items recorded; K-11 BC-2 added
+  SOURCE: Kerem interview session, Pod B facilitation; K-11 from Kerem chat approval 2026-06-07
   AUTHOR: Pod B (Architecture, Logic & Risk)
-  VERSION: 1.0
+  VERSION: 1.1
   PATH: /docs/KEREM_DECISIONS.md
 
   PURPOSE:
@@ -35,6 +35,7 @@
 | K-08 | KVKK legal advisor | Current legal advisor handles all KVKK obligations | ✅ Recorded |
 | K-09 | Pilot participant selection | See Section 9 | ✅ Recorded |
 | K-10 | Selcafe feasibility spike | Authorised — Pod C executes remotely | ✅ Recorded |
+| K-11 | BC-2: approval gate alignment (ADR-009 §3 vs §11.1/§15) | Option A approved — alignment path | ✅ Recorded |
 
 ---
 
@@ -294,6 +295,40 @@ Pod B to review findings and update SelcafeAdapter design accordingly.
 
 ---
 
+## 11. K-11 — BC-2: Approval Gate Alignment (ADR-009 §3 vs §11.1 / §15)
+
+**Date:** 2026-06-07
+**Source:** Kerem chat approval to Pod B
+**Scope:** Correcting §11.1 and §15 conflicts with ADR-009 §3 approval gates
+**PR:** bc-2/approval-gate-alignment → main (Issue #26)
+
+### Decision
+
+Kerem approved **Option A** (approval-gate alignment path):
+
+- §11.1 Selcafe adapter row corrected to `Pod B + Kerem` (was `Pod B` only).
+- §11.1 Database/schema migration row corrected to `Pod B + Kerem` (was `Pod B` only).
+- §11.1 Security-sensitive PR row added with `Pod B + Kerem`.
+- §11.1 annotated with pointer to ADR-009 §3 as authoritative source on conflict.
+- Stale embedded PR template in §15 removed; replaced with pointer to live
+  `.github/PULL_REQUEST_TEMPLATE.md` and ADR-009.
+- Treated as behavior-changing under ADR-009 §4; Pod Impact Matrix and
+  Instruction Update Packet included in PR.
+- Tenancy cleanup and ADR stub renumbering explicitly excluded from this work.
+
+### Constraints Recorded
+
+- Do not merge without Kerem approval.
+- Do not include tenancy cleanup or ADR stub renumbering.
+
+### Option Considered but Rejected
+
+**Option B (document-note only):** Add a conflict note to §11.1 and §15 without
+correcting the gate text. Rejected by Kerem in favour of correcting the text to
+eliminate the ambiguity entirely.
+
+---
+
 ## Open Actions Summary
 
 | Action | Owner | Dependency | Priority |
@@ -312,6 +347,9 @@ Pod B to review findings and update SelcafeAdapter design accordingly.
 | Design monitoring spec for 99.9% SLO | Pod D | Deployment view | High |
 | Document WhatsApp triage process | Pod A | This document | Medium |
 | Include pilot onboarding flow in CORE_USER_FLOWS.md | Pod A | This document | Medium |
+| Update `PROJECT_DECISION_INDEX.md` with BC-2/K-11 row | Pod B | PR-A merge | High |
+| Update Pod B snapshot `LAST SYNCED TO PLATFORM` date | Kerem | PR-A merge | High |
+| Update Pod C instruction snapshot for §11.1 gate change | Kerem/Pod C | PR-A merge | High |
 
 ---
 
@@ -320,4 +358,4 @@ Pod B to review findings and update SelcafeAdapter design accordingly.
 | Version | Date | Author | Summary |
 |---|---|---|---|
 | 1.0 | [DATE] | Pod B | All 10 Kerem items recorded from interview session |
-
+| 1.1 | 2026-06-07 | Pod B | K-11 BC-2 Option A approval added; Open Actions Summary updated with post-merge tasks |

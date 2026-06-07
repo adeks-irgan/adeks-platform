@@ -5,11 +5,12 @@
   AUTHOR: Pod A
   REVIEWER: Pod B (before merge)
   APPROVER: Kerem (product owner)
-  VERSION: 0.5
-  LAST UPDATED: 2026-06-05
+  VERSION: 0.6
+  LAST UPDATED: 2026-06-07
   PATH: /docs/PROJECT_METHODOLOGY.md
 
   POD A: Completed v0.5 draft. RCPC bundle migrated PQ-002 mandatory Pod D audit cadence and workflow archive/stub references. Pod B review required.
+  POD B (v0.6): BC-2 Option A — aligned §11.1 approval gates to ADR-009 §3; removed stale embedded PR template from §15. Kerem-approved 2026-06-07.
 -->
 
 ---
@@ -595,8 +596,8 @@ Expanded template:
 
 Examples:
 
-| Persona         | JTBD Example                                                                                                                                            |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Persona         | JTBD Example                                                                                                                                                            |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Gaming Customer | When I am in the middle of a session, I want to order food or check value without leaving the PC, so I can keep playing without interruption.           |
 | Cashier         | When the café is busy, I want customer requests to arrive in a structured queue, so I can handle them accurately without repeated verbal clarification. |
 | F&B Staff       | When a customer orders from a seat, I want clear item and seat information, so I can prepare and deliver the order correctly.                           |
@@ -1084,20 +1085,25 @@ Reference the Definition of Ready in Section 14 and the Definition of Done in Se
 
 ### 11.1 Mandatory Human Approval Triggers
 
-<!-- [LOCKED] The following PR categories require human approval before merge. -->
+<!-- [LOCKED] The following PR categories require human approval before merge.
+     Authoritative source: ADR-009 §3. In the event of any conflict between
+     this table and ADR-009 §3, ADR-009 §3 governs.
+     This table was aligned to ADR-009 §3 in v0.6 (2026-06-07, BC-2 Option A,
+     Kerem-approved). Issue #26 / PR-A documents the correction. -->
 
-| Trigger Category                 | Required Approver |
-| -------------------------------- | ----------------- |
-| Wallet ledger logic              | Kerem + Pod B     |
-| Loyalty ledger logic             | Kerem + Pod B     |
-| Authentication and authorisation | Pod B             |
-| Customer personal data handling  | Pod B + Kerem     |
-| Selcafe adapter changes          | Pod B             |
-| Audit log schema or logic        | Pod B             |
-| Database migrations              | Pod B             |
-| Payment logic (Phase 2+)         | Kerem + Pod B     |
-| Admin privilege changes          | Kerem             |
-| Refund logic                     | Kerem + Pod B     |
+| Trigger Category                                              | Required Approver |
+| ------------------------------------------------------------- | ----------------- |
+| Wallet ledger logic                                           | Kerem + Pod B     |
+| Loyalty ledger logic                                          | Kerem + Pod B     |
+| Authentication and authorisation                              | Pod B             |
+| Customer personal data handling                               | Pod B + Kerem     |
+| Security-sensitive PR (incl. security-sensitive admin actions) | Pod B + Kerem    |
+| Selcafe adapter or Selcafe integration changes                | Pod B + Kerem     |
+| Audit log schema or logic                                     | Pod B             |
+| Database / schema migration                                   | Pod B + Kerem     |
+| Payment logic (Phase 2+)                                      | Kerem + Pod B     |
+| Admin privilege changes                                       | Kerem             |
+| Refund logic                                                  | Kerem + Pod B     |
 
 ### 11.2 Hardware-in-the-Loop Testing (Phase 2)
 
@@ -1542,103 +1548,15 @@ Pod C must not merge a PR that does not meet this standard.
 | No real personal data used in tests or examples              | ✅        |
 | PR description explains what changed and why                 | ✅        |
 
-The PR template should be placed at `.github/PULL_REQUEST_TEMPLATE.md`.
+The live PR template is maintained at `.github/PULL_REQUEST_TEMPLATE.md`.
+That file is the single source of truth for PR structure, checklist items,
+and review triggers. Do not maintain a duplicate template here — divergence
+creates inconsistency.
 
-Required template:
-
-```md
-# Summary
-
-Explain what changed and why.
-
-# Linked Issue
-
-Closes #
-
-# Scope
-
-## Included
-
--
-
-## Excluded
-
--
-
-# Acceptance Criteria Check
-
-- [ ] All acceptance criteria from the issue are met.
-
-# Tests
-
-- [ ] Unit tests written/updated and passing
-- [ ] Integration tests written/updated and passing where applicable
-- [ ] E2E tests written/updated and passing where applicable
-- [ ] Contract tests written/updated and passing where applicable
-- [ ] Manual UAT notes included where applicable
-
-# CI
-
-- [ ] Lint passes
-- [ ] Type-check passes
-- [ ] Test suite passes
-- [ ] Build passes
-- [ ] Security/dependency checks pass where configured
-
-# Review Triggers
-
-Select all that apply:
-
-- [ ] Wallet ledger logic — Kerem + Pod B required
-- [ ] Loyalty ledger logic — Kerem + Pod B required
-- [ ] Authentication or authorisation — Pod B required
-- [ ] Customer personal data handling — Pod B + Kerem required
-- [ ] Selcafe adapter changes — Pod B required
-- [ ] Audit log schema or logic — Pod B required
-- [ ] Database migration — Pod B required
-- [ ] Payment logic — Kerem + Pod B required
-- [ ] Admin privilege changes — Kerem required
-- [ ] Refund logic — Kerem + Pod B required
-- [ ] None
-
-# Documentation
-
-- [ ] Documentation updated
-- [ ] No documentation change required
-
-Documents updated:
-
--
-
-# Database / Migration Impact
-
-- [ ] No migration
-- [ ] Migration included and reviewed by Pod B
-- [ ] Rollback notes included
-
-# Rollback Notes
-
-Explain how this change can be rolled back or disabled.
-
-# Data Safety
-
-- [ ] No real personal data used in tests, fixtures, screenshots, or examples
-- [ ] Synthetic data only
-
-# Screenshots / Evidence
-
-Add screenshots, logs, or test output where useful.
-
-# Definition of Done Checklist
-
-- [ ] Acceptance criteria met
-- [ ] Tests pass
-- [ ] CI passes
-- [ ] Required reviews completed
-- [ ] Documentation updated if needed
-- [ ] Rollback notes included if deployment-impacting
-- [ ] PR explains what changed and why
-```
+Authoritative review triggers and approval requirements are defined in
+**ADR-009 §3**. Authoritative behavior-change gate requirements (Pod Impact
+Matrix, Instruction Update Packet) are defined in **ADR-009 §4**. In the
+event of any conflict between this document and ADR-009, ADR-009 governs.
 
 ---
 
@@ -2216,7 +2134,7 @@ Evaluation criteria:
 | Security track record  | Is the vendor/library actively maintained? Known vulnerabilities? Security disclosure process? |
 | KVKK impact            | Does it process personal data? Where is data stored? Any cross-border transfer?                |
 | Licence compatibility  | Is the licence compatible with Adeks Platform and future SaaS commercialization?               |
-| Maintenance activity   | Recent releases, maintainers, issue response, ecosystem adoption                               |
+| Maintenance activity   | Recent releases, maintainers, issue response, ecosystem adoption                              |
 | Architecture fit       | Does it fit the locked stack and modular monolith direction?                                   |
 | Bundle/runtime impact  | Does it add unacceptable frontend size or backend complexity?                                  |
 | Operational complexity | Does it require new infrastructure, monitoring, backup, or support process?                    |
@@ -2317,6 +2235,7 @@ The following rules are mandatory:
 | 0.3 | 2026-06-03 | Pod A | Added §16.1 Automatic Handoff Prompt Rule (unified, all pods). Pod B drafted, Pod B reviewed. |
 | 0.4 | 2026-06-04 | Pod A / Pod C | Added §1.2 Repository-Controlled Pod Context Principles and §27 rule 6 git-command requirement. Records Kerem-approved MD-2…MD-6 in §28.4. Commits ADR-013, proposal v0.2, and implementation plan v0.1. Pod B reviewed. |
 | 0.5 | 2026-06-05 | Pod A | RCPC bundle: migrated PQ-002 Pod D audit cadence; workflow file archived/stubbed. |
+| 0.6 | 2026-06-07 | Pod B | BC-2 Option A (Kerem-approved): aligned §11.1 approval gates to ADR-009 §3 (Selcafe adapter + DB/schema migration → Pod B + Kerem; security-sensitive PR row added). Removed stale embedded PR template from §15; replaced with pointer to live `.github/PULL_REQUEST_TEMPLATE.md` and ADR-009. K-11 recorded in KEREM_DECISIONS.md. |
 
 ### 28.4 Kerem Decisions — Repository-Controlled Pod Context
 
@@ -2332,6 +2251,17 @@ The following rules are mandatory:
 | MD-4 | Approve `PROJECT_DECISION_INDEX.md` ownership as Pod B sole owner, with Pod A reviewer on product/business-impacting rows | Approved |
 | MD-5 | Approve `/docs/POD_TRAFFIC_WORKFLOW.md` permanent stub plus full archive at `/docs/archive/POD_TRAFFIC_WORKFLOW_v1.1.md` | Approved |
 | MD-6 | Approve conditional Pod Impact Matrix: one universal PR gate question, full matrix + Instruction Update Packet only when yes | Approved |
+
+### 28.5 Kerem Decisions — BC-2 Approval Gate Alignment
+
+**Decision date:** 2026-06-07
+**Decision source:** Kerem chat approval to Pod B
+**Scope:** BC-2 Option A — correcting §11.1 and §15 conflicts with ADR-009 §3
+**Canonical record:** This section; full detail in `/docs/KEREM_DECISIONS.md` K-11
+
+| ID | Decision | Kerem Decision |
+|---|---|---|
+| K-11 | BC-2 Option A: align §11.1 gates to ADR-009 §3; remove stale §15 embedded template | Approved |
 
 ---
 
