@@ -5,7 +5,7 @@
 **Approver:** Kerem (any status transition **into or out of "Locked"** on a product/business-impacting decision)
 **Canonical methodology:** `/docs/PROJECT_METHODOLOGY.md`
 **Intended repo path:** `/docs/PROJECT_DECISION_INDEX.md`
-**Last updated:** 2026-06-05 (rcpc bundle: PQ migration + workflow stub)
+**Last updated:** 2026-06-07 (BC-2 follow-up: K-11 row added)
 
 > **This file mirrors ADRs, methodology, and recorded Kerem decisions. It does not *establish* decisions.** The authoritative record of any decision is its ADR (in `/docs/adr/`) plus Kerem's approval. If this index and an ADR ever disagree, the ADR wins and this index is stale until corrected. If an external platform-instruction file says a decision is locked but this index and the ADRs do not, **treat the instruction file as stale** until reconciled.
 
@@ -83,6 +83,7 @@
 | Decision set | Canonical source | Notes |
 |---|---|---|
 | Kerem interview decisions **K-01 … K-10** | `/docs/KEREM_DECISIONS.md` | Vision/North Star, cadence, rollback threshold, feature flag (→ADR-012), product metrics, feedback capture, VERBİS, KVKK advisor, pilot selection, Selcafe spike. |
+| **K-11 — BC-2 approval-gate alignment** | `/docs/KEREM_DECISIONS.md` §11 | **Locked — Kerem-approved 2026-06-07** (BC-2 Option A; PR #27, Issue #26). Corrects §11.1 and §15 conflicts with ADR-009 §3. Effective gates: **Selcafe adapter or Selcafe integration changes → Pod B + Kerem required before merge**; **Database / schema migration → Pod B + Kerem required before merge**; **Security-sensitive PR (incl. security-sensitive admin actions) → Pod B + Kerem required before merge**. Stale embedded PR template removed from §15; live template at `.github/PULL_REQUEST_TEMPLATE.md`. Authoritative source for all gates: ADR-009 §3. |
 | Governance decisions **PQ-001 … PQ-005** | Canonical homes (mapped) | Migrated from archived `POD_TRAFFIC_WORKFLOW.md` §17. PQ-001 → `PROJECT_METHODOLOGY.md` §11.1/§20.3 + ADR-009 §3; PQ-002 → `PROJECT_METHODOLOGY.md` §2.5 (Pod D mandatory audit cadence) + §8.4; PQ-003 → `/docs/templates/` + ADR-013; PQ-004 → ADR-009 §2; PQ-005 → `PROJECT_METHODOLOGY.md` §27 + `/docs/templates/CONTEXT_FRESHNESS.md`. |
 | Confirmed Phase 1 product decisions **D-001 … D-011** | Product docs / instruction files (to migrate into `MVP_SCOPE.md`) | Login-gated core, public catalog, cashier top-up, no self top-up Phase 1, automatic loyalty earning, cashier redemption, staff-approved reservations, cashier-only payment Phase 1, online payment Phase 2. |
 | Locked principles | `PROJECT_METHODOLOGY.md` (Locked Principles) + ADR-005/006/007 | Append-only wallet & loyalty ledgers; all admin actions auditable; no direct commits to `main`; KVKK required; human approval for wallet/payment/refund/security/customer-data; Selcafe read-only Phase 1; synthetic data only. |
