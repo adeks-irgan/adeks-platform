@@ -1787,20 +1787,22 @@ Old ADRs are never deleted. If an ADR needs to change, a new ADR supersedes the 
 
 Current ADR backlog to be resolved by Pod B in priority order:
 
-| ID      | Decision                            | Priority                    |
-| ------- | ----------------------------------- | --------------------------- |
-| ADR-001 | Modular monolith architecture       | High                        |
-| ADR-002 | TypeScript / NestJS / Next.js stack | High                        |
-| ADR-003 | PostgreSQL database family          | High                        |
-| ADR-004 | ORM selection (Prisma vs Drizzle)   | **Critical — blocks Pod C** |
-| ADR-005 | Selcafe read-only Phase 1 adapter   | High                        |
-| ADR-006 | Wallet append-only ledger           | High                        |
-| ADR-007 | Loyalty append-only ledger          | High                        |
-| ADR-008 | Schema-per-tenant tenancy strategy  | High                        |
-| ADR-009 | PR approval policy                  | High                        |
-| ADR-010 | Real-time transport selection       | Phase 2                     |
-| ADR-011 | Payment provider                    | Phase 2                     |
-| ADR-012 | Feature flag tool selection         | Before Phase 1 go-live      |
+| ID      | Decision                            | Status                                | Priority                     |
+| ------- | ----------------------------------- | ------------------------------------- | ---------------------------- |
+| ADR-001 | Modular monolith architecture       | Proposed (stub) — direction locked    | High                         |
+| ADR-002 | TypeScript / NestJS / Next.js stack | Proposed (stub) — direction locked    | High                         |
+| ADR-003 | PostgreSQL database family          | Proposed (stub) — direction locked    | High                         |
+| ADR-004 | ORM selection (Prisma vs Drizzle)   | Proposed (stub) — **not locked**      | **Critical — blocks Pod C**  |
+| ADR-005 | Selcafe read-only Phase 1 adapter   | Proposed (stub) — direction locked    | High                         |
+| ADR-006 | Wallet append-only ledger           | Proposed (stub) — direction locked    | High                         |
+| ADR-007 | Loyalty append-only ledger          | Proposed (stub) — direction locked    | High                         |
+| ADR-008 | Schema-per-tenant tenancy strategy  | Proposed (stub) — **deferred**        | Deferred by Kerem 2026-06-04 |
+| ADR-009 | PR approval policy                  | **Accepted** — 2026-06-05             | Done                         |
+| ADR-010 | Real-time transport selection       | Proposed (stub) — Phase 2             | Phase 2                      |
+| ADR-011 | Payment provider                    | Proposed (stub) — Phase 2             | Phase 2                      |
+| ADR-012 | Feature flag tool selection         | Proposed (stub) — Pod B to finalize   | Before Phase 1 go-live       |
+| ADR-013 | Repository-Controlled Pod Context   | **Accepted** — 2026-06-05             | Done                         |
+| ADR-014 | PWA-first customer application      | Proposed (stub) — direction locked    | High                         |
 
 ---
 
