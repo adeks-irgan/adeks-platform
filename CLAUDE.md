@@ -114,6 +114,7 @@ The following categories require the listed approvals before implementation begi
 | Authentication or authorization | Pod B |
 | Audit log schema or logic | Pod B |
 | Admin privilege changes | Kerem |
+| None of the above | Standard review only |
 
 If unsure whether an issue touches one of these areas, assume Pod B review is required.
 
