@@ -398,7 +398,6 @@ The following technical decisions are already locked unless a serious business, 
 | Architecture | Modular monolith |
 | Customer app | PWA first |
 | Database family | PostgreSQL |
-| Tenancy strategy | Schema-per-tenant. Phase 1 deploys into a named `adeks` schema with a `TenantContext` abstraction in place. Phase 3 adds a `platform` schema for tenant registry and per-café operational schemas. |
 | Phase 2 PC client candidate | Electron + TypeScript |
 | Local gateway candidate | TypeScript/Node.js inside Adeks local network |
 | Integration pattern | `CafeManagementAdapter` |
@@ -413,6 +412,7 @@ The following topics are intentionally not finalized in this project brief:
 
 | Topic | Status |
 |---|---|
+| Tenancy strategy | Deferred / not locked. `PROJECT_DECISION_INDEX.md` §2 is canonical over stale brief or instruction-table wording. ADR-008 is deferred until Kerem revisits tenancy. Schema-per-tenant may remain a leading candidate, but it is not locked; shared schema with `tenant_id` and database-per-tenant remain candidates. Pod C schema, migration, and `TenantContext` work remains blocked until tenancy is revisited and explicitly approved. |
 | ORM | Prisma is a candidate, not confirmed |
 | Caching layer | Not confirmed |
 | Queue system | Not confirmed |
