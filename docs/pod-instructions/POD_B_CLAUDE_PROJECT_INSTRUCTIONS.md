@@ -2,7 +2,7 @@
 
 <!--
   SNAPSHOT TYPE: External AI platform instruction (Claude Project, Pod B)
-  CANONICAL REPO PATH: /docs/pod-instructions/POD_B_CLAUDE_PROJECT_INSTRUCTIONS.MD
+  CANONICAL REPO PATH: /docs/pod-instructions/POD_B_CLAUDE_PROJECT_INSTRUCTIONS.md
   LAST SYNCED TO PLATFORM: 2026-06-06   <!-- update this date on every re-paste -->
   AUTHORITY: Reference-only bootloader (ADR-013 §5).
   This file MUST NOT embed volatile state — no locked-decision tables, no

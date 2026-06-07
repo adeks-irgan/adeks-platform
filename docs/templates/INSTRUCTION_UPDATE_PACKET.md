@@ -39,7 +39,7 @@ What changed?
 | Platform | Instruction File | Action |
 |---|---|---|
 | ChatGPT Project | `/docs/pod-instructions/POD_A_CHATGPT_INSTRUCTIONS.md` | Replace / no change |
-| Claude Project | `/docs/pod-instructions/POD_B_CLAUDE_PROJECT_INSTRUCTIONS.MD` | Replace / no change |
+| Claude Project | `/docs/pod-instructions/POD_B_CLAUDE_PROJECT_INSTRUCTIONS.md` | Replace / no change |
 | Claude Code | `/CLAUDE.md` | Commit update / no change |
 | Gemini Gem | `/docs/pod-instructions/POD_D_GEMINI_GEM_INSTRUCTIONS.md` | Replace / no change |
 

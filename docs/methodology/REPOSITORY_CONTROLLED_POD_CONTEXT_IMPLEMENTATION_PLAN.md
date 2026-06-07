@@ -1,6 +1,8 @@
 # Adeks Platform — Repository-Controlled Pod Context Implementation Plan
 
 > Committed 2026-06-04 (PR-1) as the implementation-of-record for PR-1…PR-5. Pod B review is complete. The "Ready to commit: No" status in §13 reflects the pre-review drafting state and is retained for history.
+>
+> **Historical note (2026-06-07):** PR-1 through PR-5 are all merged to `main`. The RCPC migration is complete. The Status header below ("requires Pod B review before Pod C executes PRs") reflects pre-execution wording and is retained for history only. No further action is required from this plan.
 
 **Version:** v0.1  
 **Date:** 2026-06-04  
