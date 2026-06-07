@@ -5,7 +5,7 @@
   AUTHOR: Pod A
   REVIEWER: Pod B (before merge)
   APPROVER: Kerem (product owner)
-  VERSION: 0.6
+  VERSION: 0.7
   LAST UPDATED: 2026-06-07
   PATH: /docs/PROJECT_METHODOLOGY.md
 
@@ -1540,10 +1540,10 @@ Pod C must not merge a PR that does not meet this standard.
 | Unit tests written and passing                               | ✅        |
 | Integration tests written and passing where applicable       | ✅        |
 | CI pipeline passes (lint, type-check, test, build)           | ✅        |
-| Security-sensitive areas reviewed by Pod B (if triggered)    | ✅        |
+| Security-sensitive areas reviewed by Pod B + Kerem (if triggered) | ✅   |
 | Financially-sensitive areas approved by Kerem (if triggered) | ✅        |
 | Documentation updated if behaviour changed                   | ✅        |
-| Migration reviewed by Pod B if schema changed                | ✅        |
+| Migration reviewed by Pod B + Kerem if schema changed        | ✅        |
 | Rollback notes included if deployment-impacting              | ✅        |
 | No real personal data used in tests or examples              | ✅        |
 | PR description explains what changed and why                 | ✅        |
@@ -2238,6 +2238,7 @@ The following rules are mandatory:
 | 0.4 | 2026-06-04 | Pod A / Pod C | Added §1.2 Repository-Controlled Pod Context Principles and §27 rule 6 git-command requirement. Records Kerem-approved MD-2…MD-6 in §28.4. Commits ADR-013, proposal v0.2, and implementation plan v0.1. Pod B reviewed. |
 | 0.5 | 2026-06-05 | Pod A | RCPC bundle: migrated PQ-002 Pod D audit cadence; workflow file archived/stubbed. |
 | 0.6 | 2026-06-07 | Pod B | BC-2 Option A (Kerem-approved): aligned §11.1 approval gates to ADR-009 §3 (Selcafe adapter + DB/schema migration → Pod B + Kerem; security-sensitive PR row added). Removed stale embedded PR template from §15; replaced with pointer to live `.github/PULL_REQUEST_TEMPLATE.md` and ADR-009. K-11 recorded in KEREM_DECISIONS.md. |
+| 0.7 | 2026-06-07 | Pod B | BC-2 completion: corrected two stale §15 DoD rows missed in v0.6. "Migration reviewed by Pod B" → "Pod B + Kerem"; "Security-sensitive areas reviewed by Pod B" → "Pod B + Kerem". Both rows now match ADR-009 §3 and §11.1. No new gate introduced; reconciliation of existing K-11 approval (Kerem-approved 2026-06-07). |
 
 ### 28.4 Kerem Decisions — Repository-Controlled Pod Context
 
