@@ -5,7 +5,7 @@
 **Approver:** Kerem (any status transition **into or out of "Locked"** on a product/business-impacting decision)
 **Canonical methodology:** `/docs/PROJECT_METHODOLOGY.md`
 **Intended repo path:** `/docs/PROJECT_DECISION_INDEX.md`
-**Last updated:** 2026-06-07 (BC-3: ADR stubs + root stub cleanup)
+**Last updated:** 2026-06-08 (K-12: tenancy + ORM decisions locked; ADR-004 and ADR-008 Accepted)
 
 > **This file mirrors ADRs, methodology, and recorded Kerem decisions. It does not *establish* decisions.** The authoritative record of any decision is its ADR (in `/docs/adr/`) plus Kerem's approval. If this index and an ADR ever disagree, the ADR wins and this index is stale until corrected. If an external platform-instruction file says a decision is locked but this index and the ADRs do not, **treat the instruction file as stale** until reconciled.
 
@@ -39,6 +39,9 @@
 | Future native engine | Locked (direction) | PROJECT_METHODOLOGY.md | B, C | `AdeksNativeCafeEngine` (Phase 2–3) |
 | Phase 2 PC client | Locked as Phase 2 candidate | PROJECT_METHODOLOGY.md | B, C, D | Electron + TypeScript |
 | Local gateway | Locked as Phase 2 candidate | PROJECT_METHODOLOGY.md | B, C | TypeScript/Node.js inside Adeks local network |
+| ORM | Locked | ADR-004 — Accepted 2026-06-08 | B, C | Prisma. Schema-first, generated client. Prisma Client Extensions mandatory for global `tenant_id` enforcement. |
+| Tenancy strategy | Locked | ADR-008 — Accepted 2026-06-08 | A, B, C | Shared schema + mandatory non-null `tenant_id` on all tenant-scoped tables. Long-term model. No schema-per-tenant or database-per-tenant planned. |
+| Primary keys | Locked | ADR-008 — Accepted 2026-06-08 | B, C | UUID on all entity tables. Resolves UUID-vs-bigint open question. |
 
 ---
 
@@ -46,8 +49,6 @@
 
 | Decision Area | Status | Canonical Source | Affected Pods | Notes |
 |---|---|---|---|---|
-| **Tenancy strategy** | **Deferred (not locked)** — Kerem 2026-06-04 | ADR-008 (deferred) | B, C | Candidates: schema-per-tenant / shared-schema-`tenant_id` / database-per-tenant. **Product/business-impacting** (shapes Phase 3 SaaS + customer-identity portability). **Gating:** blocks Pod C schema/migration/`TenantContext` work; coupled to ORM (ADR-004). |
-| ORM | Not locked | ADR-004 — **Critical, blocks Pod C** | B, C | Prisma vs Drizzle. Choice depends on tenancy complexity → decide **with or after** tenancy, not before. |
 | Caching layer | Not locked | TBD | B, C | — |
 | Queue system | Not locked | TBD | B, C | — |
 | Real-time transport | Not locked (Phase 2) | ADR-010 (Phase 2) | B, C | WebSocket is the Phase 2 candidate; Pod B selects before Phase 2. Not required Phase 1. |
@@ -65,11 +66,11 @@
 | ADR-001 | Modular monolith architecture | High | Backlog — decision locked, ADR to write |
 | ADR-002 | TypeScript / NestJS / Next.js stack | High | Backlog — decision locked, ADR to write |
 | ADR-003 | PostgreSQL database family | High | Backlog — decision locked, ADR to write |
-| ADR-004 | ORM selection (Prisma vs Drizzle) | **Critical — blocks Pod C** | Backlog — **not locked**; coupled to ADR-008 |
+| ADR-004 | ORM selection — Prisma              | Done | **Accepted** — 2026-06-08 (Kerem approval). Prisma selected. Implementation blocked pending separate Pod B + Kerem approved issues. |
 | ADR-005 | Selcafe read-only Phase 1 adapter | High | Backlog — decision locked, ADR to write |
 | ADR-006 | Wallet append-only ledger | High | Backlog — principle locked, ADR to write |
 | ADR-007 | Loyalty append-only ledger | High | Backlog — principle locked, ADR to write |
-| ADR-008 | Schema-per-tenant tenancy strategy | (was High) | **Deferred by Kerem 2026-06-04** — not to be drafted until Kerem revisits |
+| ADR-008 | Tenancy strategy — shared schema + `tenant_id` (long-term) | Done | **Accepted** — 2026-06-08 (Kerem approval). Shared schema + non-null `tenant_id`, long-term. Filename kept for link stability. Implementation blocked pending separate approved issues. |
 | ADR-009 | PR approval policy | High | **Accepted** — 2026-06-05 (Kerem approval); merged to `main` (PR #17). Canonical home: `/docs/adr/ADR-009-pr-approval-policy.md`. Absorbs `POD_TRAFFIC_WORKFLOW.md` §14 + the conditional PR Pod Impact Matrix gate (MD-6). **Enforcement live:** PR-template §3 triggers + §4 behavior-change gate reconciled in PR-4. |
 | ADR-010 | Real-time transport selection | Phase 2 | Backlog (Phase 2) |
 | ADR-011 | Payment provider | Phase 2 | Backlog (Phase 2) |
@@ -85,6 +86,7 @@
 |---|---|---|
 | Kerem interview decisions **K-01 … K-10** | `/docs/KEREM_DECISIONS.md` | Vision/North Star, cadence, rollback threshold, feature flag (→ADR-012), product metrics, feedback capture, VERBİS, KVKK advisor, pilot selection, Selcafe spike. |
 | **K-11 — BC-2 approval-gate alignment** | `/docs/KEREM_DECISIONS.md` §11 | **Locked — Kerem-approved 2026-06-07** (BC-2 Option A; PR #27, Issue #26). Corrects §11.1 and §15 conflicts with ADR-009 §3. Effective gates: **Selcafe adapter or Selcafe integration changes → Pod B + Kerem required before merge**; **Database / schema migration → Pod B + Kerem required before merge**; **Security-sensitive PR (incl. security-sensitive admin actions) → Pod B + Kerem required before merge**. Stale embedded PR template removed from §15; live template at `.github/PULL_REQUEST_TEMPLATE.md`. Authoritative source for all gates: ADR-009 §3. |
+| **K-12 — Tenancy model + ORM decision** | `/docs/KEREM_DECISIONS.md` §12 | **Locked — Kerem-approved 2026-06-08**. Tenancy: shared schema + mandatory non-null `tenant_id`, long-term (ADR-008 Accepted). ORM: Prisma (ADR-004 Accepted). Binding design requirement: global Prisma Client Extension for `tenant_id` enforcement. UUID primary keys on all entity tables. Implementation remains blocked pending separate Pod B + Kerem approved issues. |
 | Governance decisions **PQ-001 … PQ-005** | Canonical homes (mapped) | Migrated from archived `POD_TRAFFIC_WORKFLOW.md` §17. PQ-001 → `PROJECT_METHODOLOGY.md` §11.1/§20.3 + ADR-009 §3; PQ-002 → `PROJECT_METHODOLOGY.md` §2.5 (Pod D mandatory audit cadence) + §8.4; PQ-003 → `/docs/templates/` + ADR-013; PQ-004 → ADR-009 §2; PQ-005 → `PROJECT_METHODOLOGY.md` §27 + `/docs/templates/CONTEXT_FRESHNESS.md`. |
 | Confirmed Phase 1 product decisions **D-001 … D-011** | Product docs / instruction files (to migrate into `MVP_SCOPE.md`) | Login-gated core, public catalog, cashier top-up, no self top-up Phase 1, automatic loyalty earning, cashier redemption, staff-approved reservations, cashier-only payment Phase 1, online payment Phase 2. |
 | Locked principles | `PROJECT_METHODOLOGY.md` (Locked Principles) + ADR-005/006/007 | Append-only wallet & loyalty ledgers; all admin actions auditable; no direct commits to `main`; KVKK required; human approval for wallet/payment/refund/security/customer-data; Selcafe read-only Phase 1; synthetic data only. |
