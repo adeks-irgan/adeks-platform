@@ -1792,11 +1792,11 @@ Current ADR backlog to be resolved by Pod B in priority order:
 | ADR-001 | Modular monolith architecture       | Proposed (stub) — direction locked    | High                         |
 | ADR-002 | TypeScript / NestJS / Next.js stack | Proposed (stub) — direction locked    | High                         |
 | ADR-003 | PostgreSQL database family          | Proposed (stub) — direction locked    | High                         |
-| ADR-004 | ORM selection (Prisma vs Drizzle)   | Proposed (stub) — **not locked**      | **Critical — blocks Pod C**  |
+| ADR-004 | ORM selection — Prisma              | **Accepted** — 2026-06-08             | Done — implementation blocked pending separate Pod B + Kerem approved issues |
 | ADR-005 | Selcafe read-only Phase 1 adapter   | Proposed (stub) — direction locked    | High                         |
 | ADR-006 | Wallet append-only ledger           | Proposed (stub) — direction locked    | High                         |
 | ADR-007 | Loyalty append-only ledger          | Proposed (stub) — direction locked    | High                         |
-| ADR-008 | Schema-per-tenant tenancy strategy  | Proposed (stub) — **deferred**        | Deferred by Kerem 2026-06-04 |
+| ADR-008 | Tenancy strategy — shared schema + `tenant_id` (long-term) | **Accepted** — 2026-06-08 | Done — implementation blocked pending separate Pod B + Kerem approved issues |
 | ADR-009 | PR approval policy                  | **Accepted** — 2026-06-05             | Done                         |
 | ADR-010 | Real-time transport selection       | Proposed (stub) — Phase 2             | Phase 2                      |
 | ADR-011 | Payment provider                    | Proposed (stub) — Phase 2             | Phase 2                      |
@@ -2240,6 +2240,7 @@ The following rules are mandatory:
 | 0.6 | 2026-06-07 | Pod B | BC-2 Option A (Kerem-approved): aligned §11.1 approval gates to ADR-009 §3 (Selcafe adapter + DB/schema migration → Pod B + Kerem; security-sensitive PR row added). Removed stale embedded PR template from §15; replaced with pointer to live `.github/PULL_REQUEST_TEMPLATE.md` and ADR-009. K-11 recorded in KEREM_DECISIONS.md. |
 | 0.7 | 2026-06-07 | Pod B | BC-2 completion: corrected two stale §15 DoD rows missed in v0.6. "Migration reviewed by Pod B" → "Pod B + Kerem"; "Security-sensitive areas reviewed by Pod B" → "Pod B + Kerem". Both rows now match ADR-009 §3 and §11.1. No new gate introduced; reconciliation of existing K-11 approval (Kerem-approved 2026-06-07). |
 | 0.8 | 2026-06-07 | Pod B | BC-2 completion (OQ-BC2-01): corrected §15 DoD "Financially-sensitive" row. "Kerem" → "Kerem + Pod B". Reconciles with ADR-009 §3 and §11.1. No new gate introduced; last stale BC-2 row. Kerem-approved 2026-06-07. |
+| 0.9 | 2026-06-08 | Pod B | K-12: Record Kerem's explicit tenancy and ORM decisions. §19 ADR-004 updated to Accepted: Prisma. §19 ADR-008 updated to Accepted: shared schema + `tenant_id` (long-term). No methodology or gate change; decision-state recording only. |
 
 ### 28.4 Kerem Decisions — Repository-Controlled Pod Context
 

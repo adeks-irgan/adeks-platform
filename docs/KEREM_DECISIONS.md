@@ -1,10 +1,10 @@
 # KEREM_DECISIONS.md
 
 <!--
-  STATUS: COMPLETE — All 10 Kerem items recorded; K-11 BC-2 added
+  STATUS: COMPLETE — K-01 through K-12 recorded
   SOURCE: Kerem interview session, Pod B facilitation; K-11 from Kerem chat approval 2026-06-07
   AUTHOR: Pod B (Architecture, Logic & Risk)
-  VERSION: 1.1
+  VERSION: 1.2
   PATH: /docs/KEREM_DECISIONS.md
 
   PURPOSE:
@@ -36,6 +36,7 @@
 | K-09 | Pilot participant selection | See Section 9 | ✅ Recorded |
 | K-10 | Selcafe feasibility spike | Authorised — Pod C executes remotely | ✅ Recorded |
 | K-11 | BC-2: approval gate alignment (ADR-009 §3 vs §11.1/§15) | Option A approved — alignment path | ✅ Recorded |
+| K-12 | Tenancy model + ORM | Shared schema + mandatory non-null `tenant_id` (long-term); Prisma ORM; UUID primary keys; binding global tenant scoping enforcement | ✅ Recorded |
 
 ---
 
@@ -326,6 +327,52 @@ Kerem approved **Option A** (approval-gate alignment path):
 **Option B (document-note only):** Add a conflict note to §11.1 and §15 without
 correcting the gate text. Rejected by Kerem in favour of correcting the text to
 eliminate the ambiguity entirely.
+
+
+---
+
+## 12. K-12 — Tenancy Model and ORM Decision
+
+**Date:** 2026-06-08
+**Source:** Kerem explicit decision (task input to Pod B session)
+**Scope:** Tenancy strategy (ADR-008), ORM selection (ADR-004), UUID primary keys, global tenant scoping enforcement requirement
+**PR:** `docs/accept-tenancy-orm-decisions` → `main`
+
+### Decision
+
+| Decision area | Value locked |
+|---|---|
+| Tenancy model | Shared schema with mandatory non-null `tenant_id` on all tenant-scoped tables |
+| Tenancy lock scope | Locked for Phase 1 AND as the long-term model. No schema-per-tenant or database-per-tenant planned. |
+| ORM | Prisma |
+| Primary keys | UUID on all entity tables (resolves UUID-vs-bigint open question) |
+| Global tenant enforcement | Prisma Client Extension injecting `tenant_id` on all tenant-scoped queries — binding design requirement |
+
+### Binding design requirement recorded
+
+Phase 1 database design MUST enforce tenant scoping globally via a Prisma Client Extension. This requirement:
+- Must be satisfied before any tenant-scoped schema or migration is created
+- Requires Pod B + Kerem approval under ADR-009 §3 (database/schema migration + security-sensitive)
+- Cannot be bypassed without a new Pod B architecture review and Kerem approval
+
+### What this does NOT unlock
+
+This decision records the architecture choices. It does NOT authorize Pod C to begin implementation. The following remain blocked until separate Pod B + Kerem approved implementation issues exist:
+
+- Prisma installation and configuration
+- Schema authoring (any table)
+- Database migrations
+- `TenantContext` module implementation
+- Prisma Client Extension implementation
+- Wallet/loyalty/entity table creation
+- `SelcafeAdapter` work (also blocked separately pending ADR-005)
+
+### ADRs locked by this decision
+
+| ADR | Status before | Status after |
+|---|---|---|
+| ADR-004 (ORM selection) | Proposed — not locked | Accepted — 2026-06-08 |
+| ADR-008 (tenancy strategy) | Proposed — deferred (Kerem 2026-06-04) | Accepted — 2026-06-08 |
 
 ---
 

@@ -412,8 +412,8 @@ The following topics are intentionally not finalized in this project brief:
 
 | Topic | Status |
 |---|---|
-| Tenancy strategy | Deferred / not locked. `PROJECT_DECISION_INDEX.md` §2 is canonical over stale brief or instruction-table wording. ADR-008 is deferred until Kerem revisits tenancy. Schema-per-tenant may remain a leading candidate, but it is not locked; shared schema with `tenant_id` and database-per-tenant remain candidates. Pod C schema, migration, and `TenantContext` work remains blocked until tenancy is revisited and explicitly approved. |
-| ORM | Prisma is a candidate, not confirmed |
+| Tenancy strategy | **Locked** — Shared schema with mandatory non-null `tenant_id` on all tenant-scoped tables. Long-term model (Phase 1 through Phase 3). No schema-per-tenant or database-per-tenant planned. ADR-008 Accepted 2026-06-08 (Kerem approval). Binding design requirement: global Prisma Client Extension for tenant scoping enforcement before any tenant-scoped entity is implemented. Pod C schema, migration, and `TenantContext` work remains blocked pending separate Pod B + Kerem approved implementation issues. |
+| ORM | **Locked** — Prisma. ADR-004 Accepted 2026-06-08 (Kerem approval). UUID primary keys confirmed on all entity tables. Pod C Prisma installation, schema authoring, and migration work remains blocked pending separate Pod B + Kerem approved implementation issues. |
 | Caching layer | Not confirmed |
 | Queue system | Not confirmed |
 | Real-time transport | Not required for Phase 1. WebSocket is the Phase 2 candidate. Final selection deferred to Pod B architecture review before Phase 2 begins. |
