@@ -31,18 +31,15 @@ It is **NOT a pod**. It is not Pod A, B, C, or D. It is not "Pod O."
   still execute the gate.
 - Preserves PROJECT_METHODOLOGY.md §1: "No AI pod is the project manager.
   No AI pod can make final decisions." Kerem remains sole decision authority.
+- Does not create, modify, or approve canonical repository artifacts. Any candidate output must be converted into repo-ready work by the responsible pod or Kerem through the normal review path.
 
 ## Relationship to Pod A
-Overlaps Pod A's planning/routing role and the §24.2 "Delivery Coordinator"
-coverage. To stay separate: the Advisor prepares **candidate** routing and
-roadmap material for Kerem; **Pod A remains owner** of all product/planning
-artifacts, AGENT_CONTEXT_MANIFEST.md, and the handoff templates.
+Overlaps Pod A's planning/routing role and the §24.2 "Delivery Coordinator" coverage. To stay separate: the Advisor prepares candidate coordination summaries, sequencing options, and draft handoff/decision packets for Kerem only. It does not own, author, or update product/planning artifacts; Pod A remains owner of product/planning outputs, routing recommendations, AGENT_CONTEXT_MANIFEST.md, and handoff templates.
 
 ## Trial
-- Window: 2026-07-07 (4 weeks from merge date).
+- Window: 4 weeks from merge date. Target review date may be recorded after merge.
 - Exit: Pod D audits for workflow consistency; Pod A reviews for role overlap;
   Kerem decides whether to (a) discontinue, (b) keep informal, or
   (c) formalize via a behavior-changing PR (ADR-013 §7 / ADR-009 §4 —
-  Pod Impact Matrix + Instruction Update Packet + Pod A review + Kerem approval),
-  most likely by clarifying the §24.2 Delivery Coordinator row rather than
-  creating a new pod.
+  Pod Impact Matrix + Instruction Update Packet + Pod A review + Kerem approval).
+  If Kerem keeps the role informal, no methodology or instruction-snapshot change is required; if Kerem formalizes it, the change must be handled as behavior-changing under ADR-013 §7 / ADR-009 §4. Most likely path: clarifying the §24.2 Delivery Coordinator row rather than creating a new pod.
