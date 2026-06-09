@@ -1,10 +1,11 @@
 # KEREM_DECISIONS.md
 
 <!--
-  STATUS: COMPLETE — K-01 through K-12 recorded
-  SOURCE: Kerem interview session, Pod B facilitation; K-11 from Kerem chat approval 2026-06-07
+  STATUS: COMPLETE — K-01 through K-13 recorded
+  SOURCE: Kerem interview session, Pod B facilitation; K-11 from Kerem chat approval 2026-06-07;
+          K-13 from Kerem session decisions 2026-06-09 (OQ-001 auth resolution)
   AUTHOR: Pod B (Architecture, Logic & Risk)
-  VERSION: 1.2
+  VERSION: 1.3
   PATH: /docs/KEREM_DECISIONS.md
 
   PURPOSE:
@@ -37,6 +38,7 @@
 | K-10 | Selcafe feasibility spike | Authorised — Pod C executes remotely | ✅ Recorded |
 | K-11 | BC-2: approval gate alignment (ADR-009 §3 vs §11.1/§15) | Option A approved — alignment path | ✅ Recorded |
 | K-12 | Tenancy model + ORM | Shared schema + mandatory non-null `tenant_id` (long-term); Prisma ORM; UUID primary keys; binding global tenant scoping enforcement | ✅ Recorded |
+| K-13 | Phase 1 authentication decisions (KD-A through KD-H) | See Section 13 | ✅ Recorded |
 
 ---
 
@@ -376,6 +378,49 @@ This decision records the architecture choices. It does NOT authorize Pod C to b
 
 ---
 
+## 13. K-13 — Phase 1 Authentication Decisions
+
+**Date:** 2026-06-09
+**Source:** Kerem session decisions (KD-A through KD-H), confirmed in Pod B OQ-001 recommendation session
+**Scope:** Phase 1 authentication decisions for all actors
+**PR:** PR #37 (`docs/auth-recommendation-and-roles` → `main`)
+
+### Decision
+
+| ID | Decision area | Value locked |
+|---|---|---|
+| KD-A | Customer login method | Phone OTP (SMS). Google login deferred to Phase 2. |
+| KD-B | SMS provider | Pod B to produce provider report; Kerem decides with Pod A (business/price aspects). Backlog item. |
+| KD-C | Admin MFA | Required. TOTP (authenticator app). |
+| KD-D | Cashier inactivity timeout | 40 minutes. |
+| KD-E | F&B Staff scope | Order management only. No payment, wallet, or loyalty — including F&B payment. F&B payment handled by CASHIER at main cashier point. |
+| KD-F | Top-up threshold | No threshold in Phase 1. Daily top-up report visible to ADMIN as compensating control. |
+| KD-G | Phone display in cashier top-up flow | Masked — last 4 digits only (e.g. +90 555 *** ** 01). |
+| KD-H | Role structure | One elevated role: ADMIN. MANAGER/ADMIN split deferred to Phase 2. |
+
+### Architectural implications recorded by Pod B
+
+- **KD-A:** Customer auth module must implement SMS OTP flow. No OAuth/social login surface in Phase 1. Google login deferred to Phase 2 — no placeholder code required, but module boundary must not preclude it.
+- **KD-B:** SMS provider ADR (or provider selection sub-decision) is a Phase 1 blocker for customer login. Pod B to produce provider comparison report before ADR-015 is finalised.
+- **KD-C:** Admin auth module must enforce TOTP second factor. Authenticator-app-based (TOTP RFC 6238); not SMS-based for admin. Separate from customer OTP channel.
+- **KD-D:** Cashier session token must expire after 40 minutes of inactivity. Server-side enforcement required — client-side idle timer alone is insufficient.
+- **KD-E:** F&B Staff role scope is orders-only. Role-based access control must exclude payment, wallet top-up, wallet adjustment, loyalty redemption, and loyalty adjustment endpoints. F&B payment (e.g. food charges) is routed through CASHIER role at the main cashier point, not through F&B Staff.
+- **KD-F:** No top-up threshold enforced in Phase 1. Compensating control is a daily top-up report surfaced to ADMIN. Pod B to include this report as a required admin dashboard feature in the auth/roles architecture.
+- **KD-G:** Phone number in cashier top-up UI must be masked to last 4 digits. Data minimisation by display — full number stored in backend, never sent to cashier client in top-up context.
+- **KD-H:** Role enum for Phase 1: CUSTOMER, CASHIER, FB_STAFF, ADMIN. MANAGER role is not created in Phase 1. No code scaffolding for MANAGER — deferral is clean.
+
+### What this does NOT unlock
+
+These decisions record authentication policy. They do not authorise Pod C to implement auth. The following remain blocked until ADR-015 is drafted, reviewed (Pod B), and Kerem-approved:
+
+- Auth module scaffolding
+- OTP flow implementation
+- Session/token management implementation
+- Role guard implementation
+- Any endpoint decorated with role guards
+
+---
+
 ## Open Actions Summary
 
 | Action | Owner | Dependency | Priority |
@@ -397,6 +442,8 @@ This decision records the architecture choices. It does NOT authorize Pod C to b
 | Update `PROJECT_DECISION_INDEX.md` with BC-2/K-11 row | Pod B | PR-A merge | High |
 | Update Pod B snapshot `LAST SYNCED TO PLATFORM` date | Kerem | PR-A merge | High |
 | Update Pod C instruction snapshot for §11.1 gate change | Kerem/Pod C | PR-A merge | High |
+| Produce SMS provider comparison report | Pod B | — | High — blocks KD-B / ADR-015 |
+| Draft ADR-015: Authentication strategy | Pod B | K-13 locked; provider report complete | High — blocks Pod C auth implementation |
 
 ---
 
@@ -406,3 +453,5 @@ This decision records the architecture choices. It does NOT authorize Pod C to b
 |---|---|---|---|
 | 1.0 | [DATE] | Pod B | All 10 Kerem items recorded from interview session |
 | 1.1 | 2026-06-07 | Pod B | K-11 BC-2 Option A approval added; Open Actions Summary updated with post-merge tasks |
+| 1.2 | 2026-06-08 | Pod B | K-12 tenancy model + ORM decisions added; summary table and open actions updated |
+| 1.3 | 2026-06-09 | Pod B | K-13 Phase 1 authentication decisions (KD-A through KD-H) added; summary table, open actions, and revision log updated |
