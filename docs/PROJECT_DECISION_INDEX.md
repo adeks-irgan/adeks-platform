@@ -5,7 +5,7 @@
 **Approver:** Kerem (any status transition **into or out of "Locked"** on a product/business-impacting decision)
 **Canonical methodology:** `/docs/PROJECT_METHODOLOGY.md`
 **Intended repo path:** `/docs/PROJECT_DECISION_INDEX.md`
-**Last updated:** 2026-06-09 (K-13: Phase 1 authentication decisions locked; ADR-015 added to backlog)
+**Last updated:** 2026-06-09 (ADR-015 Authentication Strategy Accepted — Kerem approval; §1 Authentication row added, ADR-015 backlog row → Accepted)
 
 > **This file mirrors ADRs, methodology, and recorded Kerem decisions. It does not *establish* decisions.** The authoritative record of any decision is its ADR (in `/docs/adr/`) plus Kerem's approval. If this index and an ADR ever disagree, the ADR wins and this index is stale until corrected. If an external platform-instruction file says a decision is locked but this index and the ADRs do not, **treat the instruction file as stale** until reconciled.
 
@@ -42,6 +42,7 @@
 | ORM | Locked | ADR-004 — Accepted 2026-06-08 | B, C | Prisma. Schema-first, generated client. Prisma Client Extensions mandatory for global `tenant_id` enforcement. |
 | Tenancy strategy | Locked | ADR-008 — Accepted 2026-06-08 | A, B, C | Shared schema + mandatory non-null `tenant_id` on all tenant-scoped tables. Long-term model. No schema-per-tenant or database-per-tenant planned. |
 | Primary keys | Locked | ADR-008 — Accepted 2026-06-08 | B, C | UUID on all entity tables. Resolves UUID-vs-bigint open question. |
+| Authentication strategy | Locked | ADR-015 — Accepted 2026-06-09 | A, B, C, D | Phase 1. CUSTOMER: Phone OTP (SMS); JWT access (~15 min) + refresh (~7–30 d) in `httpOnly` cookie; customer UUID in claims, not phone. CASHIER/FB_STAFF: individual username/password; server-side session; 40-min inactivity timeout. ADMIN: username/password + required TOTP MFA; 15-min inactivity timeout; step-up re-auth for high-sensitivity actions. No shared accounts. Decisions locked via K-13 (KD-A…KD-H). |
 
 ---
 
@@ -77,7 +78,7 @@
 | ADR-012 | Feature flag tool selection | Before Phase 1 go-live | Backlog — **assigned to Pod B** (K-04) |
 | ADR-013 | Repository-Controlled Pod Context (methodology consolidation) | High | **Accepted** — 2026-06-05 (Kerem approval). Supersedes `POD_TRAFFIC_WORKFLOW.md` as an active methodology source. |
 | ADR-014 | PWA-first customer application | High | Backlog — decision locked, ADR to write |
-| ADR-015 | Authentication strategy | High | Backlog — pre-ADR recommendation complete (PR #37). OQ-001 resolved. ADR drafting next Pod B deliverable. |
+| ADR-015 | Authentication strategy | Done | **Accepted** — 2026-06-09 (Kerem approval). Phase 1 auth: Phone OTP customer (JWT + refresh, `httpOnly`); individual staff credentials, server-side session, 40-min timeout; required admin TOTP MFA, 15-min timeout. Decisions locked via K-13 (KD-A…KD-H). Implementation blocked pending Pod B authentication threat model + separate Pod B + Kerem approved issues. |
 
 ---
 
