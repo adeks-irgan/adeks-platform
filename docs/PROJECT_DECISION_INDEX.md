@@ -5,7 +5,7 @@
 **Approver:** Kerem (any status transition **into or out of "Locked"** on a product/business-impacting decision)
 **Canonical methodology:** `/docs/PROJECT_METHODOLOGY.md`
 **Intended repo path:** `/docs/PROJECT_DECISION_INDEX.md`
-**Last updated:** 2026-06-08 (K-12: tenancy + ORM decisions locked; ADR-004 and ADR-008 Accepted)
+**Last updated:** 2026-06-09 (K-13: Phase 1 authentication decisions locked; ADR-015 added to backlog)
 
 > **This file mirrors ADRs, methodology, and recorded Kerem decisions. It does not *establish* decisions.** The authoritative record of any decision is its ADR (in `/docs/adr/`) plus Kerem's approval. If this index and an ADR ever disagree, the ADR wins and this index is stale until corrected. If an external platform-instruction file says a decision is locked but this index and the ADRs do not, **treat the instruction file as stale** until reconciled.
 
@@ -77,6 +77,7 @@
 | ADR-012 | Feature flag tool selection | Before Phase 1 go-live | Backlog — **assigned to Pod B** (K-04) |
 | ADR-013 | Repository-Controlled Pod Context (methodology consolidation) | High | **Accepted** — 2026-06-05 (Kerem approval). Supersedes `POD_TRAFFIC_WORKFLOW.md` as an active methodology source. |
 | ADR-014 | PWA-first customer application | High | Backlog — decision locked, ADR to write |
+| ADR-015 | Authentication strategy | High | Backlog — pre-ADR recommendation complete (PR #37). OQ-001 resolved. ADR drafting next Pod B deliverable. |
 
 ---
 
@@ -87,6 +88,7 @@
 | Kerem interview decisions **K-01 … K-10** | `/docs/KEREM_DECISIONS.md` | Vision/North Star, cadence, rollback threshold, feature flag (→ADR-012), product metrics, feedback capture, VERBİS, KVKK advisor, pilot selection, Selcafe spike. |
 | **K-11 — BC-2 approval-gate alignment** | `/docs/KEREM_DECISIONS.md` §11 | **Locked — Kerem-approved 2026-06-07** (BC-2 Option A; PR #27, Issue #26). Corrects §11.1 and §15 conflicts with ADR-009 §3. Effective gates: **Selcafe adapter or Selcafe integration changes → Pod B + Kerem required before merge**; **Database / schema migration → Pod B + Kerem required before merge**; **Security-sensitive PR (incl. security-sensitive admin actions) → Pod B + Kerem required before merge**. Stale embedded PR template removed from §15; live template at `.github/PULL_REQUEST_TEMPLATE.md`. Authoritative source for all gates: ADR-009 §3. |
 | **K-12 — Tenancy model + ORM decision** | `/docs/KEREM_DECISIONS.md` §12 | **Locked — Kerem-approved 2026-06-08**. Tenancy: shared schema + mandatory non-null `tenant_id`, long-term (ADR-008 Accepted). ORM: Prisma (ADR-004 Accepted). Binding design requirement: global Prisma Client Extension for `tenant_id` enforcement. UUID primary keys on all entity tables. Implementation remains blocked pending separate Pod B + Kerem approved issues. |
+| **K-13 — Authentication decisions (KD-A through KD-H)** | `/docs/KEREM_DECISIONS.md` §13 | **Locked — Kerem-approved 2026-06-09 (PR #37)**. Customer: Phone OTP. Staff: individual credentials. Admin: TOTP MFA required. F&B Staff: orders only, no payment. Cashier timeout: 40 min. Phone display: masked last 4 digits. SMS provider: deferred pending Pod B provider report. ADR-015 drafting is next Pod B deliverable. |
 | Governance decisions **PQ-001 … PQ-005** | Canonical homes (mapped) | Migrated from archived `POD_TRAFFIC_WORKFLOW.md` §17. PQ-001 → `PROJECT_METHODOLOGY.md` §11.1/§20.3 + ADR-009 §3; PQ-002 → `PROJECT_METHODOLOGY.md` §2.5 (Pod D mandatory audit cadence) + §8.4; PQ-003 → `/docs/templates/` + ADR-013; PQ-004 → ADR-009 §2; PQ-005 → `PROJECT_METHODOLOGY.md` §27 + `/docs/templates/CONTEXT_FRESHNESS.md`. |
 | Confirmed Phase 1 product decisions **D-001 … D-011** | Product docs / instruction files (to migrate into `MVP_SCOPE.md`) | Login-gated core, public catalog, cashier top-up, no self top-up Phase 1, automatic loyalty earning, cashier redemption, staff-approved reservations, cashier-only payment Phase 1, online payment Phase 2. |
 | Locked principles | `PROJECT_METHODOLOGY.md` (Locked Principles) + ADR-005/006/007 | Append-only wallet & loyalty ledgers; all admin actions auditable; no direct commits to `main`; KVKK required; human approval for wallet/payment/refund/security/customer-data; Selcafe read-only Phase 1; synthetic data only. |
