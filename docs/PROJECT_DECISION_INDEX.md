@@ -5,7 +5,7 @@
 **Approver:** Kerem (any status transition **into or out of "Locked"** on a product/business-impacting decision)
 **Canonical methodology:** `/docs/PROJECT_METHODOLOGY.md`
 **Intended repo path:** `/docs/PROJECT_DECISION_INDEX.md`
-**Last updated:** 2026-06-09 (ADR-015 Authentication Strategy Accepted — Kerem approval; §1 Authentication row added, ADR-015 backlog row → Accepted)
+**Last updated:** 2026-06-09 (PR #44 reconciliation — rollback triggers row updated to point to existing `/docs/ROLLBACK_POLICY.md`)
 
 > **This file mirrors ADRs, methodology, and recorded Kerem decisions. It does not *establish* decisions.** The authoritative record of any decision is its ADR (in `/docs/adr/`) plus Kerem's approval. If this index and an ADR ever disagree, the ADR wins and this index is stale until corrected. If an external platform-instruction file says a decision is locked but this index and the ADRs do not, **treat the instruction file as stale** until reconciled.
 
@@ -93,7 +93,7 @@
 | Governance decisions **PQ-001 … PQ-005** | Canonical homes (mapped) | Migrated from archived `POD_TRAFFIC_WORKFLOW.md` §17. PQ-001 → `PROJECT_METHODOLOGY.md` §11.1/§20.3 + ADR-009 §3; PQ-002 → `PROJECT_METHODOLOGY.md` §2.5 (Pod D mandatory audit cadence) + §8.4; PQ-003 → `/docs/templates/` + ADR-013; PQ-004 → ADR-009 §2; PQ-005 → `PROJECT_METHODOLOGY.md` §27 + `/docs/templates/CONTEXT_FRESHNESS.md`. |
 | Confirmed Phase 1 product decisions **D-001 … D-011** | Product docs / instruction files (to migrate into `MVP_SCOPE.md`) | Login-gated core, public catalog, cashier top-up, no self top-up Phase 1, automatic loyalty earning, cashier redemption, staff-approved reservations, cashier-only payment Phase 1, online payment Phase 2. |
 | Locked principles | `PROJECT_METHODOLOGY.md` (Locked Principles) + ADR-005/006/007 | Append-only wallet & loyalty ledgers; all admin actions auditable; no direct commits to `main`; KVKK required; human approval for wallet/payment/refund/security/customer-data; Selcafe read-only Phase 1; synthetic data only. |
-| Mandatory rollback triggers | `/docs/ROLLBACK_POLICY.md` (Pod B to write per K-03) | (1) wallet/loyalty integrity failure; (2) customer personal-data exposure → immediate non-discretionary rollback. |
+| Mandatory rollback triggers | `/docs/ROLLBACK_POLICY.md` | (1) wallet/loyalty integrity failure; (2) customer personal-data exposure → immediate non-discretionary rollback. Authoritative home: `/docs/ROLLBACK_POLICY.md` (K-03). |
 | Kerem methodology decisions **MD-2 … MD-6** | `/docs/PROJECT_METHODOLOGY.md` §28.4 | Approved 2026-06-04. MD-2: methodology-consolidation direction. MD-3: ADR-013 + §28 revision. MD-4: decision-index ownership = Pod B sole owner, Pod A reviewer on product/business-impacting rows. MD-5: workflow stub + archive at `/docs/archive/POD_TRAFFIC_WORKFLOW_v1.1.md`. MD-6: conditional Pod Impact Matrix gate. |
 
 ---
