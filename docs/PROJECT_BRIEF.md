@@ -224,7 +224,7 @@ The intended Phase 1 flow:
 5. Customer provides seat/PC context if required.
 6. Customer submits the order.
 7. Staff sees the order in the web cashier/admin interface.
-8. Payment is handled by cashier/F&B cashier workflow.
+8. Payment is settled at the main cashier point by CASHIER staff. F&B Staff handles order fulfilment only.
 9. Staff processes and updates order status.
 10. Customer receives order status feedback where supported.
 
@@ -275,7 +275,7 @@ Locked loyalty principles:
 | Derived balance | Loyalty balance should be derived from ledger entries |
 | Auditability | Earning, redemption, and adjustments must be auditable |
 | Human approval | Loyalty rules and redemption behavior require human approval |
-| Vendor-neutral domain | Loyalty should belong to Adeks Platform domain, not Selcafe-specific structures |
+| Vendor-neutral domain | Loyalty should belong to Selcafe-specific structures |
 
 ### Phase 1 Loyalty Position
 
@@ -461,7 +461,7 @@ These should be added to `OPEN_QUESTIONS.md` if not resolved before commit.
 
 | ID | Question | Owner |
 |---|---|---|
-| OQ-001 | What customer login method should Phase 1 use: phone OTP, cashier-created account, QR/session code, Selcafe account mapping, or another method? | Kerem / Pod B |
+| OQ-001 | Resolved: Phase 1 `CUSTOMER` authentication is Phone OTP (SMS). Source: `/docs/USER_ROLES_AND_PERMISSIONS.md`. | Kerem / Pod B |
 | OQ-002 | Which purchase types earn loyalty in Phase 1: F&B only, PC/session usage only, wallet top-up, or selected combinations? | Kerem |
 | OQ-003 | What is the Phase 1 loyalty earning formula? | Kerem |
 | OQ-004 | What are the Phase 1 loyalty redemption rules, limits, and cashier override rules? | Kerem |
