@@ -125,7 +125,7 @@ It should provide:
 | Selcafe discovery/sync | Read-only integration if technically feasible |
 | Selcafe replacement | Not included in Phase 1 |
 
-Phase 1 should coexist with Selcafe. It should not attempt to replace Selcafe’s core PC/session control.
+Phase 1 should coexist with Selcafe. It should not attempt to replace Selcafe's core PC/session control.
 
 ---
 
@@ -374,7 +374,7 @@ Adeks Platform is intended to become more than an internal tool.
 
 The long-term commercialization direction is:
 
-- Start with Adeks’ own operational needs.
+- Start with Adeks' own operational needs.
 - Validate customer and staff workflows in a real café environment.
 - Build vendor-neutral abstractions.
 - Gradually reduce Selcafe dependency.
@@ -447,11 +447,11 @@ These topics should not be finalized by Pod A.
 
 | ID | Assumption | Needs Confirmation |
 |---|---|---|
-| A-001 | “Eligible purchases” for loyalty earning may include F&B purchases, PC/session purchases, or both, depending on later business rules. | Kerem |
+| A-001 | "Eligible purchases" for loyalty earning may include F&B purchases, PC/session purchases, or both, depending on later business rules. | Kerem |
 | A-002 | Wallet top-up is performed only by authorized cashier/admin users, not general staff. | Kerem |
 | A-003 | Cashier-handled loyalty redemption requires staff role permission and audit logging. | Kerem / Pod B |
 | A-004 | Public catalog browsing does not expose customer-specific prices, wallet data, loyalty data, or personal recommendations. | Kerem / Pod B |
-| A-005 | Customer login method is not yet finalized. | Kerem / Pod B |
+| A-005 | Resolved: Phone OTP (SMS). Source: `/docs/USER_ROLES_AND_PERMISSIONS.md`. | — |
 
 ---
 
@@ -479,7 +479,7 @@ These should be added to `OPEN_QUESTIONS.md` if not resolved before commit.
 | Area | Status |
 |---|---|
 | Ready for commit | Yes, as v0.3 |
-| Requires Kerem approval | Loyalty formula, redemption limits, wallet top-up methods, reservation rules, customer login method |
+| Requires Kerem approval | Loyalty formula, redemption limits, wallet top-up methods, reservation rules |
 | Requires Pod B — Architecture, Logic & Risk review | Wallet ledger design, loyalty ledger design, Selcafe adapter boundary, KVKK/security implications, OWASP ASVS/API security implications, role permissions, audit requirements, tenancy implementation details |
 | Requires Pod C — Build & DevOps implementation | Not yet. This document is planning only |
 | Requires Pod D — Prototype, Audit & Monitoring review | Customer PWA flow and staff/admin UI flow should be prototyped later; monitoring requirements should be handled in `NON_FUNCTIONAL_REQUIREMENTS.md` |
