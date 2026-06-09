@@ -275,7 +275,7 @@ Locked loyalty principles:
 | Derived balance | Loyalty balance should be derived from ledger entries |
 | Auditability | Earning, redemption, and adjustments must be auditable |
 | Human approval | Loyalty rules and redemption behavior require human approval |
-| Vendor-neutral domain | Loyalty should belong to Selcafe-specific structures |
+| Vendor-neutral domain | Loyalty should belong to Adeks Platform domain, not Selcafe-specific structures |
 
 ### Phase 1 Loyalty Position
 
