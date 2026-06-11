@@ -2,13 +2,13 @@
 
 <!--
   DOCUMENT TYPE: Pod B Security Artifact (Threat Model)
-  VERSION: v0.3
-  STATUS: Draft — ready for Kerem acceptance (3 open items resolved 2026-06-10; see §14)
+  VERSION: v0.4
+  STATUS: Accepted by Kerem — BL-2 closed (PR #46 merge accepted as BL-2 closure, confirmed 2026-06-11). Implementation remains blocked by BL-1/BL-3/BL-4/BL-5/BL-6. See §10, §13, §14.
   AUTHOR: Pod B — Architecture, Logic & Risk
   REVIEWER: Pod B (self) + Kerem (subject-matter sensitivity: Authentication/
             authorization + Customer personal data handling + Security-sensitive)
   APPROVER: Kerem
-  DATE: 2026-06-10
+  DATE: 2026-06-11
   CANONICAL REPO PATH: /docs/architecture/AUTH_THREAT_MODEL.md
   AUTHORITY: Derives from ADR-015 (Accepted). ADR-015 is authoritative; this
              document does NOT establish or change any decision. If this document
@@ -296,7 +296,7 @@ limits must be enforced server-side.
 |---|---|---|---|---|---|---|
 | T-P1 | I | `CASHIER` over-exposed to full customer phone numbers | M | M | Cashier sees masked number, last 4 only, e.g. `+90 555 *** ** 01` `[ADR-015 KVKK §4; USER_ROLES_AND_PERMISSIONS.md §6.1]` `[IR-21]` | Low |
 | T-P2 | I/R | `ADMIN` access to full phone numbers is untracked | L | M | Every admin access to a full customer phone number produces an audit record (admin UUID, accessed customer UUID, timestamp); bulk access is a step-up action `[ADR-015 KVKK §4, §3]` `[IR-09, IR-17]` | Low |
-| T-P3 | I | Phone number committed before the privacy notice is acknowledged | M | H | Aydınlatma Metni displayed and acknowledged **before** the OTP is sent — before any personal data is committed `[ADR-015 KVKK §1]`; flow owned by `CORE_USER_FLOWS.md` `[PRODUCT IMPLICATION — POD A ALIGNMENT NEEDED]` | Low |
+| T-P3 | I | Phone number committed before the privacy notice is acknowledged | M | H | Aydınlatma Metni displayed and acknowledged **before** the OTP is sent — before any personal data is committed `[ADR-015 KVKK §1]`; flow owned by `CORE_USER_FLOWS.md` `[POD A ALIGNMENT — CORE_USER_FLOWS.md v0.3 reviewed 2026-06-10; K-14/15/16 recorded]` | Low |
 | T-P4 | I | Unauthorized cross-tenant read of customer/auth records | L | M | All tenant-scoped auth tables carry non-null `tenant_id`; the mandatory Prisma Client Extension enforces tenant scoping; no cross-tenant business queries `[ADR-004, ADR-008]` `[IR-22]` (single tenant in Phase 1; the seam must still hold) | Low |
 | T-P5 | I/D | A confirmed phone-number exposure is a non-discretionary rollback trigger | L | H | Treat as ROLLBACK_POLICY **T-2**: immediate rollback, incident record, 72-hour KVKK breach clock starts on confirmation `[ROLLBACK_POLICY §3.1]` | Documented |
 
@@ -379,10 +379,10 @@ hashing) is incorporated by reference and is not restated as new.
 | ID | Blocker | Owner | Why it blocks |
 |---|---|---|---|
 | BL-1 | **SMS provider not selected** (blocked by the separate Pod B provider report); provider-side OTP threats + KVKK data-processor / cross-border assessment cannot be closed | Kerem (decision) + Pod B (provider report) | Customer OTP cannot be implemented or its provider-side threats assessed (T-C2, T-C5, §8). `[NEEDS KEREM APPROVAL]` |
-| BL-2 | **This threat model not yet Kerem-reviewed/accepted** | Kerem | ADR-015 requires the Pod B threat model be reviewed before implementation is unblocked |
+| BL-2 | **CLOSED 2026-06-11** — threat model Kerem-reviewed/accepted. Kerem confirmed the **PR #46 merge** (v0.3, merged 2026-06-10 10:14:37Z) constitutes BL-2 closure. The v0.4 delta is a blocker-status annotation only (BL-5 narrowing; records K-14/15/16) and alters no threat, mitigation, or IR, so acceptance carries to v0.4. | Kerem | ~~ADR-015 requires the Pod B threat model be reviewed before implementation is unblocked~~ — **satisfied**. |
 | BL-3 | **Refresh-token + customer-account retention periods undefined** (`DATA_RETENTION_POLICY.md` absent/incomplete) | Kerem approves; Pod B reviews | ADR-015 ties refresh lifetime to documented retention before go-live (T-C16) |
 | BL-4 | **KVKK legal basis for phone number undetermined** (K-08 advisor); `DATA_PROCESSING_INVENTORY.md` entry pending | Kerem + legal advisor | Phone is the auth identity anchor; processing basis must be on record before production data |
-| BL-5 | **Aydınlatma Metni text + acknowledgment-before-OTP flow** not finalized (`PRIVACY_NOTICE_TR.md`, `CORE_USER_FLOWS.md`) | Kerem + legal advisor (text); Pod A (flow) | Registration flow must gate OTP send on acknowledgment (T-P3). `[PRODUCT IMPLICATION — POD A ALIGNMENT NEEDED]` |
+| BL-5 | **Aydınlatma Metni legal text not finalized.** Flow side resolved: `CORE_USER_FLOWS.md` v0.3 Pod B review complete 2026-06-10; Kerem decisions recorded — notice location (K-14 → `/docs/PRIVACY_NOTICE_TR.md`, build-time embedded), acknowledgment persistence (K-15 → persisted only on verified OTP), same-session reuse (K-16). **Still open:** the Turkish Aydınlatma Metni legal text (`PRIVACY_NOTICE_TR.md`, OQ-CUF-AUTH-001). | Kerem + legal advisor (text) | OTP send is gated on acknowledgment in the reviewed flow (T-P3); blocker remains until the notice text is finalized. |
 | BL-6 | **No separate Pod B + Kerem approved Pod C auth issues exist** (ADR-015 explicitly does not authorize Pod C work) | Kerem + Pod B | Implementation requires approved issues derived from §9, not from this document |
 
 **Resolved by Kerem (2026-06-10):** staff failed-login policy → progressive backoff +
@@ -396,9 +396,12 @@ DB-level append-only sufficient for Phase 1, hash-chaining/WORM deferred to the 
 creates the first `ADMIN` and how the first TOTP secret is delivered/confirmed — §6.3 / IR-24),
 and the **SMS global spend/volume ceiling value and operational response-path owner** (IR-25).
 
-No blocker was added or removed in v0.2 or v0.3. IR-24 (admin bootstrap) and IR-25 (app-side
-SMS controls) are implementation requirements, not blockers — IR-25 in particular is
-implementable now and does not depend on BL-1 (SMS provider selection).
+**v0.4 blocker changes:** **BL-2 closed** (2026-06-11; Kerem accepted the threat model — PR #46
+merge accepted as BL-2 closure). **BL-5 narrowed** to the outstanding Aydınlatma Metni legal text
+(flow side reviewed; K-14/15/16 recorded). No blocker was added or removed in v0.2 or v0.3.
+Implementation remains blocked: **BL-1, BL-3, BL-4, BL-5, BL-6 are still open.** IR-24 (admin
+bootstrap) and IR-25 (app-side SMS controls) are implementation requirements, not blockers —
+IR-25 in particular is implementable now and does not depend on BL-1 (SMS provider selection).
 
 ---
 
@@ -441,12 +444,14 @@ ADR-015, ADR-004/008, and the locked audit/KVKK principles.
 
 ## 13. Review Routing and Status
 
-- **Status:** Draft (v0.3) — ready for Kerem acceptance.
+- **Status:** v0.4 — **Accepted by Kerem (BL-2 closed 2026-06-11).** Implementation remains blocked by BL-1/BL-3/BL-4/BL-5/BL-6.
 - **Pod B:** Author and security reviewer (self-review complete).
-- **Kerem:** Review/approval **required** before merge (§12); acceptance of this threat model
-  is blocker **BL-2** for unblocking implementation.
-- **Pod A:** Alignment needed on the Aydınlatma-Metni-before-OTP registration flow
-  (`CORE_USER_FLOWS.md`) — `[PRODUCT IMPLICATION — POD A ALIGNMENT NEEDED]` (T-P3 / BL-5).
+- **Kerem:** Review/approval was **required** before merge (§12). **Accepted: BL-2 closed
+  2026-06-11** (PR #46 merge accepted as BL-2 closure). Acceptance unblocks BL-2 only; the
+  other blockers (BL-1/BL-3/BL-4/BL-5/BL-6) still gate implementation.
+- **Pod A:** Aydınlatma-Metni-before-OTP registration flow aligned — `CORE_USER_FLOWS.md`
+  v0.3 reviewed 2026-06-10 (K-14/15/16 recorded). Outstanding Pod A / legal dependency is the
+  notice legal text only (OQ-CUF-AUTH-001 / BL-5).
 - **Pod C:** **Not unblocked.** §9 requirements must become separately approved Pod C issues
   before any implementation; this document does not authorize work and creates no issues.
 - **Pod D:** Optional later — monitoring/alerting for failed-login thresholds, anomalous OTP
@@ -465,3 +470,4 @@ blockers in §10 are cleared, and separate Pod B + Kerem approved Pod C issues e
 | v0.1 | 2026-06-10 | Pod B | Initial threat model (10 components, IR-01…IR-22, BL-1…BL-6). |
 | v0.2 | 2026-06-10 | Pod B | Pre-PR revision: (1) §12 + header → Pod B + Kerem review/approval **required** before merge (strictest ADR-009 §3 trigger governs). (2) Added OTP temporary-storage requirement IR-23 / threat T-C4b (short-lived, TTL-bound, single-use, no recoverable plaintext before verification). (3) §7.2 failed-login expanded to all four channels: customer OTP verify (T-F1), staff password (T-F2), admin password (T-F3), admin TOTP (T-F4), plus disclosure/audit rows (T-F5–T-F7). (4) Added initial-admin bootstrap + first TOTP enrollment §6.3 (T-A10–T-A12) / IR-24. (5) Added app-side SMS abuse/cost controls IR-25 / threat T-C2b (global send-volume/spend ceiling, anomaly alerting, operational response path) — independent of provider selection. (6) §8 clarified that SMS provider selection remains `[NEEDS KEREM APPROVAL]` after the provider report and that this document does not request provider approval now. ADR-015 unchanged; no provider selected; no Pod C issues created. |
 | v0.3 | 2026-06-10 | Pod B | Recorded Kerem decision (2026-06-10) resolving three open items: staff failed-login → progressive backoff + temporary lockout + admin/Kerem unlock + alerting, no indefinite hard lockout in Phase 1 (T-S5 / IR-10); admin MFA recovery → manual break-glass / admin-assisted reset, Kerem-approved + audited, no self-service recovery codes in Phase 1 (T-A6 / IR-16); audit tamper-evidence → DB-level append-only sufficient for Phase 1, hash-chaining/WORM deferred to audit-log ADR (T-G4 / IR-20). `[NEEDS KEREM APPROVAL]` flags cleared on those three and marked `[KEREM APPROVED 2026-06-10]`. Two open items remain (IR-24 bootstrap procedure, IR-25 SMS ceiling/response-path). No blocker added/removed. ADR-015 unchanged; no provider selected; no Pod C issues created. |
+| v0.4 | 2026-06-11 | Pod B | **BL-2 closed:** Kerem accepted the threat model (confirmed the PR #46 merge of v0.3 constitutes BL-2 closure). **BL-5 narrowed:** CORE_USER_FLOWS.md v0.3 flow reviewed (Pod B review complete 2026-06-10) and Kerem decisions K-14/15/16 recorded (notice location, acknowledgment persistence, same-session reuse); outstanding BL-5 dependency reduced to the Aydınlatma Metni legal text (OQ-CUF-AUTH-001). T-P3 Pod A alignment tag updated; §13 status set to Accepted. The v0.4 delta alters no threat, mitigation, or IR; ADR-015 unchanged; no provider selected; no Pod C issues created; BL-1/BL-3/BL-4/BL-5/BL-6 remain open. |
