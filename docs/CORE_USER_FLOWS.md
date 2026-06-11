@@ -1,3 +1,305 @@
-# CORE USER FLOWS
+# CORE_USER_FLOWS.md
 
-> Status: pending — to be produced by Pod A (ChatGPT) or Pod B (Claude)
+## Status
+
+| Field                 | Value                                                                                 |
+| --------------------- | ------------------------------------------------------------------------------------- |
+| Document              | CORE_USER_FLOWS.md                                                                    |
+| Project               | Adeks Platform                                                                        |
+| Version               | v0.3                                                                                  |
+| Owner                 | Pod A — Product & Planning                                                            |
+| Reviewer              | Pod B — Architecture, Logic & Risk                                                    |
+| Approver              | Kerem                                                                                 |
+| Current status        | Kerem decisions OQ-CUF-AUTH-002/003/004 recorded 2026-06-10 (K-14/15/16; Pod B annotation pass v0.3). Open: OQ-CUF-AUTH-001 (notice legal text), OQ-CUF-AUTH-005 (SMS provider) |
+| Target location       | `/docs/CORE_USER_FLOWS.md`                                                            |
+| Implementation status | Does not authorize Pod C implementation                                               |
+
+---
+
+## 1. Purpose
+
+This document defines the core Phase 1 user flows for Adeks Platform at the product and workflow level.
+
+This version adds the Phase 1 customer registration/login flow for the Customer PWA, including the required Aydınlatma Metni / privacy notice acknowledgment before OTP is sent.
+
+---
+
+## 2. Source References
+
+This flow is constrained by:
+
+* `/docs/adr/ADR-015-authentication-strategy.md`
+* `/docs/architecture/AUTH_THREAT_MODEL.md`
+* `/docs/USER_ROLES_AND_PERMISSIONS.md`
+* `/docs/PROJECT_METHODOLOGY.md` §20.2 KVKK Compliance Process
+* `/docs/PROJECT_DECISION_INDEX.md`
+
+---
+
+## 3. Flow: Customer Registration/Login With Aydınlatma Metni Before OTP
+
+### 3.1 Scope
+
+This flow covers the unified Customer PWA registration/login entry path for Phase 1.
+
+Phase 1 uses a single phone-number OTP flow for both:
+
+* existing customers returning to the PWA;
+* first-time customers creating a customer account.
+
+The PWA must not expose whether the entered phone number is already registered before OTP verification.
+
+### 3.2 Actors
+
+| Actor                | Role                                                                                            |
+| -------------------- | ----------------------------------------------------------------------------------------------- |
+| Customer             | Enters phone number, acknowledges privacy notice, verifies OTP                                  |
+| Customer PWA         | Displays phone entry, Aydınlatma Metni acknowledgment, OTP entry, and neutral status/error copy |
+| Backend auth service | Sends OTP only after acknowledgment, verifies OTP, creates or resumes customer session          |
+| SMS provider         | Sends OTP after the backend accepts a compliant OTP request                                     |
+
+[REQUIRES POD B REVIEW] Backend auth service, OTP storage, rate limits, resend limits, verification attempt limits, and SMS provider interaction are security/architecture details owned by Pod B and Pod C implementation later.
+
+---
+
+## 3.3 Required Product Behavior
+
+| ID           | Requirement                                                                                                             |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| CUF-AUTH-001 | Customer enters phone number in the Customer PWA.                                                                       |
+| CUF-AUTH-002 | Before OTP is sent, the PWA displays the Aydınlatma Metni / privacy notice acknowledgment step.                         |
+| CUF-AUTH-003 | Customer must actively acknowledge the notice before OTP is sent. Passive display is not enough.                        |
+| CUF-AUTH-004 | If the customer does not acknowledge the notice, no OTP is sent.                                                        |
+| CUF-AUTH-005 | If the customer does not acknowledge the notice, no customer personal data is committed.                                |
+| CUF-AUTH-006 | OTP request response must not reveal whether the phone number is already registered.                                    |
+| CUF-AUTH-007 | The same customer-facing OTP request confirmation copy must be used for both existing and new customers.                |
+| CUF-AUTH-008 | All examples, test data, screenshots, and documentation must use synthetic data only.                                   |
+| CUF-AUTH-009 | Legal/privacy notice text is not defined in this file. The approved legal text belongs in `/docs/PRIVACY_NOTICE_TR.md`. |
+| CUF-AUTH-010 | The flow must remain registration/login-neutral until OTP verification succeeds.                                       |
+
+---
+
+## 3.4 Step-by-Step Main Flow
+
+### Flow Name
+
+Customer PWA — Phone OTP registration/login with privacy notice acknowledgment
+
+### Preconditions
+
+| Item                | Requirement                                                                                                                           |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| PWA access          | Customer can open the Customer PWA.                                                                                                   |
+| Public browsing     | Public catalog/menu browsing may be available before login where allowed by role/permission rules.                                    |
+| Phone number        | Customer has a phone number capable of receiving SMS.                                                                                 |
+| Privacy notice text | Approved Aydınlatma Metni text is available for display. `[NEEDS KEREM APPROVAL]`                                                     |
+| SMS provider        | SMS provider selection is outside this flow and requires separate approval/review. `[NEEDS KEREM APPROVAL]` `[REQUIRES POD B REVIEW]` |
+
+### Main Flow
+
+| Step | Actor                | Action                                                                                      | System/Product Requirement                                                                                                        |
+| ---: | -------------------- | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+|    1 | Customer             | Opens Customer PWA and chooses to continue/login.                                           | PWA shows phone-number entry screen.                                                                                              |
+|    2 | Customer             | Enters phone number. Example: `+90 555 000 00 01`.                                          | Phone entry uses synthetic examples in docs/tests. Do not display real customer data in documentation or non-production contexts. |
+|    3 | Customer PWA         | Validates basic phone-number format locally where possible.                                 | Format feedback must not query registration status.                                                                               |
+|    4 | Customer PWA         | Displays Aydınlatma Metni / privacy notice acknowledgment step before any OTP send request. | Notice step must appear before backend OTP send is triggered.                                                                     |
+|    5 | Customer             | Reviews notice and actively acknowledges it.                                                | Acknowledgment must be explicit, e.g. checkbox or required confirmation action.                                                   |
+|    6 | Customer PWA         | Enables “Send OTP” only after acknowledgment.                                               | If acknowledgment is missing, send action remains unavailable or returns a blocking validation message.                           |
+|    7 | Customer             | Taps “Send OTP”.                                                                            | PWA submits OTP request only after acknowledgment is present.                                                                     |
+|    8 | Backend auth service | Processes OTP request.                                                                      | Response must be neutral and must not reveal whether the phone number is registered.                                              |
+|    9 | Customer PWA         | Shows OTP entry screen.                                                                     | Copy must be neutral: “If this phone number can receive SMS, a verification code will be sent.”                                   |
+|   10 | Customer             | Enters OTP.                                                                                 | PWA submits OTP verification.                                                                                                     |
+|   11 | Backend auth service | Verifies OTP.                                                                               | On valid OTP, system authenticates customer and creates/resumes customer session according to ADR-015.                            |
+|   12 | Customer PWA         | Routes authenticated customer to the appropriate post-login surface.                        | Existing vs new customer handling must not be exposed before OTP verification succeeds.                                           |
+
+### Postconditions — Success
+
+| Area                     | Result                                                                                                                                            |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Customer session         | Customer is authenticated in the PWA.                                                                                                             |
+| Registration/login state | Existing customer is logged in, or new customer account is created/activated after successful OTP verification according to approved auth design. |
+| Token/session behavior   | Customer auth uses ADR-015 customer session direction.                                                                                           |
+| Privacy notice           | Acknowledgment has occurred before OTP send.                                                                                                      |
+| Audit/security           | Authentication events are handled according to ADR-015 and Pod B threat model requirements.                                                       |
+
+[REQUIRES POD B REVIEW] Exact persistence timing and evidence model for privacy-notice acknowledgment must be reviewed by Pod B and Kerem/legal advisor, especially for failed OTP, abandoned OTP, and unverified phone-number attempts. *(Resolved by K-15, 2026-06-10: acknowledgment is ephemeral pre-verification and persisted only on successful OTP verification; pending K-08 legal-advisor confirmation before Pod C propagation.)*
+
+---
+
+## 3.5 Error and Edge Cases
+
+### 3.5.1 No Acknowledgment
+
+| Field                        | Requirement                                                                 |
+| ---------------------------- | --------------------------------------------------------------------------- |
+| Trigger                      | Customer enters phone number but does not acknowledge the Aydınlatma Metni. |
+| System behavior              | No OTP is sent.                                                             |
+| Data behavior                | No customer personal data is committed.                                     |
+| User-facing copy placeholder | “To continue, please review and acknowledge the privacy notice.”            |
+| Recovery                     | Customer may acknowledge and continue, or exit the flow.                    |
+| Review                       | `[NEEDS KEREM APPROVAL]` final Turkish UX copy and legal framing.           |
+
+### 3.5.2 Customer Cancels During Notice Step
+
+| Field                        | Requirement                                                                           |
+| ---------------------------- | ------------------------------------------------------------------------------------- |
+| Trigger                      | Customer closes/back-navigates from the Aydınlatma Metni acknowledgment step.         |
+| System behavior              | OTP send is not triggered.                                                            |
+| Data behavior                | No customer personal data is committed.                                               |
+| User-facing copy placeholder | No persistent error required. Customer returns to previous screen or public PWA area. |
+| Recovery                     | Customer may restart login/registration later.                                        |
+
+### 3.5.3 OTP Send Failure
+
+| Field                        | Requirement                                                                                                                                                                                                                                                                                                             |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Trigger                      | Customer has acknowledged notice, but OTP cannot be sent due to provider/network/system failure.                                                                                                                                                                                                                        |
+| System behavior              | Show neutral failure state. Do not reveal registration status.                                                                                                                                                                                                                                                          |
+| User-facing copy placeholder | “We could not send a verification code right now. Please try again later.”                                                                                                                                                                                                                                              |
+| Data behavior                | Do not create a completed customer account solely because OTP send failed. If OTP send fails, the phone number must not be retained in persistent backend storage. The unsuccessful send attempt is recorded in the authentication audit log using a derived identifier (UUID or phone hash), not the raw phone number. |
+| Recovery                     | Customer may retry if rate limits and provider state allow.                                                                                                                                                                                                                                                             |
+| Review                       | `[REQUIRES POD B REVIEW]` exact retry and failure handling.                                                                                                                                                                                                                                                             |
+
+### 3.5.4 OTP Verify Failure — Incorrect Code
+
+| Field                        | Requirement                                                                   |
+| ---------------------------- | ----------------------------------------------------------------------------- |
+| Trigger                      | Customer enters an incorrect OTP.                                             |
+| System behavior              | Reject verification and allow retry within approved attempt limits.           |
+| User-facing copy placeholder | “The verification code did not work. Please check the code and try again.”    |
+| Disclosure rule              | Copy must not reveal whether the phone number belongs to an existing account. |
+| Recovery                     | Customer may retry until attempt limit is reached.                            |
+| Review                       | `[REQUIRES POD B REVIEW]` attempt count, lockout, TTL, and audit behavior.    |
+
+### 3.5.5 Expired OTP
+
+| Field                        | Requirement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Trigger                      | Customer submits OTP after the approved expiry window.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| System behavior              | Reject expired OTP.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| User-facing copy placeholder | “This verification code has expired. Please request a new code.”                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Recovery                     | Customer may request a new OTP if acknowledgment state and rate limits allow.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Product rule                 | If the PWA session was refreshed or acknowledgment state cannot be confirmed, show the Aydınlatma Metni acknowledgment step again before requesting a new OTP. Acknowledgment state is session-scoped. It is valid for OTP resend if captured within the current uninterrupted browser session (in-memory or session-scoped state, not persisted storage). If the browser session has been refreshed, navigated away from, or closed, acknowledgment state is considered unconfirmed and the notice must be shown again. Re-acknowledgment is also required if the phone number is changed mid-flow. `[KEREM APPROVED 2026-06-10 — OQ-CUF-AUTH-004 / K-16]` |
+| Review                       | `[REQUIRES POD B REVIEW]` exact expiry and resend behavior.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+
+### 3.5.6 Too Many OTP Requests
+
+| Field                        | Requirement                                                                                                                                                           |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Trigger                      | Customer or attacker requests too many OTPs for the same phone number, IP, device, or other approved risk dimension.                                                  |
+| System behavior              | Block or delay additional OTP requests according to Pod B security design.                                                                                            |
+| User-facing copy placeholder | “Too many code requests. Please try again later.”                                                                                                                     |
+| Disclosure rule              | Copy must not reveal registration status.                                                                                                                             |
+| Review                       | Pod B confirmed enumeration-safety of this copy on 2026-06-10. Thresholds, cooldowns, monitoring, and operational alerting remain Pod B-owned implementation details. |
+
+### 3.5.7 Too Many OTP Verification Attempts
+
+| Field                        | Requirement                                                                                                                                                           |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Trigger                      | Customer submits too many incorrect OTPs.                                                                                                                             |
+| System behavior              | Stop accepting attempts for the current OTP and require a new OTP or cooldown according to Pod B security design.                                                     |
+| User-facing copy placeholder | “Too many incorrect attempts. Please request a new code later.”                                                                                                       |
+| Disclosure rule              | Copy must not reveal whether the phone number is registered.                                                                                                          |
+| Review                       | Pod B confirmed enumeration-safety of this copy on 2026-06-10. Attempt limits, lock/expire behavior, audit, and monitoring remain Pod B-owned implementation details. |
+
+### 3.5.8 Phone Number Format Error
+
+| Field                        | Requirement                                                        |
+| ---------------------------- | ------------------------------------------------------------------ |
+| Trigger                      | Customer enters an invalid phone-number format.                    |
+| System behavior              | Show local validation error before notice/OTP send where possible. |
+| User-facing copy placeholder | “Please enter a valid phone number.”                               |
+| Disclosure rule              | Format validation must not query or reveal account existence.      |
+| Example                      | `+90 555 000 00 01` is a synthetic documentation example only.     |
+
+---
+
+## 3.6 Product Notes for UX Copy Placeholders
+
+Final UI copy must be reviewed separately from this flow. This document defines product intent, not approved legal language.
+
+| UI Moment                         | Placeholder Copy                                                           | Approval / Review Status                              |
+| --------------------------------- | -------------------------------------------------------------------------- | ----------------------------------------------------- |
+| Phone entry heading               | “Enter your phone number”                                                  | Pod A / Kerem                                         |
+| Phone entry helper                | “We’ll use this number to verify your Adeks account.”                      | `[NEEDS KEREM APPROVAL]` legal/privacy advisor review |
+| Aydınlatma Metni heading          | “Privacy Notice” / “Aydınlatma Metni”                                      | `[NEEDS KEREM APPROVAL]` legal/privacy advisor review |
+| Acknowledgment label              | “I have read and acknowledge the Privacy Notice.”                          | `[NEEDS KEREM APPROVAL]` legal/privacy advisor review |
+| Send OTP button                   | “Send verification code”                                                   | Pod A / Kerem                                         |
+| OTP request neutral success       | “If this phone number can receive SMS, a verification code will be sent.”  | `[REQUIRES POD B REVIEW]` for enumeration safety      |
+| OTP error                         | “The verification code did not work. Please check the code and try again.” | `[REQUIRES POD B REVIEW]`                             |
+| Expired OTP                       | “This verification code has expired. Please request a new code.”           | `[REQUIRES POD B REVIEW]`                             |
+| OTP send rate limit (§3.5.6)      | “Too many code requests. Please try again later.”                          | Pod B confirmed enumeration-safety on 2026-06-10      |
+| OTP verify attempt limit (§3.5.7) | “Too many incorrect attempts. Please request a new code later.”            | Pod B confirmed enumeration-safety on 2026-06-10      |
+
+[NEEDS KEREM APPROVAL] This document does not draft the legal text of the Aydınlatma Metni. The legal/privacy notice text is owned by Kerem + external legal/privacy advisor and should be maintained in `/docs/PRIVACY_NOTICE_TR.md`.
+
+---
+
+## 3.7 Product Non-Goals
+
+This flow does not define:
+
+* SMS provider selection.
+* OTP code length, expiry duration, entropy, storage, hashing, or resend thresholds.
+* API contracts.
+* Database schema.
+* Audit event schema.
+* Token rotation or cookie implementation.
+* Legal basis text.
+* Aydınlatma Metni legal wording.
+* Pod C implementation issue text.
+* Selcafe customer-account mapping.
+
+---
+
+## 3.8 Downstream Pod C Implementation Requirements
+
+These are downstream implementation requirements to be converted into approved implementation issues later. This section does not create Pod C issues.
+
+| ID            | Requirement                                                                                                                                                                   | Review Before Implementation  |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| PCUF-AUTH-001 | Customer PWA must place Aydınlatma Metni acknowledgment before OTP send.                                                                                                      | Pod B + Kerem                 |
+| PCUF-AUTH-002 | OTP send action must be disabled or blocked until acknowledgment is present.                                                                                                  | Pod B + Kerem                 |
+| PCUF-AUTH-003 | If acknowledgment is missing, canceled, or session state is unconfirmed, backend OTP send must not occur.                                                                     | Pod B + Kerem                 |
+| PCUF-AUTH-004 | If acknowledgment is missing, canceled, or session state is unconfirmed, no customer personal data may be committed.                                                          | Pod B + Kerem                 |
+| PCUF-AUTH-005 | OTP request response must be neutral and must not reveal account existence.                                                                                                   | Pod B                         |
+| PCUF-AUTH-006 | OTP send failure, verify failure, expired OTP, and rate-limit messages must not reveal whether a phone number is registered.                                                  | Pod B                         |
+| PCUF-AUTH-007 | PWA must use approved placeholder/copy source and must not embed unapproved legal text.                                                                                       | Kerem + legal/privacy advisor |
+| PCUF-AUTH-008 | Examples, fixtures, screenshots, test data, and UAT data must be synthetic only.                                                                                              | Pod B + Kerem                 |
+| PCUF-AUTH-009 | OTP verify, resend, expiry, and too-many-attempt behavior must follow Pod B threat model requirements.                                                                        | Pod B                         |
+| PCUF-AUTH-010 | Any persistence of acknowledgment evidence before verified account creation must be reviewed by Pod B and Kerem/legal advisor. *(K-15: no persistence before verified OTP; pending K-08 confirmation.)* | Pod B + Kerem/legal advisor   |
+| PCUF-AUTH-011 | If OTP send fails, the phone number must not be retained in persistent storage. The failed send event must be audit-logged without the raw phone number, per IR-03 and IR-09. | Pod B + Kerem                 |
+
+[REQUIRES POD C IMPLEMENTATION] Later, after Pod B security/KVKK review and Kerem approval, Pod C will need implementation issues derived from this section.
+
+---
+
+## 3.9 Open Questions
+
+| ID              | Kerem Marker | Question                                                                                                                                                  | Owner                                 | Status                                             |
+| --------------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- | -------------------------------------------------- |
+| OQ-CUF-AUTH-001 | —            | What exact Turkish Aydınlatma Metni text must be displayed in the PWA?                                                                                    | Kerem + legal/privacy advisor         | `[NEEDS KEREM APPROVAL]`                           |
+| OQ-CUF-AUTH-002 | K-14         | Where should the approved Aydınlatma Metni text live: `/docs/PRIVACY_NOTICE_TR.md`, CMS/admin-managed copy, or both?                                      | Kerem + Pod B                         | `[KEREM APPROVED 2026-06-10 — K-14]` Canonical text in `/docs/PRIVACY_NOTICE_TR.md`, build-time embedded; no CMS in Phase 1. |
+| OQ-CUF-AUTH-003 | K-15         | Should acknowledgment evidence be persisted before OTP verification, after OTP verification, or only after successful OTP/account creation?               | Kerem + legal/privacy advisor + Pod B | `[KEREM APPROVED 2026-06-10 — K-15]` Ephemeral pre-verification; persisted only on successful OTP verification; no record on failed/expired/abandoned flows. Pending K-08 confirmation before Pod C propagation. |
+| OQ-CUF-AUTH-004 | K-16         | If OTP expires after acknowledgment, can the same session-scoped acknowledgment state be reused for resend, or must the notice be shown again every time? | Kerem + legal/privacy advisor + Pod B | `[KEREM APPROVED 2026-06-10 — K-16]` Same-session reuse valid for resend; re-acknowledge on session break or phone-number change. Pending K-08 confirmation before Pod C propagation. |
+| OQ-CUF-AUTH-005 | —            | What is the approved SMS provider and related KVKK data-processor/cross-border-transfer assessment?                                                       | Kerem + Pod B                         | `[NEEDS KEREM APPROVAL]` `[REQUIRES POD B REVIEW]` |
+
+---
+
+## 3.10 Revision History
+
+| Version | Date       | Author | Change                                                                                                                                                                                                                                                                                                                           |
+| ------- | ---------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| v0.1    | 2026-06-10 | Pod A  | Initial customer registration/login flow requiring Aydınlatma Metni acknowledgment before OTP send.                                                                                                                                                                                                                              |
+| v0.2    | 2026-06-10 | Pod A  | Applied Pod B non-blocking review updates: OTP send failure phone-number disposal and derived-identifier audit clause; session-scoped acknowledgment clarification for expired OTP/resend; split rate-limit UX copy into OTP-send and OTP-verify rows. Pod B review complete 2026-06-10; pending Kerem decisions KEREM-01/02/03. |
+| v0.3    | 2026-06-10 | Pod B  | Approval-annotation pass. Recorded Kerem decisions K-14/15/16 resolving OQ-CUF-AUTH-002/003/004; added the phone-number-change re-acknowledgment condition to the §3.5.5 product rule (K-16); realigned the §3.9 "Kerem Marker" column to cite K-numbers (resolving the prior KEREM-01/02/03 label collision); annotated §3.4 postconditions and PCUF-AUTH-010 with K-15. OQ-CUF-AUTH-001 (notice legal text) and OQ-CUF-AUTH-005 (SMS provider) remain open. |
+
+---
+
+## Review Routing
+
+* Ready for commit: Yes — Kerem decisions recorded 2026-06-10 (K-14/15/16).
+* Requires Kerem approval: OQ-CUF-AUTH-002/003/004 resolved 2026-06-10 (K-14/15/16). Still required — OQ-CUF-AUTH-001 final Aydınlatma Metni legal text, OQ-CUF-AUTH-005 SMS provider, and final Turkish UX/legal copy.
+* Requires Pod B review: Pod B review complete 2026-06-10 for v0.2 requested changes. Re-review required only if Kerem decisions materially alter acknowledgment persistence, OTP resend behavior, or legal/privacy data handling.
+* Requires Pod C implementation: Later only. This document lists downstream requirements but does not create implementation issues. K-15/K-16 require K-08 legal-advisor confirmation before any Pod C issue is derived from them.
+* Requires Pod D prototype/audit/monitoring review: Optional later for PWA onboarding UX review and before Phase 1 go-live consistency audit.

@@ -1,11 +1,12 @@
 # KEREM_DECISIONS.md
 
 <!--
-  STATUS: COMPLETE — K-01 through K-13 recorded
+  STATUS: COMPLETE — K-01 through K-16 recorded
   SOURCE: Kerem interview session, Pod B facilitation; K-11 from Kerem chat approval 2026-06-07;
-          K-13 from Kerem session decisions 2026-06-09 (OQ-001 auth resolution)
+          K-13 from Kerem session decisions 2026-06-09 (OQ-001 auth resolution);
+          K-14/15/16 from Kerem session decisions 2026-06-10 (CORE_USER_FLOWS OQ-CUF-AUTH-002/003/004)
   AUTHOR: Pod B (Architecture, Logic & Risk)
-  VERSION: 1.3
+  VERSION: 1.4
   PATH: /docs/KEREM_DECISIONS.md
 
   PURPOSE:
@@ -39,6 +40,9 @@
 | K-11 | BC-2: approval gate alignment (ADR-009 §3 vs §11.1/§15) | Option A approved — alignment path | ✅ Recorded |
 | K-12 | Tenancy model + ORM | Shared schema + mandatory non-null `tenant_id` (long-term); Prisma ORM; UUID primary keys; binding global tenant scoping enforcement | ✅ Recorded |
 | K-13 | Phase 1 authentication decisions (KD-A through KD-H) | See Section 13 | ✅ Recorded |
+| K-14 | Aydınlatma Metni notice text location (Phase 1) | Canonical in `/docs/PRIVACY_NOTICE_TR.md`, build-time embedded; no CMS Phase 1 | ✅ Recorded |
+| K-15 | Acknowledgment persistence model (Phase 1) | Ephemeral pre-verification; persisted only on successful OTP verification | ✅ Recorded |
+| K-16 | Same-session acknowledgment reuse (Phase 1) | Valid within uninterrupted session; re-ack on session break or phone-number change | ✅ Recorded |
 
 ---
 
@@ -421,6 +425,77 @@ These decisions record authentication policy. They do not authorise Pod C to imp
 
 ---
 
+## 14. K-14 — Aydınlatma Metni Notice Text Location (Phase 1)
+
+**Date:** 2026-06-10
+**Source:** Kerem session approval — resolves OQ-CUF-AUTH-002 (handoff label KEREM-03)
+**Scope:** Canonical storage of the Phase 1 Aydınlatma Metni / privacy notice text and how it reaches the Customer PWA
+**Related:** CORE_USER_FLOWS.md §3.9 OQ-CUF-AUTH-002, CUF-AUTH-009; AUTH_THREAT_MODEL.md BL-5
+
+### Decision
+
+Phase 1 canonical Aydınlatma Metni text lives in `/docs/PRIVACY_NOTICE_TR.md` and is
+build-time embedded into the PWA. No CMS-managed or admin-managed notice surface in Phase 1.
+
+### Implication
+
+- No runtime notice-content store, no admin notice editor, and no notice-versioning service
+  in Phase 1 scope.
+- Updating the notice is a code/doc change + redeploy, governed by the normal PR gates.
+- Does NOT resolve OQ-CUF-AUTH-001 (the actual Turkish legal wording), which remains owned by
+  Kerem + legal advisor (K-08) and is still `[NEEDS KEREM APPROVAL]`.
+
+---
+
+## 15. K-15 — Acknowledgment Persistence Model (Phase 1)
+
+**Date:** 2026-06-10
+**Source:** Kerem session approval — resolves OQ-CUF-AUTH-003 (handoff label KEREM-01)
+**Scope:** When/whether privacy-notice acknowledgment is persisted relative to OTP verification
+**Related:** CORE_USER_FLOWS.md §3.9 OQ-CUF-AUTH-003, §3.4 postconditions, PCUF-AUTH-010; AUTH_THREAT_MODEL.md T-P3, IR-03
+
+### Decision
+
+Acknowledgment is **ephemeral (session-scoped, in-memory)** during the pre-verification flow.
+It is **persistently recorded only on successful OTP verification**, as part of the
+account-creation / login event. Failed, expired, or abandoned flows leave **no persistent
+acknowledgment record**.
+
+### Implication
+
+- Consistent with the §3.5.3 phone-disposal rule and IR-03: no PII/consent artifact is
+  persisted before a verified identity exists.
+- Pre-verification acknowledgment is not evidence; only the post-verification record is.
+- **K-08 legal-advisor confirmation required before Pod C propagation:** the evidentiary
+  sufficiency of capturing consent only at verification (vs. earlier) must be confirmed by the
+  legal/privacy advisor before this decision becomes a Pod C implementation issue. This is a
+  flag, not a blocker on the document work.
+
+---
+
+## 16. K-16 — Same-Session Acknowledgment Reuse (Phase 1)
+
+**Date:** 2026-06-10
+**Source:** Kerem session approval — resolves OQ-CUF-AUTH-004 (handoff label KEREM-02)
+**Scope:** Whether an existing acknowledgment can be reused for OTP resend
+**Related:** CORE_USER_FLOWS.md §3.5.5 product rule, §3.9 OQ-CUF-AUTH-004
+
+### Decision
+
+Within the same uninterrupted browser session, existing acknowledgment state is **valid for
+OTP resend**. Re-acknowledgment is **required** on: (1) session break — refresh, navigation
+away, or browser close; and (2) **phone-number change mid-flow**.
+
+### Implication
+
+- Matches the v0.2 §3.5.5 session-scoped clarification; adds the phone-number-change condition,
+  which is reflected in the §3.5.5 product rule and §3.9.
+- **K-08 legal-advisor confirmation required before Pod C propagation** (as with K-15): the
+  advisor confirms the reuse semantics are KVKK-sufficient before a Pod C issue is created.
+  This is a flag, not a blocker.
+
+---
+
 ## Open Actions Summary
 
 | Action | Owner | Dependency | Priority |
@@ -444,6 +519,7 @@ These decisions record authentication policy. They do not authorise Pod C to imp
 | Update Pod C instruction snapshot for §11.1 gate change | Kerem/Pod C | PR-A merge | High |
 | Produce SMS provider comparison report | Pod B | — | High — blocks KD-B / ADR-015 |
 | Draft ADR-015: Authentication strategy | Pod B | K-13 locked; provider report complete | High — blocks Pod C auth implementation |
+| Legal advisor (K-08) to confirm K-15 + K-16 KVKK sufficiency | Kerem + legal advisor | K-15/K-16 recorded | High — gates Pod C propagation of these decisions |
 
 ---
 
@@ -455,3 +531,4 @@ These decisions record authentication policy. They do not authorise Pod C to imp
 | 1.1 | 2026-06-07 | Pod B | K-11 BC-2 Option A approval added; Open Actions Summary updated with post-merge tasks |
 | 1.2 | 2026-06-08 | Pod B | K-12 tenancy model + ORM decisions added; summary table and open actions updated |
 | 1.3 | 2026-06-09 | Pod B | K-13 Phase 1 authentication decisions (KD-A through KD-H) added; summary table, open actions, and revision log updated |
+| 1.4 | 2026-06-10 | Pod B | K-14/15/16 recorded (CORE_USER_FLOWS OQ-CUF-AUTH-002/003/004 resolved): notice text location, acknowledgment persistence, same-session reuse. Summary table, Open Actions (K-08 confirmation of K-15/K-16), and revision log updated. |
