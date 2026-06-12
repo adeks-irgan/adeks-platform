@@ -24,7 +24,7 @@
 | `/docs/architecture/AUTH_THREAT_MODEL.md` | SHA `df9b30b`; v0.4 Accepted, BL-2 closed | 2026-06-11 | Baseline for audit/security questions and auth readiness. |
 | `/docs/decision-support/SMS_PROVIDER_REPORT.md` | SHA `27892d4`; v0.1 decision-support | 2026-06-11 | Confirms provider report exists and provider decision remains Kerem-owned. |
 | `/docs/KEREM_DECISIONS.md` | SHA `47eaa47`; v1.4 | 2026-06-11 | Confirms K-13/K-14/K-15/K-16 locked state. |
-| Attached v0.1 packet + Pod B triage / final confirmation | v0.1 packet; “Safe with corrections”; final confirmation received per PR context | 2026-06-11 | Baseline and required correction list; Pod B confirmed safe for Kerem decision-prep and documentation-class commit after Kerem approval. |
+| Attached v0.1 packet + Pod B triage / final confirmation | v0.1 packet; "Safe with corrections"; final confirmation received per PR context | 2026-06-11 | Baseline and required correction list; Pod B confirmed safe for Kerem decision-prep and documentation-class commit after Kerem approval. |
 
 ## Purpose
 
@@ -61,7 +61,7 @@ This document is **decision-prep only**. It does not select an SMS provider, doe
 | BR-FB-001 | F&B order submission | Logged-in CUSTOMER can submit F&B orders from seat. | Confirmed. |
 | BR-FB-002 | F&B fulfillment | FB_STAFF can receive/update order fulfillment status and mark delivered; payment remains CASHIER/ADMIN only. | Confirmed. |
 | BR-FB-003 | Customer-visible F&B order statuses | Phase 1 customer-visible statuses are: Submitted, Accepted, Preparing, Ready / On the way, Delivered, Rejected, Cancelled. | Confirmed by Kerem F&B order lifecycle decision packet; [REQUIRES POD B REVIEW] for state transitions, actors, and audit points. |
-| BR-FB-004 | Customer cancellation | CUSTOMER can cancel an order until the order reaches Preparing. [CONFIRMED by Kerem, 2026-06-12] “Until Preparing” means cancellation is allowed before the order enters Preparing, not after Preparing has started. | Confirmed by Kerem. [REQUIRES POD B REVIEW] for exact transition boundary and cancellation effects. |
+| BR-FB-004 | Customer cancellation | CUSTOMER can cancel an order until the order reaches Preparing. [CONFIRMED by Kerem, 2026-06-12 F&B lifecycle decision packet] "Until Preparing" means cancellation is allowed before the order enters Preparing, not after Preparing has started. | Confirmed by Kerem. [REQUIRES POD B REVIEW] for exact transition boundary and cancellation effects. |
 | BR-FB-005 | Staff rejection | Staff can reject before accepting if an item is unavailable or the order is invalid. | Confirmed by Kerem. Every rejection requires an audit reason. [REQUIRES POD B REVIEW]. |
 | BR-FB-006 | Staff cancellation | Staff can cancel after acceptance only with a required reason. | Confirmed by Kerem. Every cancellation requires an audit reason. [REQUIRES POD B REVIEW]. |
 | BR-FB-007 | Unavailable item handling | If an item becomes unavailable after order submission, staff marks the item unavailable and the order is Rejected. The customer submits a new order. | [RESOLVED by Kerem, 2026-06-12: item unavailability = full order Rejected, new order required. Pod B to formalize audit point and customer-visible copy.] |
@@ -86,7 +86,7 @@ This document is **decision-prep only**. It does not select an SMS provider, doe
 
 | ID | Area | Decision question | Guardrail | Blocker |
 |---|---|---|---|---|
-| BRD-LOY-001 | Loyalty earning eligibility | Which Phase 1 purchase types earn loyalty: F&B only, PC/session usage, wallet top-up, or selected combinations? | “Wallet top-up earns” requires Pod B ledger review first; PC/session earning is gated on Selcafe spike. | Blocks Pod C |
+| BRD-LOY-001 | Loyalty earning eligibility | Which Phase 1 purchase types earn loyalty: F&B only, PC/session usage, wallet top-up, or selected combinations? | "Wallet top-up earns" requires Pod B ledger review first; PC/session earning is gated on Selcafe spike. | Blocks Pod C |
 | BRD-LOY-002 | Loyalty earning formula | What is the Phase 1 earning formula? | Must be representable as discrete immutable earn events. Pod B defines precision/rounding. | Blocks Pod C |
 | BRD-LOY-003 | Loyalty earning exclusions | Are discounts, campaigns, refunded/cancelled purchases, wallet top-ups, or manual adjustments excluded from earning? | Prevent double earning and ensure reversal paths are ledger-based. | Blocks Pod C |
 | BRD-LOY-004 | Loyalty redemption unit | Is redemption denominated as points, ₺ discount equivalent, item discount, or another unit? | Ledger semantics and customer-facing value require Pod B review. | Blocks Pod C |
@@ -98,7 +98,7 @@ This document is **decision-prep only**. It does not select an SMS provider, doe
 | BRD-WAL-002 | Wallet correction/reversal | How are mistaken top-ups corrected? | Mechanism is compensating ledger event only; no overwrite. Actor authority requires Pod B + Kerem. | Blocks Pod C |
 | BRD-WAL-003 | Wallet receipt/customer proof | Does customer receive visible top-up confirmation/history immediately after cashier top-up? | Customer proof/history may affect audit, retention, and dispute handling. | Blocks Pod C |
 | BRD-WAL-004 | Daily top-up report fields | What should ADMIN see in the daily top-up report? | Customer identifier must remain masked; retention and PII scope require Pod B/legal review. | Blocks Pod C |
-| BRD-CASHIER-001 | Cashier own transaction view | Should CASHIER have a “my recent transactions” view limited to their own processed actions? | [REQUIRES POD B REVIEW] if scoped: masked-only, own-actions-only, KVKK minimization. | Not blocking yet |
+| BRD-CASHIER-001 | Cashier own transaction view | Should CASHIER have a "my recent transactions" view limited to their own processed actions? | [REQUIRES POD B REVIEW] if scoped: masked-only, own-actions-only, KVKK minimization. | Not blocking yet |
 | BRD-RES-001 | Reservation slots | What slot length or time blocks are allowed? | State-machine review required. | Blocks Pod C |
 | BRD-RES-002 | Reservation limits | How many active/future reservations can one customer hold? | Customer-facing restriction policy may require notification/fairness framing. | Blocks Pod C |
 | BRD-RES-003 | Reservation cancellation | Can customer cancel? Can staff cancel? What cutoff applies? | State-machine review required. | Blocks Pod C |
@@ -110,7 +110,7 @@ This document is **decision-prep only**. It does not select an SMS provider, doe
 | BRD-SMS-001 | SMS provider | Which SMS provider is selected after price/commercial replies and KVKK assessment? | Provider report exists; selection remains Kerem-owned and does not authorize Pod C. | Blocks Pod C |
 | BRD-SMS-002 | SMS operational response | Who owns provider-outage response, and what spend/volume ceiling triggers circuit breaker/escalation? | Provider-outage operations only; customer-facing failure UX is already resolved by CUF §3.5.3. | Blocks Pod C auth issue prep |
 
-F&B order lifecycle product decisions are resolved by Kerem’s completed F&B Order Lifecycle Decision Packet and the 2026-06-12 follow-up decisions recorded in this document. Remaining F&B work is Pod B review/formalization of state transitions, actors, audit points, cancellation boundaries, combined payment/fulfillment representation, wallet debit ledger entry design, loyalty accrual append-event design, and any reversal logic. This does not authorize Pod C.
+F&B order lifecycle product decisions are resolved by Kerem's completed F&B Order Lifecycle Decision Packet and the 2026-06-12 follow-up decisions recorded in this document. Remaining F&B work is Pod B review/formalization of state transitions, actors, audit points, cancellation boundaries, combined payment/fulfillment representation, wallet debit ledger entry design, loyalty accrual append-event design, and any reversal logic. This does not authorize Pod C.
 
 ## Decision Prep Notes by Focus Area
 
@@ -247,7 +247,7 @@ K-13/KD-F confirms **no top-up threshold in Phase 1** and a daily top-up report 
 | Payment actor | Phase 1 payment remains cashier-only. | CASHIER/ADMIN only. Phase 1 F&B payment method is café wallet, cashier-mediated at delivery. See BR-FB-010. |
 | FB_STAFF payment authority | FB_STAFF does not handle payment. | Locked Phase 1 role boundary. |
 | Online payment | Online payment remains excluded from Phase 1. | Phase 2 candidate only. |
-| Combined status meaning | Combined display must not imply FB_STAFF can settle payment or that online payment exists. | [REQUIRES POD B REVIEW]. The customer-facing status component must not include any interactive payment element (button, link, prompt, or in-app payment flow). Payment occurs offline via CASHIER only. Pod A and UX must not derive a self-pay interaction from the “combined status” direction. |
+| Combined status meaning | Combined display must not imply FB_STAFF can settle payment or that online payment exists. | [REQUIRES POD B REVIEW]. The customer-facing status component must not include any interactive payment element (button, link, prompt, or in-app payment flow). Payment occurs offline via CASHIER only. Pod A and UX must not derive a self-pay interaction from the "combined status" direction. |
 
 ### Reservation rules
 
