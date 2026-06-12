@@ -59,7 +59,16 @@ This document is **decision-prep only**. It does not select an SMS provider, doe
 | BR-LOYALTY-004 | Loyalty self-redemption | Customer self-redemption is excluded from Phase 1. | Confirmed. |
 | BR-LOYALTY-005 | Loyalty ledger | Loyalty must use append-only ledger logic; no direct balance overwrite. | Confirmed principle; [REQUIRES POD B REVIEW]. |
 | BR-FB-001 | F&B order submission | Logged-in CUSTOMER can submit F&B orders from seat. | Confirmed. |
-| BR-FB-002 | F&B fulfillment | FB_STAFF can receive/update order status and mark delivered; payment remains CASHIER/ADMIN only. | Confirmed. |
+| BR-FB-002 | F&B fulfillment | FB_STAFF can receive/update order fulfillment status and mark delivered; payment remains CASHIER/ADMIN only. | Confirmed. |
+| BR-FB-003 | Customer-visible F&B order statuses | Phase 1 customer-visible statuses are: Submitted, Accepted, Preparing, Ready / On the way, Delivered, Rejected, Cancelled. | Confirmed by Kerem F&B order lifecycle decision packet; [REQUIRES POD B REVIEW] for state transitions, actors, and audit points. |
+| BR-FB-004 | Customer cancellation | CUSTOMER can cancel an order until the order reaches Preparing. [CONFIRMED by Kerem, 2026-06-12] “Until Preparing” means cancellation is allowed before the order enters Preparing, not after Preparing has started. | Confirmed by Kerem. [REQUIRES POD B REVIEW] for exact transition boundary and cancellation effects. |
+| BR-FB-005 | Staff rejection | Staff can reject before accepting if an item is unavailable or the order is invalid. | Confirmed by Kerem. Every rejection requires an audit reason. [REQUIRES POD B REVIEW]. |
+| BR-FB-006 | Staff cancellation | Staff can cancel after acceptance only with a required reason. | Confirmed by Kerem. Every cancellation requires an audit reason. [REQUIRES POD B REVIEW]. |
+| BR-FB-007 | Unavailable item handling | If an item becomes unavailable after order submission, staff marks the item unavailable and the order is Rejected. The customer submits a new order. | [RESOLVED by Kerem, 2026-06-12: item unavailability = full order Rejected, new order required. Pod B to formalize audit point and customer-visible copy.] |
+| BR-FB-008 | Payment visibility | Customer sees a combined customer-facing order/payment status in Phase 1. | Confirmed by Kerem. Payment remains cashier-only; FB_STAFF does not handle payment; online payment remains excluded from Phase 1. [REQUIRES POD B REVIEW] for combined status model. |
+| BR-FB-009 | F&B lifecycle design guardrail | Pod B must later formalize F&B state transitions, actors, audit points, cancellation boundaries, and any reversal logic. | Confirmed routing. Does not authorize Pod C. |
+| BR-FB-010 | F&B wallet payment | Café wallet balance may be used to settle F&B orders in Phase 1. Payment is cashier-mediated; the wallet debit is recorded by CASHIER/ADMIN at the time of delivery/settlement. No wallet hold is created at order submission. | Confirmed by Kerem, 2026-06-12. [REQUIRES POD B REVIEW] for ledger entry design and combined payment/order display model. |
+| BR-FB-011 | F&B loyalty accrual | F&B purchases accrue loyalty points in Phase 1. Accrual trigger: CASHIER records wallet payment/settlement for the order. Cancelled and rejected orders do not accrue loyalty. | Confirmed by Kerem, 2026-06-12. [REQUIRES POD B REVIEW] for loyalty ledger append event design. |
 | BR-RES-001 | Reservation request | Logged-in CUSTOMER can submit reservation requests. | Confirmed. |
 | BR-RES-002 | Reservation approval | CASHIER and ADMIN can approve/reject reservations. | Confirmed. |
 | BR-RES-003 | Automatic confirmation | Excluded from Phase 1; Phase 2 candidate after reliable PC/session status. | Confirmed. |
@@ -90,20 +99,18 @@ This document is **decision-prep only**. It does not select an SMS provider, doe
 | BRD-WAL-003 | Wallet receipt/customer proof | Does customer receive visible top-up confirmation/history immediately after cashier top-up? | Customer proof/history may affect audit, retention, and dispute handling. | Blocks Pod C |
 | BRD-WAL-004 | Daily top-up report fields | What should ADMIN see in the daily top-up report? | Customer identifier must remain masked; retention and PII scope require Pod B/legal review. | Blocks Pod C |
 | BRD-CASHIER-001 | Cashier own transaction view | Should CASHIER have a “my recent transactions” view limited to their own processed actions? | [REQUIRES POD B REVIEW] if scoped: masked-only, own-actions-only, KVKK minimization. | Not blocking yet |
-| BRD-ORDER-001 | Customer-visible order statuses | What statuses should the PWA show? | Kerem selects vocabulary; Pod B formalizes transitions/actors/audit. | Blocks Pod C |
-| BRD-ORDER-002 | Order cancellation | Can customers cancel after submission? Can staff cancel? Under which status and who sees what? | State-machine and any wallet/loyalty interaction require Pod B. | Blocks Pod C |
-| BRD-ORDER-003 | Unavailable items | How should staff handle unavailable F&B items after order submission? | State-machine and reversal implications require Pod B. | Blocks Pod C |
-| BRD-ORDER-004 | Payment state visibility | Should customer see payment status, or only order fulfillment status? | Keep payment status separate from fulfillment status unless Pod B designs combined state. | Blocks Pod C |
 | BRD-RES-001 | Reservation slots | What slot length or time blocks are allowed? | State-machine review required. | Blocks Pod C |
 | BRD-RES-002 | Reservation limits | How many active/future reservations can one customer hold? | Customer-facing restriction policy may require notification/fairness framing. | Blocks Pod C |
 | BRD-RES-003 | Reservation cancellation | Can customer cancel? Can staff cancel? What cutoff applies? | State-machine review required. | Blocks Pod C |
 | BRD-RES-004 | No-show rule | What happens if customer does not arrive? | Future restrictions may carry customer communication/KVKK implications. | Blocks Pod C |
-| BRD-RES-005 | Reservation approval criteria | What criteria should staff use to approve/reject a request when PC/session status is not reliable? | Do not lock status-based criteria before Selcafe spike results. | Blocks Pod C |
-| BRD-AUDIT-001 | Audit detail level | Are current minimum fields enough, or must reason/comment, IP/device, before/after derived values, and workflow source also be captured? | Build on Accepted auth threat model baseline; schema/storage/tamper/retention are Pod B/legal. | Blocks Pod C / Pod B |
+| BRD-RES-005 | Reservation approval criteria | What criteria should staff use to approve/reject a request when PC/session status is not reliable? | Do not lock status-based approval criteria before Selcafe spike results. | Blocks Pod C |
+| BRD-AUDIT-001 | Audit detail level | Are current minimum audit fields enough, or must reason/comment, IP/device, before/after derived values, and workflow source also be captured? | Build on Accepted auth threat model baseline; schema/storage/tamper/retention are Pod B/legal. | Blocks Pod C / Pod B |
 | BRD-SEL-001 | Selcafe customer mapping | What customer data, if any, should be imported or mapped from Selcafe if read-only sync is feasible? | Intent only before spike; PII mapping requires KVKK review. | Blocks Pod C for sync |
 | BRD-PRIVACY-001 | Turkish privacy notice legal text | What exact Turkish Aydınlatma Metni text appears in the PWA? | K-14 locks location/delivery; only legal wording remains open. | Blocks legal / launch |
 | BRD-SMS-001 | SMS provider | Which SMS provider is selected after price/commercial replies and KVKK assessment? | Provider report exists; selection remains Kerem-owned and does not authorize Pod C. | Blocks Pod C |
 | BRD-SMS-002 | SMS operational response | Who owns provider-outage response, and what spend/volume ceiling triggers circuit breaker/escalation? | Provider-outage operations only; customer-facing failure UX is already resolved by CUF §3.5.3. | Blocks Pod C auth issue prep |
+
+F&B order lifecycle product decisions are resolved by Kerem’s completed F&B Order Lifecycle Decision Packet and the 2026-06-12 follow-up decisions recorded in this document. Remaining F&B work is Pod B review/formalization of state transitions, actors, audit points, cancellation boundaries, combined payment/fulfillment representation, wallet debit ledger entry design, loyalty accrual append-event design, and any reversal logic. This does not authorize Pod C.
 
 ## Decision Prep Notes by Focus Area
 
@@ -113,11 +120,11 @@ This document is **decision-prep only**. It does not select an SMS provider, doe
 
 | Option | Meaning | Guardrail |
 |---|---|---|
-| F&B only | Points earned only on F&B purchases. | Lowest integration dependency; still needs formula/exclusion review. |
+| F&B only | Points earned only on F&B purchases. | F&B purchases are confirmed as accruing loyalty in Phase 1. Formula/exclusion review remains required. |
 | PC/session only | Points earned only on gaming/session usage. | Must wait for Selcafe spike and Pod B review because PC/session data reliability is unknown. |
 | F&B + PC/session | Broader program. | Higher customer value but higher integration/audit complexity; PC/session portion gated by spike. |
 | Wallet top-up earns | Points earned when topping up wallet. | [REQUIRES POD B REVIEW] before selection. High double-earning risk if wallet spend also earns. |
-| No earning until formula approved | Loyalty visibility only until rules are locked. | Safest fallback if decisions are not ready. |
+| No earning until formula approved | Loyalty visibility only until rules are locked. | Safest fallback if formula decisions are not ready. |
 
 ### Loyalty earning formula
 
@@ -203,30 +210,44 @@ K-13/KD-F confirms **no top-up threshold in Phase 1** and a daily top-up report 
 
 ### Customer-visible F&B order statuses
 
-[OPEN QUESTION] Define the Phase 1 status vocabulary.
+[RESOLVED] Kerem approved the following Phase 1 customer-visible F&B order statuses.
 
-| Candidate status | Meaning | Guardrail |
+| Customer-visible status | Product meaning | Review routing |
 |---|---|---|
-| Submitted | Customer placed order; staff has not accepted/rejected yet. | Kerem selects vocabulary; Pod B formalizes transitions. |
-| Accepted | Staff accepted the order. | Actor-per-transition review required. |
-| Preparing | Staff/F&B is preparing. | Actor-per-transition review required. |
-| Ready / On the way | Optional if operationally useful. | Avoid unnecessary status if not operationally used. |
-| Delivered | Staff marked delivered. | Audit point likely required. |
-| Cancelled | Cancelled by staff or customer if allowed. | Requires cancellation rules and ledger interaction review. |
-| Rejected | Staff cannot fulfill. | Requires unavailable-item policy. |
+| Submitted | Customer placed the order; staff has not accepted/rejected it yet. | Pod B to formalize transition model. |
+| Accepted | Staff accepted the order. | Pod B to formalize actor and audit point. |
+| Preparing | Order is being prepared. Customer cancellation is no longer allowed once this status is reached. | Pod B to formalize exact transition boundary. |
+| Ready / On the way | Order is ready for pickup/delivery or is being brought to the customer. | [RESOLVED by Kerem, 2026-06-12: one internal state, one customer-visible label. Pod B to formalize transition entry/exit conditions and actor.] |
+| Delivered | Staff marked the order delivered. | Pod B to formalize audit point and actor authority. |
+| Rejected | Staff rejected the order before accepting it because an item was unavailable or the order was invalid. When item unavailability is the cause, the order is fully rejected and the customer submits a new order. | Audit reason required. Item-unavailability resolution [RESOLVED by Kerem, 2026-06-12: full order Rejected, customer submits new order]. Pod B to formalize actor, audit fields, and transition boundary. |
+| Cancelled | Order was cancelled by customer before Preparing or by staff after acceptance with required reason. | Audit reason required for staff cancellation. Pod B to formalize actor, audit fields, and transition boundary. |
 
-[GUARDRAIL] Keep payment status separate from fulfillment status unless Pod B designs a combined state model. Payment is cashier-only in Phase 1.
+[REQUIRES POD B REVIEW] Pod B must formalize the lifecycle/state model. This section records product vocabulary only and is not a state machine.
 
-### Order cancellation and unavailable items
+### Order cancellation, staff rejection/cancellation, and unavailable items
 
-[OPEN QUESTION] Define cancellation and unavailable-item handling.
+[RESOLVED] Kerem approved the following product rules.
 
-| Decision area | Kerem can decide | Guardrail |
+| Area | Product decision | Guardrail / routing |
 |---|---|---|
-| Customer cancellation | Whether customer can cancel and until which status | State-machine review required. |
-| Staff cancellation | Who can cancel and what reason is required | Reason/audit recommended. |
-| Unavailable item | Reject whole order, suggest substitute, remove item, or staff contacts customer | Workflow and customer copy require UX review if complex. |
-| Financial interaction | Whether points/wallet/payment are affected | Reversal must be ledger-based if any charge/earn/redeem occurred. |
+| Customer cancellation | CUSTOMER can cancel until the order reaches Preparing. | [CONFIRMED by Kerem, 2026-06-12] Cancellation is allowed while Submitted or Accepted, and not allowed once Preparing starts. [REQUIRES POD B REVIEW]. |
+| Staff rejection | Staff can reject before accepting if an item is unavailable or the order is invalid. | Audit reason required. [REQUIRES POD B REVIEW]. |
+| Staff cancellation | Staff can cancel after acceptance only with a required reason. | Audit reason required. [REQUIRES POD B REVIEW]. |
+| Unavailable item | Staff marks the item unavailable and the order is Rejected. The customer submits a new order. | [RESOLVED by Kerem, 2026-06-12: full order Rejected, customer submits new order. Pod B to formalize customer-visible copy and audit point.] |
+| Audit | Every rejection/cancellation requires an audit reason. | [REQUIRES POD B REVIEW] for required fields, storage, tamper resistance, and retention. |
+| Financial/reversal impact | Any wallet, loyalty, payment, refund, cancellation, or reversal effect must be designed by Pod B. | No direct balance overwrite. No Pod C implementation authorization. |
+
+### F&B payment visibility
+
+[RESOLVED] Customer sees combined customer-facing payment/order status in Phase 1.
+
+| Rule | Product decision | Guardrail / routing |
+|---|---|---|
+| Customer display | Customer sees combined status rather than fulfillment-only or separate payment-only status. | [REQUIRES POD B REVIEW] for formal model. |
+| Payment actor | Phase 1 payment remains cashier-only. | CASHIER/ADMIN only. Phase 1 F&B payment method is café wallet, cashier-mediated at delivery. See BR-FB-010. |
+| FB_STAFF payment authority | FB_STAFF does not handle payment. | Locked Phase 1 role boundary. |
+| Online payment | Online payment remains excluded from Phase 1. | Phase 2 candidate only. |
+| Combined status meaning | Combined display must not imply FB_STAFF can settle payment or that online payment exists. | [REQUIRES POD B REVIEW]. The customer-facing status component must not include any interactive payment element (button, link, prompt, or in-app payment flow). Payment occurs offline via CASHIER only. Pod A and UX must not derive a self-pay interaction from the “combined status” direction. |
 
 ### Reservation rules
 
@@ -293,7 +314,7 @@ This question is **not greenfield**. It must build on the Accepted auth threat-m
 ## Review Routing
 
 - Ready for commit: Yes — documentation-only replacement after Kerem approval. Decision-prep only; not implementation-ready.
-- Requires Kerem approval: Yes — all unresolved business rules affecting loyalty, wallet, orders, reservations, privacy, SMS provider, operational response, and launch gates.
+- Requires Kerem approval: Yes — all unresolved business rules affecting loyalty, wallet, reservations, privacy, SMS provider, operational response, and launch gates.
 - Requires Pod B review: Yes — wallet/loyalty ledgers, reservation state, order state, audit, auth/KVKK/data handling, Selcafe mapping, provider-specific security.
 - Requires Pod C implementation: No.
 - Requires Pod D prototype/audit/monitoring review: Later for customer PWA onboarding/order/reservation UX and pre-go-live audit/monitoring review.
