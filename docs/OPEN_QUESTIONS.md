@@ -24,14 +24,14 @@
 | `/docs/architecture/AUTH_THREAT_MODEL.md` | SHA `df9b30b`; v0.4 Accepted, BL-2 closed | 2026-06-11 | Confirmed accepted auth baseline and remaining implementation blockers. |
 | `/docs/decision-support/SMS_PROVIDER_REPORT.md` | SHA `27892d4`; v0.1 decision-support | 2026-06-11 | Confirms provider report exists; provider choice remains open. |
 | `/docs/KEREM_DECISIONS.md` | SHA `47eaa47`; v1.4 | 2026-06-11 | Confirms K-13/K-14/K-15/K-16 locked state. |
-| Attached v0.1 packet + Pod B triage | v0.1 packet; “Safe with corrections” | 2026-06-11 | Baseline and correction requirements. |
+| Attached v0.1 packet + Pod B triage | v0.1 packet; "Safe with corrections" | 2026-06-11 | Baseline and correction requirements. |
 
 ## Notes on Corrected State
 
 - `AUTH_THREAT_MODEL.md` is v0.4 Accepted and BL-2 is closed.
-- `SMS_PROVIDER_REPORT.md` exists. The report is no longer outstanding; the remaining SMS decision is Kerem’s provider selection after commercial replies and KVKK/legal assessment.
+- `SMS_PROVIDER_REPORT.md` exists. The report is no longer outstanding; the remaining SMS decision is Kerem's provider selection after commercial replies and KVKK/legal assessment.
 - `CORE_USER_FLOWS.md` §3.5.3 resolves the customer-facing OTP send-failure UX fallback. Do not reopen:
-  - neutral “could not send” failure copy;
+  - neutral "could not send" failure copy;
   - no completed account on failed send;
   - no persistent raw phone retention after failed send;
   - derived-identifier audit only.
@@ -44,8 +44,8 @@
 | OQ-SMS-001 | What SMS provider is approved after provider price/commercial replies and KVKK data-processor/cross-border assessment? | Kerem + Pod A + Pod B + legal advisor | blocks Pod C / BL-1 | Kerem after commercial replies + legal/KVKK input | Pod B report exists. Report informs decision; it does not select provider. |
 | OQ-SMS-002 | What is the provider-outage operational response path if SMS provider is unavailable or spend/volume ceiling is hit? | Kerem + Pod B | blocks Pod C auth issue prep | Kerem + Pod B | Narrowed to operational response only: secondary-provider/switchover policy, IR-25 ceiling value, and response-path owner. Customer-facing send-failure UX is resolved by CUF §3.5.3. |
 | OQ-LEGAL-001 | What exact Turkish Aydınlatma Metni text must be displayed in the PWA? | Kerem + legal advisor | blocks legal / launch | legal advisor | K-14 is locked: text lives in `/docs/PRIVACY_NOTICE_TR.md`, build-time embedded, no CMS in Phase 1. Only the wording remains open. |
-| OQ-LEGAL-002 | Does legal advisor confirm K-15’s acknowledgment persistence model is KVKK-sufficient? | Kerem + legal advisor + Pod B | blocks Pod C propagation | legal advisor | K-15 is locked: ephemeral pre-verification, persisted only on successful OTP verification. Only legal sufficiency remains open. |
-| OQ-LEGAL-003 | Does legal advisor confirm K-16’s same-session acknowledgment reuse for OTP resend is KVKK-sufficient? | Kerem + legal advisor + Pod B | blocks Pod C propagation | legal advisor | K-16 is locked: reuse valid only in uninterrupted session; re-ack on session break or phone-number change. Only legal sufficiency remains open. |
+| OQ-LEGAL-002 | Does legal advisor confirm K-15's acknowledgment persistence model is KVKK-sufficient? | Kerem + legal advisor + Pod B | blocks Pod C propagation | legal advisor | K-15 is locked: ephemeral pre-verification, persisted only on successful OTP verification. Only legal sufficiency remains open. |
+| OQ-LEGAL-003 | Does legal advisor confirm K-16's same-session acknowledgment reuse for OTP resend is KVKK-sufficient? | Kerem + legal advisor + Pod B | blocks Pod C propagation | legal advisor | K-16 is locked: reuse valid only in uninterrupted session; re-ack on session break or phone-number change. Only legal sufficiency remains open. |
 | OQ-LEGAL-004 | Is VERBİS registration required before go-live with real customer data, or is Adeks exempt? | Kerem + legal advisor | blocks launch | legal advisor | K-07 says Kerem consults legal advisor and acts accordingly. |
 | OQ-LEGAL-005 | What retention periods apply to customer account, phone, wallet, loyalty, order, reservation, audit, auth, and Selcafe-discovered data? | Kerem + legal advisor + Pod B | blocks legal / launch | legal advisor + Pod B | Needed for auth, audit, wallet/loyalty, and customer-data views. |
 | OQ-LEGAL-006 | Is any cross-border transfer created by hosting, SMS provider, monitoring, logging, or support tooling? | Kerem + legal advisor + Pod B | blocks launch | legal advisor + Pod B | SMS provider choice and hosting model affect answer. |
@@ -57,11 +57,7 @@
 | OQ-WAL-001 | What wallet top-up methods are allowed at cashier in Phase 1: cash, card through existing POS, manual admin entry, or selected combinations? | Kerem | blocks Pod C | Kerem, then Pod B | Per-method ledger typing and reconciliation require Pod B. |
 | OQ-WAL-002 | How are mistaken wallet top-ups corrected without direct balance overwrite? | Kerem + Pod B | blocks Pod C | Kerem, then Pod B | Mechanism must be compensating ledger event, never overwrite. Actor authority is security-sensitive. |
 | OQ-WAL-003 | What fields should the ADMIN daily top-up report include? | Kerem + Pod B | blocks Pod C | Kerem, then Pod B | Customer identifier must remain masked/minimized; retention requires legal input. |
-| OQ-WAL-004 | Should CASHIER have a “my recent transactions” view limited to their own processed actions? | Kerem | not blocking yet | Kerem, then Pod B if scoped | [REQUIRES POD B REVIEW] if included: masked-only, own-actions-only, KVKK data-scoping. |
-| OQ-ORDER-001 | What customer-visible F&B order statuses should the PWA show in Phase 1? | Kerem | blocks Pod C | Kerem, then Pod B | Kerem selects vocabulary; Pod B formalizes state transitions, actors, audit. |
-| OQ-ORDER-002 | Can customers cancel submitted F&B orders? If yes, until which status? | Kerem | blocks Pod C | Kerem, then Pod B | Any wallet/loyalty/payment interaction requires ledger-based reversal review. |
-| OQ-ORDER-003 | How should staff handle unavailable F&B items after an order is submitted? | Kerem | blocks Pod C | Kerem, then Pod B | State-machine and customer-copy implications. |
-| OQ-ORDER-004 | Should customer see payment status, fulfillment status only, or both? | Kerem | blocks Pod C | Kerem, then Pod B | Payment status should remain separate from fulfillment status unless Pod B designs combined state. |
+| OQ-WAL-004 | Should CASHIER have a "my recent transactions" view limited to their own processed actions? | Kerem | not blocking yet | Kerem, then Pod B if scoped | [REQUIRES POD B REVIEW] if included: masked-only, own-actions-only, KVKK data-scoping. |
 | OQ-RES-001 | What reservation time slots are allowed in Phase 1? | Kerem | blocks Pod C | Kerem, then Pod B | State-machine review required. |
 | OQ-RES-002 | What reservation limits apply per customer? | Kerem | blocks Pod C | Kerem, then Pod B | Prevents hoarding; customer-facing restriction policy. |
 | OQ-RES-003 | What cancellation rules apply for customer and staff? | Kerem | blocks Pod C | Kerem, then Pod B | State-machine review required. |
@@ -85,6 +81,10 @@
 | Privacy-notice text location | K-14 locked: `/docs/PRIVACY_NOTICE_TR.md`, build-time embedded, no CMS. | Do not reopen CMS/runtime notice editor for Phase 1. |
 | Privacy acknowledgment persistence mechanics | K-15 locked. | Only legal-advisor sufficiency remains open. |
 | Same-session acknowledgment reuse mechanics | K-16 locked. | Only legal-advisor sufficiency remains open. |
+| OQ-ORDER-001 — customer-visible F&B order statuses | Resolved by Kerem's 2026-06-12 F&B lifecycle decisions recorded in `BUSINESS_RULES.md`: Submitted, Accepted, Preparing, Ready / On the way, Delivered, Rejected, Cancelled. | Do not reopen as a Kerem product-decision item. Pod B must still formalize lifecycle/state transitions, actors, and audit points before Pod C. |
+| OQ-ORDER-002 — customer F&B cancellation boundary | Resolved by Kerem's 2026-06-12 F&B lifecycle decisions recorded in `BUSINESS_RULES.md`: customer cancellation is allowed before the order enters Preparing and blocked after Preparing has started. | Do not reopen as a Kerem product-decision item unless Kerem corrects the boundary. Pod B must still formalize the exact transition boundary and concurrency handling. |
+| OQ-ORDER-003 — unavailable F&B item handling | Resolved by Kerem's 2026-06-12 F&B lifecycle decisions recorded in `BUSINESS_RULES.md`: unavailable item means the full order is Rejected and the customer submits a new order. | Do not reopen partial-order handling for Phase 1 unless Kerem explicitly changes product policy. Pod B must still formalize audit point and customer-visible copy. |
+| OQ-ORDER-004 — F&B payment/fulfillment visibility | Resolved by Kerem's 2026-06-12 F&B lifecycle decisions recorded in `BUSINESS_RULES.md`: customer sees a combined customer-facing order/payment status in Phase 1, with no customer self-pay UI and cashier-only payment preserved. | Do not reopen as a Kerem product-decision item. Pod B must still formalize the combined display/status model. |
 
 ## End Status
 
@@ -111,7 +111,7 @@ Reasons:
 - Wallet/loyalty ledger ADRs are still backlog/stub-level and full Pod B designs are required.
 - Loyalty eligibility, formula, redemption limits, expiry, and override rules are unresolved.
 - Wallet top-up methods, correction rules, and daily report fields are unresolved.
-- Customer-visible order statuses and cancellation/unavailable-item rules are unresolved.
+- F&B order lifecycle implementation remains blocked by Pod B formalization/review of lifecycle transitions, actors, audit points, cancellation boundaries, combined payment/order display, wallet debit ledger design, loyalty accrual append-event design, and any reversal logic.
 - Reservation slots, limits, cancellation, no-show, and state machine are unresolved.
 - Selcafe read-only sync depends on spike results and adapter review.
 - Pod C issues must meet Definition of Ready and must not rely on guessed business rules.
@@ -126,16 +126,12 @@ Reasons:
 6. Wallet top-up methods.
 7. Wallet correction/reversal policy intent.
 8. ADMIN daily top-up report fields.
-9. Whether CASHIER should have a scoped “my recent transactions” view.
-10. Customer-visible F&B order statuses.
-11. F&B cancellation policy.
-12. Unavailable F&B item handling.
-13. Whether customer sees payment status, fulfillment status, or both.
-14. Reservation slots, advance window, active limits, cancellation cutoff, no-show grace, and no-show consequence.
-15. Manual reservation approval policy, while avoiding status-based Selcafe criteria until the spike returns.
-16. Audit business intent: where reason/comment is mandatory.
-17. Selcafe customer-mapping intent, without final field mapping.
-18. IR-25 SMS spend/volume ceiling value and operational response owner.
-19. Initial ADMIN bootstrap policy, routed to Pod B for security review.
-20. Campaign/subscription/ARPU feature boundary for Phase 1 vs feature discovery.
-21. Whether Pod D should prototype/review onboarding, order, and reservation UX before Pod C issue drafting.
+9. Whether CASHIER should have a scoped "my recent transactions" view.
+10. Reservation slots, advance window, active limits, cancellation cutoff, no-show grace, and no-show consequence.
+11. Manual reservation approval policy, while avoiding status-based Selcafe criteria until the spike returns.
+12. Audit business intent: where reason/comment is mandatory.
+13. Selcafe customer-mapping intent, without final field mapping.
+14. IR-25 SMS spend/volume ceiling value and operational response owner.
+15. Initial ADMIN bootstrap policy, routed to Pod B for security review.
+16. Campaign/subscription/ARPU feature boundary for Phase 1 vs feature discovery.
+17. Whether Pod D should prototype/review onboarding, order, and reservation UX before Pod C issue drafting.
