@@ -1,12 +1,13 @@
 # KEREM_DECISIONS.md
 
 <!--
-  STATUS: COMPLETE — K-01 through K-16 recorded
+  STATUS: COMPLETE — K-01 through K-19 recorded
   SOURCE: Kerem interview session, Pod B facilitation; K-11 from Kerem chat approval 2026-06-07;
           K-13 from Kerem session decisions 2026-06-09 (OQ-001 auth resolution);
-          K-14/15/16 from Kerem session decisions 2026-06-10 (CORE_USER_FLOWS OQ-CUF-AUTH-002/003/004)
+          K-14/15/16 from Kerem session decisions 2026-06-10 (CORE_USER_FLOWS OQ-CUF-AUTH-002/003/004);
+          K-17/18/19 from Kerem session decisions 2026-06-14 (F&B settlement: price source, loyalty formula, correction policy)
   AUTHOR: Pod B (Architecture, Logic & Risk)
-  VERSION: 1.4
+  VERSION: 1.5
   PATH: /docs/KEREM_DECISIONS.md
 
   PURPOSE:
@@ -43,6 +44,9 @@
 | K-14 | Aydınlatma Metni notice text location (Phase 1) | Canonical in `/docs/PRIVACY_NOTICE_TR.md`, build-time embedded; no CMS Phase 1 | ✅ Recorded |
 | K-15 | Acknowledgment persistence model (Phase 1) | Ephemeral pre-verification; persisted only on successful OTP verification | ✅ Recorded |
 | K-16 | Same-session acknowledgment reuse (Phase 1) | Valid within uninterrupted session; re-ack on session break or phone-number change | ✅ Recorded |
+| K-17 | F&B price source for settlement | Price captured at order submission (immutable snapshot); catalog edits after submission do not affect settlement amount | ✅ Recorded |
+| K-18 | F&B loyalty accrual formula | Loyalty accrues on settled F&B amount (post-payment); formula = floor(settled_amount_TRY); cashier payment recording is the trigger | ✅ Recorded |
+| K-19 | F&B post-settlement correction policy | Cashier same-shift correction permitted (own settlements only); executor = cashier; customer-visible history = minimized (neutral label + value delta); follow-up decisions resolved 2026-06-14 | ✅ Recorded |
 
 ---
 
@@ -496,6 +500,123 @@ away, or browser close; and (2) **phone-number change mid-flow**.
 
 ---
 
+## 17. K-17 — F&B Price Source for Settlement
+
+**Date:** 2026-06-14
+**Source:** Kerem session decisions — F&B settlement dependencies review (Pod B review note `FB_SETTLEMENT_DEPENDENCIES_REVIEW_v1.0.md`)
+**Scope:** Which price is used when a cashier records F&B payment settlement — the price at order submission or the current catalog price at settlement time
+**Related:** `FB_ORDER_LIFECYCLE_STATE_MODEL_v1.0.md` §1-E; `BUSINESS_RULES.md` BR-FB-PRICE-001; Pod B review note §2/§5; `PROJECT_DECISION_INDEX.md` §4 K-17
+
+### Decision
+
+Settlement uses the **price captured at order submission** (immutable snapshot). Catalog price edits after submission do **not** affect the settlement amount for any in-flight or pending order.
+
+### Architectural implications recorded by Pod B
+
+- The price snapshot is taken at submission and stored immutably with the order record; no runtime price lookup at settlement.
+- The F&B order entity must store `unit_price_at_submission` (or equivalent snapshot field) per line item alongside the catalog reference.
+- Price-snapshot immutability is a ledger principle: once recorded, the submission price cannot be edited; corrections go through the correction entry mechanism (K-19 / ADR-006).
+- This resolves dependency **D-4** (price source) tracked in `FB_ORDER_LIFECYCLE_STATE_MODEL_v1.0.md`.
+
+### What this does NOT unlock
+
+Records the price-source business rule. Does NOT authorize Pod C. ADR-006 (wallet ledger) and ADR-007 (loyalty ledger) remain Backlog stubs; Pod C remains blocked pending full ADR content + Kerem approval + separate implementation issues.
+
+---
+
+## 18. K-18 — F&B Loyalty Accrual Formula
+
+**Date:** 2026-06-14
+**Source:** Kerem session decisions — F&B settlement dependencies review (Pod B review note `FB_SETTLEMENT_DEPENDENCIES_REVIEW_v1.0.md`)
+**Scope:** Loyalty formula for F&B orders and the trigger event for accrual
+**Related:** `FB_ORDER_LIFECYCLE_STATE_MODEL_v1.0.md` §7; `BUSINESS_RULES.md` BR-LOYALTY-FB-001; Pod B review note §2/§6/§7; `PROJECT_DECISION_INDEX.md` §4 K-18
+
+### Decision
+
+| Parameter | Value |
+|---|---|
+| Formula | `floor(settled_amount_TRY)` — 1 loyalty point per whole Turkish Lira settled |
+| Accrual basis | Settled F&B amount (post-payment), using the price snapshot from K-17 |
+| Accrual trigger | Cashier recording of payment settlement (the `SETTLED` transition in the F&B lifecycle) |
+| Floor | 1 point per whole TRY; fractional TRY does not accrue |
+
+### Architectural implications recorded by Pod B
+
+- The loyalty accrual entry (L1 in the ledger) is derived at the moment the cashier records settlement: `points = floor(settled_amount_TRY)`.
+- Accrual is computed from `settled_amount_TRY` (which incorporates the K-17 price snapshot), not from the catalog price at accrual time.
+- The loyalty `FB_ACCRUAL` ledger entry references the wallet settlement entry (S1) for traceability — the two are structurally linked per the append-only ledger discipline (ADR-007 stub).
+- This resolves dependency **D-3** (loyalty formula) tracked in `FB_ORDER_LIFECYCLE_STATE_MODEL_v1.0.md`.
+- Full loyalty feature scope (redemption, expiry, tiers) remains outside this decision; this records only the F&B accrual formula and trigger.
+
+### What this does NOT unlock
+
+Records the loyalty accrual business rule for F&B. Does NOT authorize Pod C. ADR-007 (loyalty ledger) remains a Backlog stub.
+
+---
+
+## 19. K-19 — F&B Post-Settlement Correction Policy
+
+**Date:** 2026-06-14
+**Source:** Kerem session decisions — F&B settlement dependencies review (Pod B review note `FB_SETTLEMENT_DEPENDENCIES_REVIEW_v1.0.md`)
+**Scope:** Whether and how a cashier may correct an F&B settlement after it has been recorded; executor model; customer-visible correction history granularity
+**Related:** `FB_ORDER_LIFECYCLE_STATE_MODEL_v1.0.md` §3; `BUSINESS_RULES.md` BR-WALLET-004/BR-LOYALTY-005; Pod B review note §3/§8/§9/§10; ADR-006 (Backlog); `PROJECT_DECISION_INDEX.md` §4 K-19
+
+### Decision
+
+| Parameter | Value |
+|---|---|
+| Self-correction permitted? | Yes — cashier may correct own settlements within the eligibility window |
+| Eligibility window | Same shift (cashier same-shift correction). See Follow-Up Decisions below for finalization. |
+| Executor model | Cashier-executed correction (Option 3-C). V-SAFE (ADMIN-executed) declined. |
+| Cross-cashier corrections | ADMIN-only (no cashier may correct another cashier's settlement) |
+| Customer-visible history | Minimized: neutral description + value delta only. No internal reason codes or cashier identity exposed to customer. Subject to final KVKK review. |
+| Append-only invariant | Correction = new compensating entry pair (wallet `FB_SETTLEMENT_CORRECTION` + linked loyalty `FB_ACCRUAL_REVERSAL`). No row mutation. |
+
+### Follow-Up Kerem Decisions (Resolved 2026-06-14)
+
+| ID | Decision | Status |
+|---|---|---|
+| KD-FB-CORR-001 | Correction-eligibility window. | RESOLVED 2026-06-14 (Kerem): cashier same-shift correction stands; shifts have strict operational records in Selcafe (read-only); accepted control = daily ADMIN correction report. [POD B DESIGN NOTE → ADR-006] In-system eligibility bound to be self-contained (recommended: same operating day / before daily-report close); no runtime Selcafe dependency for the financial gate; Selcafe shift records serve as human/audit reference. Final mechanism set in ADR-006; Kerem to confirm if a Selcafe-linked gate is specifically desired. |
+| KD-FB-CORR-002 | Executor model. | RESOLVED 2026-06-14 (Kerem): cashier-executed correction retained; V-SAFE (ADMIN-executed request path) declined. |
+| KD-FB-CORR-003 | Customer-visible correction history granularity. | RESOLVED 2026-06-14 (Kerem): minimized — neutral description + value delta only; no internal reason codes or cashier identity. Subject to final KVKK review. |
+
+### Pod B Minimum Constraints Accepted for Design
+
+These constraints (from Pod B review note §10) are accepted and must be reflected in ADR-006/007 before Pod C:
+
+| Constraint | Interpretation |
+|---|---|
+| C-1: Compensating-entry-only | Correction = new wallet `FB_SETTLEMENT_CORRECTION` + linked loyalty `FB_ACCRUAL_REVERSAL`; original entries never edited |
+| C-2: Own settlements only | Cashier corrects only their own settlements; cross-cashier correction is ADMIN-only |
+| C-3: Deterministic correction window | Window anchored to the operational shift; accepted control is the daily ADMIN correction report. In-system eligibility bound to be self-contained (recommended same operating day / before daily-report close); no runtime Selcafe dependency for the financial gate. Mechanism finalized in ADR-006. |
+| C-4: Mandatory structured reason | Reason code from defined enum + actor UUID + original entry ref + corrected amount (derived) + timestamp |
+| C-5: Loyalty reversal bound to corrected wallet amount | Loyalty reversal recomputed from corrected settled amount; structurally linked to wallet correction entry |
+| C-6: Single-correction / idempotency | Double-correction of same settlement prevented; further change routes to ADMIN |
+| C-7: No negative balance via correction | Correction that would drive derived wallet balance negative must fail-closed or route to ADMIN |
+| C-8: FB_STAFF fully excluded | Only CASHIER (own, in-window) and ADMIN may execute corrections |
+| C-9: ADMIN reporting | Every cashier correction surfaces in ADMIN report with masked last-4 identifier and reason |
+| C-10: Full immutable audit | Each correction emits immutable audit record; before/after expressed as derived values only |
+| C-11: Bounded by open dependencies | Pod C cannot implement until ADR-006/007, audit event schema (OQ-AUDIT-001), and KVKK pseudonymization/retention land |
+
+### Reason-Code Home
+
+The Pod B-recommended correction reason-code enum (minimum set):
+
+| Code | Meaning |
+|---|---|
+| `OVER_CHARGE` | Customer was charged more than the correct amount |
+| `UNDER_CHARGE` | Customer was charged less than the correct amount |
+| `ITEM_RETURNED` | Item returned after settlement |
+| `OPERATIONAL_OTHER` | Other operational reason (free-text required) |
+
+Canonical home for the authoritative enum: **ADR-006** (Backlog). Until ADR-006 is Accepted, this list is a design recommendation, not a locked enum. Pod A may reference this list in `BUSINESS_RULES.md` but must note it as pending ADR-006 finalization.
+
+### What this does NOT unlock
+
+Records the correction policy. Does NOT authorize Pod C. ADR-006 and ADR-007 remain Backlog stubs; `SECURITY_REVIEW.md` and `DATA_PROCESSING_INVENTORY.md` are absent from `main`; audit event schema (OQ-AUDIT-001) and KVKK pseudonymization/retention (D-6, OQ-LEGAL-005) remain open. Pod C remains fully blocked.
+
+---
+
 ## Open Actions Summary
 
 | Action | Owner | Dependency | Priority |
@@ -532,3 +653,4 @@ away, or browser close; and (2) **phone-number change mid-flow**.
 | 1.2 | 2026-06-08 | Pod B | K-12 tenancy model + ORM decisions added; summary table and open actions updated |
 | 1.3 | 2026-06-09 | Pod B | K-13 Phase 1 authentication decisions (KD-A through KD-H) added; summary table, open actions, and revision log updated |
 | 1.4 | 2026-06-10 | Pod B | K-14/15/16 recorded (CORE_USER_FLOWS OQ-CUF-AUTH-002/003/004 resolved): notice text location, acknowledgment persistence, same-session reuse. Summary table, Open Actions (K-08 confirmation of K-15/K-16), and revision log updated. |
+| 1.5 | 2026-06-14 | Pod B | K-17/18/19 recorded (F&B settlement decisions: price source, loyalty formula, correction policy). Follow-up decisions KD-FB-CORR-001/002/003 resolved 2026-06-14. Reason-code enum home (ADR-006 pending). Summary table and revision log updated. |
