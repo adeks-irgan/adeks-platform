@@ -1,0 +1,37 @@
+name: Internal path integrity
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, edited]
+
+permissions:
+  contents: read
+
+jobs:
+  unit-tests:
+    name: Script unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install pytest
+        run: pip install pytest --quiet
+
+      - name: Run unit tests
+        run: pytest .github/scripts/test_check_internal_paths.py -v
+
+  path-integrity:
+    name: Path integrity check
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check internal path references
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: python .github/scripts/check_internal_paths.py
