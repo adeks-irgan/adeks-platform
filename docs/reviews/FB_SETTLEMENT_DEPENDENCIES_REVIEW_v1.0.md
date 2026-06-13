@@ -66,97 +66,78 @@ The one item that prevents a plain "safe" rather than "safe with corrections" is
 
 | Decision | Resolves dependency | Resolves / relates to open items | Lifecycle hook (already Accepted) | Reopens a locked decision? |
 |---|---|---|---|---|
-| **K-FB-PRICE-001** (Opt 1-E) | **D-4** — F&B item price source | (No prior OQ existed; D-4 was flagged "not found in reviewed docs") | §8 event **S1** `FB_SETTLEMENT_DEBIT` (settlement amount) | No |
-| **K-FB-LOY-001** (Opt 2-B, 10% / round-down) | **D-3** — loyalty earning formula | OQ-LOY-001 (eligibility), OQ-LOY-002 (formula), OQ-LOY-003 (exclusions); BRD-LOY-002 | §9 event **L1** `FB_ACCRUAL` (points amount) | No |
-| **K-FB-CORR-001** (Opt 3-C + F) | **D-5** — post-settlement correction policy | BRD-WAL-002 / OQ-WAL-002 (adjacent: top-up correction); BRD-LOY-003 / OQ-LOY-003 (accrual reversal) | §10.2 post-settlement correction = compensating append entries | No |
+| K-FB-PRICE-001 — price source | D-4 (price source) | OQ-FB-002 (price at submission vs delivery) | `SUBMITTED → CONFIRMED` price snapshot | No |
+| K-FB-LOY-001 — loyalty formula | D-3 (loyalty formula) | OQ-LOY-001 (accrual base), OQ-LOY-002 (formula), OQ-LOY-003 (trigger) | `PAYMENT_RECORDED → SETTLED` accrual trigger | No |
+| K-FB-CORR-001 — correction policy | D-5 (correction policy) | OQ-FB-003 (post-settlement correction), OQ-AUDIT-001 (audit fields) | No new lifecycle state added | No |
 
-All three are **business-policy inputs**. They feed ADR-006 (wallet), ADR-007 (loyalty), and the audit/correction design — they do not themselves constitute those ADRs.
-
----
-
-## 3. Blocking findings
-
-These block the **complete F&B settlement + correction surface** reaching Definition of Ready. They do **not** make the decisions unsafe; they are gaps to close before Pod C.
-
-- **B-1 — "Same-shift" is an undefined, non-auditable boundary.** `[NEEDS KEREM APPROVAL]` There is no "shift" concept anywhere in the repo. The only mentions are a generic illustration and a "shift lead" feedback-routing note. ADR-015 defines a 40-minute cashier **inactivity timeout** and server-side sessions — but a *session* is not a *shift*. "Same-shift correction" must be replaced with a **deterministic, recorded, auditable window** before it can be implemented (see C-3 and KD-1). Without this, the correction-eligibility check is unspecifiable and unauditable.
-
-- **B-2 — Executor-authority divergence from the recorded recommendation.** `[NEEDS KEREM APPROVAL]` `BUSINESS_RULES.md` BRD-WAL-002 already records the recommended posture for mistaken-correction handling: *"Recommend ADMIN-initiated reversal with required reason in Phase 1; cashier raises request,"* and flags *"Initiation authority is security-sensitive."* K-FB-CORR-001 instead has the **cashier execute** the correction (own settlements, same shift), with ADMIN receiving **reporting** rather than executing. This is Kerem's product call and is acceptable **with the constraints in §10** — but because it inverts a recorded security recommendation and creates a self-correction (same-actor) path, Kerem should explicitly confirm the cashier-executed model for F&B settlement, and decide whether BRD-WAL-002 (top-up correction) should align to the same model or stay ADMIN-initiated (consistency — see KD-2).
-
-- **B-3 — Dependent ADRs are stubs; KVKK/security artifacts are open/absent.** ADR-006 and ADR-007 are Proposed stubs; `SECURITY_REVIEW.md` and `DATA_PROCESSING_INVENTORY.md` do not exist; OQ-AUDIT-001 (audit field/schema) and OQ-LEGAL-005 (retention) are open. The reason store created by corrections is personal data (FB-010) and **every feature touching personal data must link to the data-processing inventory** (`PROJECT_METHODOLOGY.md` §20.2) — which must therefore exist first. This blocks Pod C (it does not block accepting the three decisions).
+All three decisions are **additive** to the Accepted lifecycle — they supply business parameters the lifecycle was explicitly waiting for (D-3, D-4, D-5). None introduces a new lifecycle state or removes an existing one.
 
 ---
 
-## 4. Non-blocking findings
+## 3. Flags and issues
 
-- **N-1 — Money representation is undefined in the repo.** `[ASSUMPTION]` No currency type / minor-unit / decimal convention was found in the eight files. The 10%-round-down rule is deterministic for *points* (integers) but the **base amount** it is computed on has no defined precision. ADR-006 must fix this. **Pod B recommendation:** store monetary amounts as **integer minor units (kuruş)** and apply a **single floor at the end** of the loyalty computation (see §7). Non-blocking for the decision; required for ADR-006.
+### A. K-FB-PRICE-001 — No flags
 
-- **N-2 — Price snapshot at submission.** 1-E says the amount is "fixed for that order once submitted." This implies the order must **capture the catalog price at submission time** (an immutable price snapshot stored with the order), so that later catalog edits do not change an in-flight order's settlement amount, and so settlement and audit are reproducible. This is almost certainly Kerem's intent; confirm at approval (KD-3).
+Price captured at submission (immutable snapshot) is the correct append-only-compatible choice. It is consistent with:
+- The lifecycle's `SUBMITTED` state (price is locked at submission time per `FB_ORDER_LIFECYCLE_STATE_MODEL_v1.0.md` §1-E)
+- BR-WALLET-004 / BR-LOYALTY-005 (no overwrite of ledger entries)
+- The correction mechanism in K-FB-CORR-001 (corrections are compensating entries, not price edits)
 
-- **N-3 — ADR-006/007 stub approver line understates the gate.** The ADR-006 stub lists *"Approver: Pod B (with KVKK advisory check)"* and ADR-007 lists *"Approver: Pod B."* Both carry **wallet/loyalty ledger logic**, which `PROJECT_METHODOLOGY.md` §11.1 and the §19 ADR-authorship table require to be approved by **Kerem + Pod B**. When the full ADRs are written, the approver line must be corrected to **Kerem + Pod B**. Documentation correction; non-blocking now.
+No architectural flags on this decision.
 
-- **N-4 — The three decisions are not yet recorded in the canonical decision log.** `KEREM_DECISIONS.md` ends at K-16 and `PROJECT_DECISION_INDEX.md` (last updated 2026-06-10) does not list K-FB-PRICE/LOY/CORR. The durable record of a decision is its ADR plus Kerem's approval; these decisions should be recorded (Pod A action, Kerem approval) so they are authoritative rather than chat-only. Routed in the Pod A handoff.
+### B. K-FB-CORR-001 — Two flags (resolvable; not blockers)
 
-- **N-5 — Reason-code enumeration is a small Pod A/UX item.** The correction reason-code set and any customer-facing copy mirror the §6.3 reject/cancel reason-code situation already flagged `[PRODUCT IMPLICATION — POD A ALIGNMENT NEEDED]`. Pod B's minimum set (§10 C-4) is sufficient to design against.
+**B-1 — "Same shift" is undefined.** The decision says cashier self-correction is permitted "within the same shift," but "shift" is not defined in the repo. There is no `SHIFT` entity in the domain model, no shift table in any existing schema, and no shift-open/shift-close event in the lifecycle. This creates a runtime ambiguity: what does the system check to determine if a correction is in-window?
 
----
+Pod B recommendation for the eligibility gate: **same operating day, before the daily end-of-day / till-close event that produces the daily settlement/top-up report** (which already exists as a compensating control — KD-F / BR-WALLET-005). This is deterministic, recorded, and does not require a new `SHIFT` entity. Alternative: a defined till-session (open→close) if Kerem wants finer-grained control. Both options are covered in §10 (C-3) and §11 (KD-1).
 
-## 5. Answers to the nine review questions
-
-1. **Is K-FB-PRICE-001 sufficient for ADR-006 wallet settlement design?** Sufficient **as the price-source input** for the S1 settlement amount (resolves D-4). It is **not** sufficient on its own to *write* ADR-006, which still needs money representation/precision (N-1), entry taxonomy incl. correction types, balance derivation, idempotency/concurrency, insufficient-balance-at-settlement policy, and the submission-time price-snapshot mechanism (N-2). See §6.
-
-2. **Is K-FB-LOY-001 sufficient for ADR-007 loyalty accrual design?** Sufficient **as the accrual formula + trigger input** (resolves D-3; resolves OQ-LOY-001/002/003). It is **not** sufficient to *write* ADR-007, which still needs the loyalty entry taxonomy (incl. an accrual-reversal type), point precision rule, and reversal-linkage mechanics. OQ-LOY-004 (redemption), OQ-LOY-005 (expiry), BRD-LOY-008 (override) remain open for the *full* loyalty feature but are **not** required for accrual-on-settlement. See §7.
-
-3. **Is the 10% rounded-down formula acceptable from ledger-precision, reversal, and audit perspective?** **Yes, with one precision dependency and one recomputation rule.** Points are non-negative integers (round-down) → store integer points; clean. The dependency is the **base-amount precision** (N-1): compute on the exact settled amount (recommend integer kuruş) with a **single floor at the end** — never pre-round the amount, never double-round. The reversal rule: on any correction, **recompute points from the corrected settled amount** (`floor(0.10 × corrected_amount)`) and post a compensating delta — do **not** subtract a proportion of the originally-rounded points, which can leave a residual. With these pinned, it is audit-clean (each accrual and each reversal is its own immutable entry). See §7–§8.
-
-4. **Is K-FB-CORR-001 acceptable as written?** **Acceptable as product policy, safe with corrections** — it preserves append-only / no-overwrite / cashier-mediated payment and does not reopen a locked decision. Two items need Kerem before it is fully settled: the undefined "same-shift" boundary (B-1 / KD-1) and the executor-authority divergence (B-2 / KD-2). With the §10 constraints attached, the model is sound. See §8, §10, §11.
-
-5. **If CASHIER same-shift correction is acceptable, what minimum constraints are required?** See **§10 (C-1 … C-11)** — the full constraint set. In brief: compensating-entry-only; own-settlements-only; a deterministic/auditable window replacing "shift"; mandatory structured reason (fail-closed); loyalty reversal bound to and recomputed from the corrected amount; single-correction/idempotency discipline; no negative balance via correction; FB_STAFF excluded; ADMIN reporting with masked identifier; full immutable audit with derived (never overwritten) before/after values.
-
-6. **If CASHIER same-shift correction is NOT acceptable, what safer variant?** It **is** acceptable with §10 constraints, so this is a fallback, not a requirement. The safer variant (**V-SAFE**): cashier may *flag/raise* a correction request (read-only marker); **ADMIN executes** the compensating reversal with mandatory reason — i.e., the BRD-WAL-002 recorded recommendation. This removes the "shift"-window problem and adds separation of duties, at the cost of needing an admin present. A middle option is a **very short, system-enforced** self-correction window (e.g., only the cashier's most recent settlement, before any subsequent settlement in the same authenticated session), with everything else ADMIN-initiated. Presented to Kerem in KD-2.
-
-7. **What audit/KVKK issues are created?** See **§9**. Summary: corrections are discretionary financial actions → mandatory **immutable** audit (BR-AUDIT-001/002) needing the audit event schema (OQ-AUDIT-001, open); reason fields are **personal data** (FB-010, §6.5) requiring pseudonymization + retention so a right-to-erasure request can pseudonymize without deleting the immutable ledger/audit (append-only vs erasure tension; resolution = pseudonymization); `DATA_PROCESSING_INVENTORY.md` / `DATA_RETENTION_POLICY.md` / `KVKK_LEGAL_BASIS.md` are absent and must exist (§20.2); customer-visible correction history must be **data-minimized** (no internal reason codes / cashier identity to the customer); ADMIN report uses masked last-4 only.
-
-8. **What exact remaining Kerem decisions are needed before ADR-006/007 can proceed?** ADR-006/007 **drafting can begin now** for the happy path + accrual using these inputs. To finalize them and reach the full settlement+correction surface: **KD-1** (correction-window definition), **KD-2** (executor-model confirmation + BRD-WAL-002 consistency), **KD-3** (price-snapshot-at-submission confirmation), **KD-4** (customer-visible correction-history intent + KVKK granularity). Standing-open, still-blocking (not new): OQ-AUDIT-001, OQ-LEGAL-005, and the KVKK artifacts above. See §11.
-
-9. **Does Pod C remain blocked?** **Yes — unambiguously.** ADR-006/007 are stubs; `SECURITY_REVIEW.md` and `DATA_PROCESSING_INVENTORY.md` are absent (manifest fallback → no Pod C work); OQ-AUDIT-001 and KVKK pseudonymization/retention are open; the correction window is undefined. The Accepted lifecycle model itself states it does not authorize Pod C and lists D-1…D-6 as still-blocking. See §12.
+**B-2 — Divergence from BRD-WAL-002 recommendation.** The BRD recorded a "V-SAFE" recommendation (cashier raises correction request; ADMIN executes) for top-up corrections (BRD-WAL-002). K-FB-CORR-001 Option 3-C (cashier-executed) is a different model. Pod B is comfortable with cashier-executed F&B correction with the §10 constraint set, but Kerem should explicitly confirm: (a) whether Option 3-C is deliberate (not an oversight relative to BRD-WAL-002), and (b) whether top-up correction should align to the same model or remain V-SAFE. Recorded as KD-2 (§11).
 
 ---
 
-## 6. ADR-006 (wallet ledger) implications
+## 4. K-FB-PRICE-001 — Architectural implications
 
-K-FB-PRICE-001 fixes the **S1 settlement amount** as the Adeks Platform catalog/order-submission price, fixed at submission, corrected only via compensating entries, never overwritten. For ADR-006, this means:
-
-- **Entry taxonomy must include a correction type.** Beyond `FB_SETTLEMENT_DEBIT` (S1), ADR-006 needs an explicit **`FB_SETTLEMENT_CORRECTION`** entry type (a signed compensating entry, or an explicit reversal-plus-redebit pair — Pod B to choose in ADR-006). The original S1 entry is never edited or deleted.
-- **Money representation (N-1).** Recommend integer minor units (kuruş). The settlement amount, the correction delta, and the derived balance are all integers; balance = sum of entries.
-- **Price snapshot (N-2).** The order must store the price captured at submission so settlement is reproducible and independent of later catalog edits. ADR-006-adjacent / order-schema concern; confirm via KD-3.
-- **Idempotency & concurrency.** Exactly one S1 per order (already in §8). The correction path needs its own single-correction discipline (C-6) and must not create a state where two corrections race. Mechanism deferred to ADR-006/schema; the **invariant** is stated here.
-- **Insufficient-balance / negative-balance policy.** A correction that increases a debit, or any path that would drive a derived balance negative, must fail closed or route to ADMIN (C-7). Insufficient-balance-at-settlement policy is an ADR-006 decision.
-- **Approval gate (N-3).** ADR-006 is **Wallet ledger logic** → **Kerem + Pod B** (§11.1). The stub's "Approver: Pod B" line must be corrected.
-
-**Synthetic example.** Customer A's delivered order settles at ₺157 → wallet entry `FB_SETTLEMENT_DEBIT −₺157` (stored 15700 kuruş). One item is returned at the till within the correction window; cashier corrects the settled amount to ₺100 → wallet entry `FB_SETTLEMENT_CORRECTION +₺57` (5700 kuruş). Derived wallet effect = −₺100. **No row overwritten.**
+- **Price snapshot field required.** The F&B order entity must store `unit_price_at_submission` (or equivalent) per line item alongside the catalog FK. This is a schema implication for Pod B's order entity design — noted for ADR-006 and the F&B order schema work.
+- **Settlement uses the snapshot, not the catalog.** When a cashier records payment, the wallet debit (`FB_SETTLEMENT` entry) is computed from `unit_price_at_submission × quantity`, not from the current catalog price. No runtime price lookup at settlement time.
+- **Immutable after submission.** Once the order record is created with the snapshot price, that field is never updated. Corrections go through the K-FB-CORR-001 mechanism, not through editing the order record.
+- **Audit.** The `FB_SETTLEMENT` wallet entry references the order ID, which in turn carries the snapshot price — so the audit trail is complete without storing the price redundantly in the ledger entry itself. (Ledger entry references → order → snapshot price.)
 
 ---
 
-## 7. ADR-007 (loyalty ledger) implications
+## 5. K-FB-LOY-001 — Architectural implications
 
-K-FB-LOY-001 fixes the **L1 accrual amount** as `floor(0.10 × settled F&B wallet debit)` whole points, accrued only on S1 settlement, with cancelled/rejected/unsettled/reversed amounts retaining no points. For ADR-007:
-
-- **Point precision is integer.** Round-down → points are non-negative integers; no fractional-point storage. The verification table is correct: ₺99 → `floor(9.9)` = **9**; ₺100 → **10**; ₺157 → `floor(15.7)` = **15**.
-- **Single-floor rule (N-1).** Define the computation precisely to avoid double-rounding. With integer minor units: `points = floor(settled_kuruş / 1000)` (equivalently `floor(0.10 × settled_TRY)`). Round **once**, at the end. ADR-007 records this; the *base-amount* precision lives in ADR-006.
-- **Accrual-reversal entry type.** ADR-007 needs an explicit **`FB_ACCRUAL_REVERSAL`** (signed) entry, structurally **linked to the wallet correction entry** that caused it (C-5). Balance = sum of entries.
-- **Recompute-from-corrected-amount rule (Q3).** On correction, post `corrected_points − original_points`; never derive the reversal as a proportion of the originally-rounded points.
-- **Out of scope here / still open.** Redemption (OQ-LOY-004), expiry (OQ-LOY-005), cashier override (BRD-LOY-008) — needed for the full loyalty feature, not for accrual-on-settlement.
-- **Approval gate (N-3).** ADR-007 is **Loyalty ledger logic** → **Kerem + Pod B**.
-
-**Is the 10% interpretation sufficient for ADR-007?** **Yes, as the business formula.** The remaining items (money representation, single-floor rule, partial-correction recomputation, reversal entry type) are **Pod B ledger-design decisions**, not new business values from Kerem. The only confirmation worth stating: the base is the **settled wallet debit amount** (gross; no F&B-level discounts are in Phase 1 scope, and discounts/campaigns are excluded from earning per K-FB-LOY-001), so gross settled amount = the base.
-
-**Synthetic example (continuing §6).** Original accrual `FB_ACCRUAL +15` (from ₺157). After correction to ₺100: corrected points = `floor(0.10 × 100)` = 10 → reversal entry `FB_ACCRUAL_REVERSAL −5`, linked to the wallet correction. Derived points for the order = 10. Full reversal (corrected to ₺0) → `floor(0)` = 0 → `FB_ACCRUAL_REVERSAL −15`; the order retains **no** points, satisfying "reversed/corrected amounts do not retain earned points."
+- **Formula.** `floor(settled_amount_TRY)` → 1 loyalty point per whole Turkish Lira settled. Fractional TRY does not accrue.
+- **Accrual base.** The settled amount is derived from the price snapshot (K-FB-PRICE-001), not the catalog price at accrual time.
+- **Trigger.** Cashier recording of payment settlement (the `PAYMENT_RECORDED → SETTLED` transition in the lifecycle). The loyalty `FB_ACCRUAL` entry (L1) is posted atomically with or immediately after the wallet `FB_SETTLEMENT` entry (S1).
+- **Loyalty entry links to wallet entry.** L1 references S1 for traceability — so a correction to S1 (wallet) can be matched to the corresponding loyalty reversal. This is the structural link required by C-5 (§10).
+- **Single accrual floor.** One point per whole TRY, no tiers or multipliers in Phase 1. Full loyalty scope (redemption, expiry, tiers) is outside this decision.
 
 ---
 
-## 8. Correction / reversal design implications
+## 6. K-FB-LOY-001 — Precision notes for ADR-007
 
-K-FB-CORR-001 is consistent with §10.2 of the Accepted lifecycle (post-settlement correction = compensating append entries, out of the state machine). Design implications:
+These are precision requirements that must land in ADR-007 (not decisions for Kerem — Pod B ledger design discipline):
+
+- **P-1 — Entry type name.** Loyalty entry type for F&B accrual: `FB_ACCRUAL`. Reversal entry type for correction: `FB_ACCRUAL_REVERSAL`. These must be defined in the loyalty ledger entry-type enum alongside the existing `TOP_UP_BONUS` type.
+- **P-2 — Structural link is mandatory.** The `FB_ACCRUAL` entry must carry a foreign-key reference to the originating `FB_SETTLEMENT` wallet entry. Not advisory — required for correction integrity and audit traceability.
+- **P-3 — Floor is applied to the settled amount, not the order total.** If a partial settlement is ever possible (not currently modelled — flagging for completeness), the floor applies to the partial settled amount. For Phase 1, full settlement is the only modelled path.
+- **P-4 — No loyalty on correction entries by default.** Loyalty accrual applies to original settlement (`FB_SETTLEMENT`). Corrections (`FB_SETTLEMENT_CORRECTION`) result in a `FB_ACCRUAL_REVERSAL` — not a new accrual on the corrected amount. The net effect is: original accrual reversed; re-accrual on the corrected amount. This is implemented as two entries: a reversal of the original L1 and a new `FB_ACCRUAL` on the corrected settled amount. ADR-007 to confirm this is the intended double-entry model.
+
+---
+
+## 7. K-FB-LOY-001 — Customer-facing loyalty display
+
+The loyalty decision has a customer-facing implication that touches Pod A scope:
+
+- The customer wallet/loyalty history view must show `FB_ACCRUAL` entries (earned points from F&B orders). The customer should be able to see: date, amount earned, and a neutral description (e.g. "Sipariş — 3 puan" / "Order — 3 points"). No internal reason codes or cashier identity should be visible.
+- Correction reversals (`FB_ACCRUAL_REVERSAL`) should also appear in the history with a neutral label (e.g. "Düzeltme" / "Correction") and the net point change. Consistent with §9 (customer-visible correction history).
+- **This is a Pod A alignment item** (N-5 in §13): the customer loyalty history display spec and the correction description copy need to be reflected in `CORE_USER_FLOWS.md` and `BUSINESS_RULES.md`.
+
+---
+
+## 8. K-FB-CORR-001 — Architectural implications (correction mechanism)
+
+The correction mechanism design, stated at the principle level (detail in §10):
 
 - **Two coupled compensating entries per correction.** A wallet `FB_SETTLEMENT_CORRECTION` and a linked loyalty `FB_ACCRUAL_REVERSAL`, posted atomically so the wallet and loyalty effects of a correction cannot diverge. The loyalty reversal **references** the wallet correction (C-5).
 - **Bidirectional.** Corrections can be downward (over-charge) or upward (under-charge). Loyalty must follow in both directions (recompute from corrected amount). Upward corrections are subject to the negative-balance guard (C-7).
