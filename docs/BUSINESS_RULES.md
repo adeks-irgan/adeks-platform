@@ -54,7 +54,7 @@ This document is **decision-prep only**. It does not select an SMS provider, doe
 | BR-WALLET-005 | Wallet top-up threshold | No approval threshold is enforced in Phase 1; ADMIN receives daily top-up report as compensating control. | Confirmed by K-13/KD-F; report fields unresolved. |
 | BR-WALLET-006 | Cashier phone display | Cashier sees masked customer phone number with last 4 digits during top-up. | Confirmed. |
 | BR-LOYALTY-001 | Loyalty visibility | CUSTOMER can view own loyalty status after login. | Confirmed. |
-| BR-LOYALTY-002 | Loyalty earning | Loyalty earning happens automatically on eligible purchases. | Confirmed intent; eligibility/formula unresolved. |
+| BR-LOYALTY-002 | Loyalty earning | Loyalty earning happens automatically on eligible purchases. | Confirmed intent; F&B accrual formula resolved by K-18 (see BR-LOYALTY-FB-001). Non-F&B eligibility/formula and broader loyalty rules remain unresolved. |
 | BR-LOYALTY-003 | Loyalty redemption actor | Loyalty redemption is handled by CASHIER/ADMIN in Phase 1. | Confirmed. |
 | BR-LOYALTY-004 | Loyalty self-redemption | Customer self-redemption is excluded from Phase 1. | Confirmed. |
 | BR-LOYALTY-005 | Loyalty ledger | Loyalty must use append-only ledger logic; no direct balance overwrite. | Confirmed principle; [REQUIRES POD B REVIEW]. |
@@ -69,6 +69,7 @@ This document is **decision-prep only**. It does not select an SMS provider, doe
 | BR-FB-009 | F&B lifecycle design guardrail | Pod B must later formalize F&B state transitions, actors, audit points, cancellation boundaries, and any reversal logic. | Confirmed routing. Does not authorize Pod C. |
 | BR-FB-010 | F&B wallet payment | Café wallet balance may be used to settle F&B orders in Phase 1. Payment is cashier-mediated; the wallet debit is recorded by CASHIER/ADMIN at the time of delivery/settlement. No wallet hold is created at order submission. | Confirmed by Kerem, 2026-06-12. [REQUIRES POD B REVIEW] for ledger entry design and combined payment/order display model. |
 | BR-FB-011 | F&B loyalty accrual | F&B purchases accrue loyalty points in Phase 1. Accrual trigger: CASHIER records wallet payment/settlement for the order. Cancelled and rejected orders do not accrue loyalty. | Confirmed by Kerem, 2026-06-12. [REQUIRES POD B REVIEW] for loyalty ledger append event design. |
+| BR-LOYALTY-FB-001 | F&B loyalty accrual formula | F&B accrual formula (resolved by K-18, 2026-06-14): `floor(0.10 × settled_amount_TRY)` = `floor(settled_kuruş / 1000)`. 10% of settled F&B amount, rounded down to whole loyalty points. Examples: ₺100→10 pts, ₺157→15 pts, ₺99→9 pts. Accrual trigger: cashier recording payment settlement. | Locked by K-18 (Kerem, 2026-06-14). [REQUIRES POD B REVIEW] for ledger append event and precision implementation. Does not authorize Pod C. |
 | BR-RES-001 | Reservation request | Logged-in CUSTOMER can submit reservation requests. | Confirmed. |
 | BR-RES-002 | Reservation approval | CASHIER and ADMIN can approve/reject reservations. | Confirmed. |
 | BR-RES-003 | Automatic confirmation | Excluded from Phase 1; Phase 2 candidate after reliable PC/session status. | Confirmed. |
@@ -87,7 +88,7 @@ This document is **decision-prep only**. It does not select an SMS provider, doe
 | ID | Area | Decision question | Guardrail | Blocker |
 |---|---|---|---|---|
 | BRD-LOY-001 | Loyalty earning eligibility | Which Phase 1 purchase types earn loyalty: F&B only, PC/session usage, wallet top-up, or selected combinations? | "Wallet top-up earns" requires Pod B ledger review first; PC/session earning is gated on Selcafe spike. | Blocks Pod C |
-| BRD-LOY-002 | Loyalty earning formula | What is the Phase 1 earning formula? | Must be representable as discrete immutable earn events. Pod B defines precision/rounding. | Blocks Pod C |
+| BRD-LOY-002 | Loyalty earning formula | F&B formula resolved by K-18: `floor(0.10 × settled_amount_TRY)`. What is the Phase 1 earning formula for non-F&B purchase types? | Must be representable as discrete immutable earn events. Pod B defines precision/rounding. | Blocks Pod C for non-F&B earning |
 | BRD-LOY-003 | Loyalty earning exclusions | Are discounts, campaigns, refunded/cancelled purchases, wallet top-ups, or manual adjustments excluded from earning? | Prevent double earning and ensure reversal paths are ledger-based. | Blocks Pod C |
 | BRD-LOY-004 | Loyalty redemption unit | Is redemption denominated as points, ₺ discount equivalent, item discount, or another unit? | Ledger semantics and customer-facing value require Pod B review. | Blocks Pod C |
 | BRD-LOY-005 | Loyalty redemption limits | What are the minimum/maximum redemption limits per transaction/day/customer? | Refund/cancel interaction and reversing entries require Pod B. | Blocks Pod C |
@@ -128,16 +129,18 @@ F&B order lifecycle product decisions are resolved by Kerem's completed F&B Orde
 
 ### Loyalty earning formula
 
-[OPEN QUESTION] What is the Phase 1 formula?
+**F&B formula — RESOLVED by K-18 (Kerem, 2026-06-14):** `floor(0.10 × settled_amount_TRY)` = `floor(settled_kuruş / 1000)`. 10% of settled F&B amount, rounded down to whole points. See BR-LOYALTY-FB-001.
+
+[OPEN QUESTION] Non-F&B earning formula and broader program rules remain unresolved.
 
 | Decision element | Kerem can decide | Guardrail |
 |---|---|---|
-| Formula shape | Points per ₺, percentage, fixed points per item/category, or no earning yet | Must express as discrete immutable earn events. |
+| Non-F&B formula shape | Points per ₺, percentage, fixed points per item/category, or no earning yet | Must express as discrete immutable earn events. |
 | Business value | Earning rate / customer value | Kerem owns financial exposure. |
 | Rounding/precision | Product preference can be stated | Pod B defines ledger precision and rounding implementation. |
 | Refund/cancel interaction | Business intent | Pod B designs reversing ledger events. |
 
-Do not implement until Kerem chooses a formula and Pod B reviews ledger implications.
+Do not implement non-F&B earning or redemption until Kerem chooses a formula and Pod B reviews ledger implications.
 
 ### Loyalty redemption limits
 

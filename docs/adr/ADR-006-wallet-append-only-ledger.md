@@ -44,10 +44,8 @@ points = floor(0.10 × settled_amount_TRY) = floor(settled_kuruş / 1000)
 
 Examples: **₺100 → 10 pts, ₺157 → 15 pts, ₺99 → 9 pts, ₺9 → 0 pts.**
 
-> **Record-correction flag (high priority).** This **supersedes** the value currently recorded for **K-18**
-> in `KEREM_DECISIONS.md` §18 and `PROJECT_DECISION_INDEX.md` §4, which read `floor(settled_amount_TRY)`
-> (1 point per whole TRY). Until those records are corrected, the repo's K-18 value and this ADR diverge.
-> The correction (K-18 → 10% round-down) is routed to **Pod A** with Kerem approval (see handoffs).
+> **Record-correction resolved.** `KEREM_DECISIONS.md` §18, `PROJECT_DECISION_INDEX.md` §4 (K-18 row),
+> and `BUSINESS_RULES.md` (BR-LOYALTY-FB-001) have been corrected to `floor(0.10 × settled_amount_TRY)`.
 > ADR-006 (wallet) does **not** lock the loyalty rate — that is **ADR-007** — but its examples and the
 > loyalty-linkage section (§Decision 8.3) use the 10% formula per this decision.
 
