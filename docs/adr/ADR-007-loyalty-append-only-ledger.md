@@ -1,17 +1,18 @@
 # ADR-007: Loyalty Append-Only Ledger
 
 <!--
-  STATUS: Proposed (full draft) — 2026-06-14 (Pod B). Replaces the 2026-06-07 stub. NOT Accepted.
+  STATUS: Accepted — 2026-06-14 (Kerem approval; PR #65)
   AUTHOR: Pod B — Architecture, Logic & Risk
   REVIEWER: Kerem (§19 authorship — Security/KVKK-sensitive decision)
   APPROVER: Kerem + Pod B (§11.1 Loyalty ledger logic; ADR-009 §3)  [stub said "Approver: Pod B" — corrected per review N-3]
   CREATED (stub): 2026-06-07
   FULL DRAFT: 2026-06-14
+  ACCEPTED: 2026-06-14
   CANONICAL REPO PATH: /docs/adr/ADR-007-loyalty-append-only-ledger.md
   SUPERSEDES: the ADR-007 stub (decision direction only).
   RELATED:
     - PROJECT_METHODOLOGY.md §11.1 (approval gate), §19 (ADR template/authorship), §20.1 (abuse cases), §20.2 (KVKK), §20.3 (security review)
-    - PROJECT_DECISION_INDEX.md (ADR-007 → Backlog→Proposed; K-17/18/19 Locked; K-18 formula = 10% round-down, corrected 2026-06-14)
+    - PROJECT_DECISION_INDEX.md (ADR-007 → Backlog→Proposed→Accepted; K-17/18/19 Locked; K-18 formula = 10% round-down, corrected 2026-06-14)
     - KEREM_DECISIONS.md K-18 (loyalty formula), K-17 (price source), K-19 (correction policy + KD-FB-CORR-001/002/003)
     - reviews/FB_SETTLEMENT_DEPENDENCIES_REVIEW_v1.0.md (§7 ADR-007 implications; C-5 reversal linkage; recompute-from-corrected; single-floor; N-1; N-3)
     - architecture/FB_ORDER_LIFECYCLE_STATE_MODEL_v1.0.md (L1 FB_ACCRUAL §9; derived-from-S1; exclusions; P-3/P-5)
@@ -23,20 +24,19 @@
 
 ## Status
 
-**Proposed (full draft)** — 2026-06-14 (Pod B). This document replaces the 2026-06-07 ADR-007 stub with
-the full loyalty append-only ledger design. It is **not** Accepted; it awaits Kerem's review and the
-**Kerem + Pod B** approval gate (§11.1 *Loyalty ledger logic*; ADR-009 §3).
+**Accepted** — 2026-06-14 (Kerem approval; PR #65). Full loyalty append-only ledger design is locked.
+Implementation remains blocked — see remaining dependencies below.
 
-**Scope of this proposal.** ADR-007 designs the **loyalty ledger**: entry taxonomy, point precision and
+**Scope of this ADR.** ADR-007 designs the **loyalty ledger**: entry taxonomy, point precision and
 the loyalty formula, balance derivation, concurrency/idempotency, the accrual-on-settlement event, the
 post-correction recompute/reversal mechanics, ledger-side audit fields, abuse cases, and a provisional
 KVKK pattern. It is the **separate** loyalty ledger (separate table, separate entry types) and is the
-**canonical home of the F&B loyalty accrual formula**. Acceptance will **not** authorize Pod C and will
+**canonical home of the F&B loyalty accrual formula**. Acceptance does **not** authorize Pod C and does
 **not** discharge the manifest's Loyalty-task file requirements. Implementation remains blocked pending:
 the audit event schema (OQ-AUDIT-001); retention / legal basis (OQ-LEGAL-005) and the KVKK legal
 artifacts; the still-absent `/docs/SECURITY_REVIEW.md` and `/docs/DATA_PROCESSING_INVENTORY.md`; and
 separate Pod B + Kerem approved implementation issues. The KVKK section (§Decision 11) remains
-**provisional** pending legal advisor. *(This mirrors the ADR-006 posture: design proposed/accepted,
+**provisional** pending legal advisor. *(This mirrors the ADR-006 posture: design accepted,
 implementation blocked.)*
 
 ### Loyalty formula (authoritative here) — K-18, 10% round-down
@@ -472,16 +472,14 @@ same economics with one immutable entry and a clean 1:1 accrual↔reversal mappi
   future redemption / expiry / non-F&B earning copy.
 - **Approver:** **Kerem + Pod B** (§11.1 *Loyalty ledger logic*; ADR-009 §3)
 - **Date proposed:** 2026-06-14
-- **Status:** **Proposed (full draft)** — not Accepted.
+- **Date accepted:** 2026-06-14
+- **Status:** **Accepted** — Kerem approval recorded 2026-06-14 (PR #65).
 
-### Decisions requested from Kerem (for acceptance)
+### Acceptance notes
 
-1. **Accept** ADR-007 as the loyalty ledger design (implementation remains blocked — see Status).
-2. **Confirm** the loyalty formula consistency: ADR-007 records the Locked K-18 value
-   `floor(0.10 × settled_TRY) = floor(settled_kuruş / 1000)` (10% round-down), consistent with ADR-006 and
-   the three decision sources. **No source requires correction.** *(See the formula-reconciliation note in
-   the accompanying Handoff-Kerem.)*
-3. **Note** that the KVKK section (§11) is **provisional** pending legal advisor.
+1. ADR-007 accepted as the loyalty ledger design. Implementation remains blocked — see remaining dependencies below.
+2. Loyalty formula confirmed: `floor(0.10 × settled_TRY) = floor(settled_kuruş / 1000)` (K-18, 10% round-down). All sources consistent; no correction required.
+3. KVKK section (§11) remains **provisional** pending legal advisor.
 
 ### Remaining dependencies (block Pod C / acceptance-as-implementable)
 
@@ -491,6 +489,6 @@ manifest reconciliation); **OQ-LOY-001 / OQ-LOY-002 / OQ-LOY-003** (non-F&B earn
 exclusions — open for non-F&B); **OQ-LOY-004** (redemption) and **OQ-LOY-005** (expiry), referenced not
 designed. Pod C remains blocked pending these plus separate Pod B + Kerem approved implementation issues.
 
-*Produced by Pod B — Architecture, Logic & Risk. Proposed design; implementation blocked. The repository is
+*Produced by Pod B — Architecture, Logic & Risk. Accepted 2026-06-14. Implementation blocked. The repository is
 the source of truth; re-verify `main` blob SHAs before commit. This ADR does not design
 schema/migrations/code, does not resolve KVKK/audit-storage questions, and does not authorize Pod C.*
