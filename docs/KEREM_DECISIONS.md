@@ -7,7 +7,7 @@
           K-14/15/16 from Kerem session decisions 2026-06-10 (CORE_USER_FLOWS OQ-CUF-AUTH-002/003/004);
           K-17/18/19 from Kerem session decisions 2026-06-14 (F&B settlement: price source, loyalty formula, correction policy)
   AUTHOR: Pod B (Architecture, Logic & Risk)
-  VERSION: 1.5
+  VERSION: 1.6
   PATH: /docs/KEREM_DECISIONS.md
 
   PURPOSE:
@@ -45,7 +45,7 @@
 | K-15 | Acknowledgment persistence model (Phase 1) | Ephemeral pre-verification; persisted only on successful OTP verification | ✅ Recorded |
 | K-16 | Same-session acknowledgment reuse (Phase 1) | Valid within uninterrupted session; re-ack on session break or phone-number change | ✅ Recorded |
 | K-17 | F&B price source for settlement | Price captured at order submission (immutable snapshot); catalog edits after submission do not affect settlement amount | ✅ Recorded |
-| K-18 | F&B loyalty accrual formula | Loyalty accrues on settled F&B amount (post-payment); formula = floor(settled_amount_TRY); cashier payment recording is the trigger | ✅ Recorded |
+| K-18 | F&B loyalty accrual formula | Loyalty accrues on settled F&B amount (post-payment); formula = floor(0.10 × settled_amount_TRY) = floor(settled_kuruş / 1000); 10% of settled F&B amount, rounded down to whole points; cashier payment recording is the trigger | ✅ Recorded |
 | K-19 | F&B post-settlement correction policy | Cashier same-shift correction permitted (own settlements only); executor = cashier; customer-visible history = minimized (neutral label + value delta); follow-up decisions resolved 2026-06-14 | ✅ Recorded |
 
 ---
@@ -535,14 +535,14 @@ Records the price-source business rule. Does NOT authorize Pod C. ADR-006 (walle
 
 | Parameter | Value |
 |---|---|
-| Formula | `floor(settled_amount_TRY)` — 1 loyalty point per whole Turkish Lira settled |
+| Formula | `floor(0.10 × settled_amount_TRY)` = `floor(settled_kuruş / 1000)` — 10% of settled F&B amount, rounded down to whole loyalty points. Examples: ₺100→10, ₺157→15, ₺99→9. |
 | Accrual basis | Settled F&B amount (post-payment), using the price snapshot from K-17 |
 | Accrual trigger | Cashier recording of payment settlement (the `SETTLED` transition in the F&B lifecycle) |
-| Floor | 1 point per whole TRY; fractional TRY does not accrue |
+| Floor | 10% of settled amount, rounded down to whole points; fractional result does not accrue. |
 
 ### Architectural implications recorded by Pod B
 
-- The loyalty accrual entry (L1 in the ledger) is derived at the moment the cashier records settlement: `points = floor(settled_amount_TRY)`.
+- The loyalty accrual entry (L1 in the ledger) is derived at the moment the cashier records settlement: `points = floor(0.10 × settled_amount_TRY)` = `floor(settled_kuruş / 1000)`.
 - Accrual is computed from `settled_amount_TRY` (which incorporates the K-17 price snapshot), not from the catalog price at accrual time.
 - The loyalty `FB_ACCRUAL` ledger entry references the wallet settlement entry (S1) for traceability — the two are structurally linked per the append-only ledger discipline (ADR-007 stub).
 - This resolves dependency **D-3** (loyalty formula) tracked in `FB_ORDER_LIFECYCLE_STATE_MODEL_v1.0.md`.
@@ -654,3 +654,4 @@ Records the correction policy. Does NOT authorize Pod C. ADR-006 and ADR-007 rem
 | 1.3 | 2026-06-09 | Pod B | K-13 Phase 1 authentication decisions (KD-A through KD-H) added; summary table, open actions, and revision log updated |
 | 1.4 | 2026-06-10 | Pod B | K-14/15/16 recorded (CORE_USER_FLOWS OQ-CUF-AUTH-002/003/004 resolved): notice text location, acknowledgment persistence, same-session reuse. Summary table, Open Actions (K-08 confirmation of K-15/K-16), and revision log updated. |
 | 1.5 | 2026-06-14 | Pod B | K-17/18/19 recorded (F&B settlement decisions: price source, loyalty formula, correction policy). Follow-up decisions KD-FB-CORR-001/002/003 resolved 2026-06-14. Reason-code enum home (ADR-006 pending). Summary table and revision log updated. |
+| 1.6 | 2026-06-14 | Pod C | K-18 formula corrected to 10% round-down — `floor(0.10 × settled_amount_TRY)` = `floor(settled_kuruş / 1000)` — per Kerem 2026-06-14. Supersedes the earlier 1-point-per-TRY record. Summary table, §18 decision table (Formula + Floor rows), and §18 architectural implications updated. |
