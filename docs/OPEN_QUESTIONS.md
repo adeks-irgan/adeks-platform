@@ -63,7 +63,6 @@
 | OQ-RES-003 | What cancellation rules apply for customer and staff? | Kerem | blocks Pod C | Kerem, then Pod B | State-machine review required. |
 | OQ-RES-004 | What no-show grace period and consequence apply? | Kerem | blocks Pod C | Kerem, then Pod B | Future reservation restriction has customer-communication and possible KVKK implications. |
 | OQ-RES-005 | What criteria should staff use when approving/rejecting reservation requests without reliable automated PC/session status? | Kerem + Pod B | blocks Pod C | Kerem after Selcafe spike, then Pod B | Do not lock status-based approval criteria before Selcafe spike results. Phase 1 stays manual staff judgment by design unless spike supports more. |
-| OQ-AUDIT-001 | Are minimum audit fields enough, or must reason/comment, IP/device, before/after derived values, and workflow source also be captured? | Pod B + Kerem | blocks Pod C | Pod B, then Kerem | Build on Accepted auth threat model baseline. Retention/legal basis remains legal-advisor input. |
 | OQ-SEL-001 | What customer data should be imported or mapped from Selcafe if read-only sync is feasible? | Kerem + Pod B | blocks Pod C for sync | Kerem, then Pod B | Intent only before spike. No final field mapping until Selcafe spike + KVKK/legal review. |
 | OQ-SEL-002 | What is the result of the Selcafe feasibility spike, and is Phase 1 read-only sync feasible, partial, or not feasible? | Pod C + Pod B + Kerem | blocks Pod C for sync | Pod C, then Pod B | Spike must use read-only access and no real customer data in docs/AI sessions. |
 | OQ-MVP-001 | Are campaign/subscription/ARPU features explicitly excluded from Phase 1 MVP and tracked only in feature discovery? | Kerem + Pod A | not blocking yet | Kerem | Can be answered while SMS/legal replies are pending. |
@@ -73,6 +72,14 @@
 | OQ-AUTH-002 | What is the initial ADMIN bootstrap procedure for Phase 1? | Kerem + Pod B | blocks Pod C auth issue prep | Kerem + Pod B | From Accepted auth threat model IR-24; security-sensitive, not a Pod A decision. |
 
 ## Resolved / No Longer Open in This List
+
+### Architectural / design resolutions
+
+| Former issue | Resolution | Remaining open dependencies / guardrails |
+|---|---|---|
+| OQ-AUDIT-001 — audit event schema | Resolved (design) by `/docs/architecture/AUDIT_EVENT_SCHEMA.md`; Kerem-accepted 2026-06-15 (KD-A unified store, KD-B scoped IP/device capture, KD-C Option B hash chain, KD-F mapping, KD-G accept). | Pod-B-then-Kerem architectural resolution; not a Kerem product-decision lock. KD-D retention remains open under OQ-LEGAL-005; KD-E `DATA_PROCESSING_INVENTORY.md` remains open. Does not authorize Pod C. |
+
+### Kerem product-decision resolutions
 
 | Former issue | Resolution | Do not reopen |
 |---|---|---|
