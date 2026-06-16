@@ -1,16 +1,16 @@
 # PROJECT_METHODOLOGY.md
 
 <!-- 
-  STATUS: DRAFT — Awaiting Kerem approval of [NEEDS KEREM APPROVAL] items
+  STATUS: Active — documentation cleanup reconciliation; unresolved legal, launch, and companion-document actions remain tracked in decision/open-question artifacts
   AUTHOR: Pod A
   REVIEWER: Pod B (before merge)
   APPROVER: Kerem (product owner)
-  VERSION: 0.8
-  LAST UPDATED: 2026-06-07
+  VERSION: 0.10
+  LAST UPDATED: 2026-06-16
   PATH: /docs/PROJECT_METHODOLOGY.md
 
-  POD A: Completed v0.5 draft. RCPC bundle migrated PQ-002 mandatory Pod D audit cadence and workflow archive/stub references. Pod B review required.
-  POD B (v0.6): BC-2 Option A — aligned §11.1 approval gates to ADR-009 §3; removed stale embedded PR template from §15. Kerem-approved 2026-06-07.
+  POD A: Documentation-only cleanup to remove stale K-01 through K-10 placeholders, reconcile accepted decision state, and preserve existing methodology gates.
+  POD B: Review complete for this narrow cleanup; §11.1 gate-table refactor deferred to a standalone follow-on PR.
 -->
 
 ---
@@ -330,9 +330,9 @@ universe of possible directions before any scope is locked.
 
 | Output                   | Document                        | Status                 |
 | ------------------------ | ------------------------------- | ---------------------- |
-| Product vision statement | `/docs/VISION.md`               | [NEEDS KEREM APPROVAL] |
+| Product vision statement | `/docs/VISION.md`               | K-01 recorded; companion `VISION.md` still to be drafted/approved |
 | Problem statement        | `/docs/PROBLEM_STATEMENT.md`    | [NEEDS KEREM APPROVAL] |
-| North star metric        | `/docs/VISION.md` (section)     | [NEEDS KEREM APPROVAL] |
+| North star metric        | `/docs/VISION.md` (section)     | Locked by K-01; target recorded by K-05; companion doc update pending |
 | Stakeholder map          | `/docs/STAKEHOLDER_MAP.md`      | [NEEDS KEREM APPROVAL] |
 | Competitive analysis     | `/docs/COMPETITIVE_ANALYSIS.md` | [NEEDS KEREM APPROVAL] |
 
@@ -358,9 +358,13 @@ The metric must be specific, measurable, and reviewed after launch. It should an
 
 > If this number increases, can we reasonably say Phase 1 worked?
 
-Placeholder for Kerem:
+Kerem decision recorded in K-01:
 
-> [NEEDS KEREM APPROVAL — what single number, if increasing, tells us Phase 1 worked?]
+> Weekly active PWA users among eligible customers.
+
+K-05 target:
+
+> 40–60% of weekly visitors within 3 months of launch.
 
 Examples of candidate metric categories, not final decisions:
 
@@ -438,7 +442,7 @@ The original project did not execute Phase 1 before beginning planning. The
 following remediation actions are required before MVP_SCOPE.md is finalised:
 
 * [ ] Kerem to narrate and Pod A to document: what problem are we solving?
-* [ ] Kerem to define the north star metric for Phase 1
+* [x] Kerem to define the north star metric for Phase 1 — resolved by K-01; target recorded by K-05.
 * [ ] Pod A to produce VISION.md draft for Kerem approval
 * [ ] Pod A to produce STAKEHOLDER_MAP.md draft for Kerem approval
 
@@ -728,7 +732,7 @@ Pod C executes technical spikes.
 | Output                           | Document                        | Status                         |
 | -------------------------------- | ------------------------------- | ------------------------------ |
 | Assumption Map                   | `/docs/ASSUMPTION_MAP.md`       | Missing                        |
-| Selcafe Feasibility Spike Report | `/docs/SELCAFE_SPIKE_REPORT.md` | Missing [NEEDS KEREM APPROVAL] |
+| Selcafe Feasibility Spike Report | `/docs/SELCAFE_SPIKE_REPORT.md` | Authorized by K-10; report still missing / pending execution |
 | MVP Hypothesis Document          | `/docs/MVP_HYPOTHESIS.md`       | Missing                        |
 
 ### 7.1 Assumption Map
@@ -756,9 +760,9 @@ Low-confidence assumptions that affect scope, architecture, customer money, pers
 
 ### 7.2 Selcafe Feasibility Spike
 
-<!-- [NEEDS KEREM APPROVAL — requires authorised access to Selcafe SQL Server
-for read-only schema inspection. This must not be treated as a write operation.
-See locked principle: No direct writes to Selcafe SQL Server in Phase 1.] -->
+<!-- K-10 recorded: Kerem authorized read-only Selcafe SQL Server schema inspection.
+This remains read-only only. No INSERT, UPDATE, DELETE, DROP, ALTER, configuration
+change, live interruption, or real customer row data in docs / AI sessions is allowed. -->
 
 The Selcafe feasibility spike answers whether and how Phase 1 can safely discover or sync data from Selcafe without replacing Selcafe and without writing to Selcafe SQL Server.
 
@@ -798,9 +802,9 @@ Examples using placeholders:
 
 | Feature Cluster      | Example Hypothesis                                                                                                                                                                                                                                                             |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| F&B ordering         | We believe that seat-based F&B ordering will cause gaming customers to place more orders without leaving their session, which we will measure by successful PWA-originated F&B orders. We will know this is confirmed if [NEEDS KEREM APPROVAL] within [NEEDS KEREM APPROVAL]. |
-| Wallet visibility    | We believe that wallet visibility will cause customers to ask cashiers fewer balance-related questions, which we will measure by cashier-reported balance inquiries. We will know this is confirmed if [NEEDS KEREM APPROVAL] within [NEEDS KEREM APPROVAL].                   |
-| Reservation requests | We believe that digital reservation requests will cause staff to handle reservation intent more consistently, which we will measure by request completion and staff response time. We will know this is confirmed if [NEEDS KEREM APPROVAL] within [NEEDS KEREM APPROVAL].     |
+| F&B ordering         | We believe that seat-based F&B ordering will cause gaming customers to place more orders without leaving their session, which we will measure by successful PWA-originated F&B orders. We will know this is confirmed if 5–10 successful seat-originated F&B orders are placed per day within 1 month post-launch. |
+| Wallet visibility    | We believe that wallet visibility will cause customers to ask cashiers fewer balance-related questions, which we will measure by cashier-initiated top-ups and top-up success rate. We will know this is confirmed if there are ≥20 top-ups/week and ≥99% success rate within 1 month post-launch. |
+| Reservation requests | We believe that digital reservation requests will cause staff to handle reservation intent more consistently, which we will measure by request completion and staff response time. We will know this is confirmed if ≥5 digital reservation requests are submitted per week within 1 month post-launch. |
 
 This document becomes the basis for Phase 10 post-launch review.
 
@@ -958,9 +962,7 @@ priorities, and a work rhythm that all pods can operate within.
 
 ### 9.1 Work Rhythm and Cadence
 
-<!-- [NEEDS KEREM APPROVAL] -->
-
-The recommended work rhythm is two-week iterations. This cadence is short enough to expose issues early and long enough to complete meaningful planning, architecture review, implementation, test, and feedback loops.
+The approved work rhythm is milestone-based per K-02. Short iteration or check-in cycles may be used for coordination, but phase gates and completion decisions are milestone-based.
 
 Each iteration should include:
 
@@ -1238,13 +1240,14 @@ Rollback is mandatory when one of the following occurs:
 * Reservation workflow creates duplicate or conflicting commitments.
 * Monitoring shows repeated critical errors after deployment.
 * Data migration causes unexpected data loss, corruption, or severe performance degradation.
-* The platform cannot recover within [NEEDS KEREM APPROVAL — recommended maximum downtime threshold].
+* Kerem determines rollback case by case when operational recovery is unacceptable; no fixed downtime threshold is locked by K-03.
+* Wallet or loyalty balance/event incorrectness, or unauthorized customer personal-data exposure, triggers mandatory rollback regardless of discretion.
 
 Detailed rollback execution belongs in `/docs/ROLLBACK_POLICY.md`.
 
 ### 12.5 Feature Flagging and Staged Rollout
 
-<!-- [NEEDS KEREM APPROVAL — tool selection for feature flagging] -->
+<!-- K-04 recorded: feature flag tool selection is deferred to Pod B via ADR-012 before Phase 1 go-live. -->
 
 Feature flags allow the project to enable or disable specific features without a full redeploy. This is important because the café may be operating continuously and new features should be tested with limited exposure before full rollout.
 
@@ -1319,12 +1322,12 @@ Minimum required metrics:
 
 | Area               | Metric                                                                 | Target                 | Review Cadence |
 | ------------------ | ---------------------------------------------------------------------- | ---------------------- | -------------- |
-| Wallet             | Wallet visibility usage rate or cashier-assisted top-up success rate   | [NEEDS KEREM APPROVAL] | Weekly         |
-| F&B ordering       | Successful seat-originated F&B orders                                  | [NEEDS KEREM APPROVAL] | Weekly         |
-| Loyalty            | Loyalty visibility usage or eligible loyalty events recorded correctly | [NEEDS KEREM APPROVAL] | Weekly         |
-| Reservations       | Reservation requests submitted and staff response completion           | [NEEDS KEREM APPROVAL] | Weekly         |
-| PWA adoption       | Active PWA users among eligible customers                              | [NEEDS KEREM APPROVAL] | Weekly         |
-| System reliability | Uptime SLO                                                             | [NEEDS KEREM APPROVAL] | Daily          |
+| Wallet             | Wallet visibility usage rate or cashier-assisted top-up success rate   | ≥20 top-ups/week and ≥99% success rate      | Weekly         |
+| F&B ordering       | Successful seat-originated F&B orders                                  | 5–10 orders per day                         | Weekly         |
+| Loyalty            | Loyalty visibility usage or eligible loyalty events recorded correctly | ≥30% of weekly active PWA users             | Weekly         |
+| Reservations       | Reservation requests submitted and staff response completion           | ≥5 digital reservation requests per week    | Weekly         |
+| PWA adoption       | Active PWA users among eligible customers                              | 40–60% of weekly visitors within 3 months   | Weekly         |
+| System reliability | Uptime SLO                                                             | 99.9% overall, ≤44 min downtime/month       | Daily          |
 
 Reference `/docs/PRODUCT_METRICS.md` for the full metrics specification.
 
@@ -1372,16 +1375,14 @@ Action items from a retrospective must be assigned to an owner. Methodology chan
 
 ### 13.4 Feedback Capture Mechanism
 
-<!-- [NEEDS KEREM APPROVAL] -->
-
 Feedback must have a single visible intake path so that cashier complaints, customer confusion, and operational friction do not remain informal comments.
 
 Recommended intake model:
 
 | Feedback Source    | Intake Point                                                       | Recording Location                      |
 | ------------------ | ------------------------------------------------------------------ | --------------------------------------- |
-| Cashier staff      | Kerem or assigned shift lead                                       | GitHub issue or feedback log            |
-| F&B staff          | Kerem or assigned shift lead                                       | GitHub issue or feedback log            |
+| Cashier staff      | Staff WhatsApp group; Kerem converts significant reports to GitHub issues | GitHub issue or feedback log            |
+| F&B staff          | Staff WhatsApp group; Kerem converts significant reports to GitHub issues | GitHub issue or feedback log            |
 | Customers          | Staff report, PWA feedback form if approved, or direct Kerem input | Feedback log with synthetic description |
 | Monitoring alerts  | Pod D / Pod C                                                      | Incident or bug issue                   |
 | Pod audit findings | Pod D                                                              | Audit report and linked issue           |
@@ -1794,8 +1795,8 @@ Current ADR backlog to be resolved by Pod B in priority order:
 | ADR-003 | PostgreSQL database family          | Proposed (stub) — direction locked    | High                         |
 | ADR-004 | ORM selection — Prisma              | **Accepted** — 2026-06-08             | Done — implementation blocked pending separate Pod B + Kerem approved issues |
 | ADR-005 | Selcafe read-only Phase 1 adapter   | Proposed (stub) — direction locked    | High                         |
-| ADR-006 | Wallet append-only ledger           | Proposed (stub) — direction locked    | High                         |
-| ADR-007 | Loyalty append-only ledger          | Proposed (stub) — direction locked    | High                         |
+| ADR-006 | Wallet append-only ledger | **Accepted** — 2026-06-14 (Kerem + Pod B) | Done — implementation blocked pending top-up methods, top-up correction/report fields, legal/KVKK artifacts, security/DoR issue packets, and separate Pod B + Kerem-approved implementation issues |
+| ADR-007 | Loyalty append-only ledger | **Accepted** — 2026-06-14 (Kerem approval; PR #65) | Done — implementation blocked pending legal/KVKK artifacts, redemption, expiry, broader exclusions, non-F&B earning if included, security/DoR issue packets, and separate Pod B + Kerem-approved implementation issues |
 | ADR-008 | Tenancy strategy — shared schema + `tenant_id` (long-term) | **Accepted** — 2026-06-08 | Done — implementation blocked pending separate Pod B + Kerem approved issues |
 | ADR-009 | PR approval policy                  | **Accepted** — 2026-06-05             | Done                         |
 | ADR-010 | Real-time transport selection       | Proposed (stub) — Phase 2             | Phase 2                      |
@@ -1803,6 +1804,7 @@ Current ADR backlog to be resolved by Pod B in priority order:
 | ADR-012 | Feature flag tool selection         | Proposed (stub) — Pod B to finalize   | Before Phase 1 go-live       |
 | ADR-013 | Repository-Controlled Pod Context   | **Accepted** — 2026-06-05             | Done                         |
 | ADR-014 | PWA-first customer application      | Proposed (stub) — direction locked    | High                         |
+| ADR-015 | Authentication strategy | **Accepted** — 2026-06-09 (Kerem approval). Authentication threat model (`AUTH_THREAT_MODEL.md` v0.4) is accepted. | Done — implementation blocked pending SMS provider selection (OQ-SMS-001), legal/KVKK closure (OQ-LEGAL-001 through OQ-LEGAL-006), and separate Pod B + Kerem-approved implementation issues |
 
 ---
 
@@ -1850,7 +1852,7 @@ The KVKK process must cover these obligations:
 
 | Obligation                                   | Owner                                                                           | Required Artifact / Action                     |
 | -------------------------------------------- | ------------------------------------------------------------------------------- | ---------------------------------------------- |
-| VERBİS registration                          | Kerem + external legal/privacy advisor                                          | [NEEDS KEREM APPROVAL — legal action required] |
+| VERBİS registration                          | Kerem + external legal/privacy advisor                                          | K-07 recorded: Kerem consults legal advisor and acts accordingly; go-live remains blocked until VERBİS requirement/exemption is confirmed. |
 | Data processing inventory                    | Pod A drafts, Pod B reviews, Kerem approves                                     | `/docs/DATA_PROCESSING_INVENTORY.md`           |
 | Legal basis documentation per data type      | Kerem + legal/privacy advisor, Pod A supports                                   | `/docs/KVKK_LEGAL_BASIS.md`                    |
 | Privacy notice (Aydınlatma Metni) in the PWA | Kerem + legal/privacy advisor, Pod C implements approved text                   | `/docs/PRIVACY_NOTICE_TR.md` and PWA copy      |
@@ -2045,7 +2047,7 @@ The following roles are missing or underdefined. Until dedicated people are assi
 | Missing Role                  | Who Currently Covers It                                       | Gap Risk                                    | Recommended Coverage                                                                                |
 | ----------------------------- | ------------------------------------------------------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------------- |
 | QA Lead                       | Pod B defines strategy; Pod C executes tests; Kerem signs UAT | Test strategy undefined, coverage arbitrary | Pod B owns strategy; Pod C owns execution; Kerem owns UAT sign-off                                  |
-| KVKK / Legal Compliance Owner | Kerem informally                                              | Legal obligation without an owner           | Kerem + external legal/privacy advisor [NEEDS KEREM APPROVAL]                                       |
+| KVKK / Legal Compliance Owner | Kerem informally                                              | Legal obligation without an owner           | Kerem + external legal/privacy advisor; K-08 recorded that Kerem's current legal advisor handles KVKK obligations.                                       |
 | Operations / SRE Owner        | Pod C + Pod D informally                                      | No incident response owner                  | Pod C owns release/runtime response; Pod D owns monitoring spec; Kerem escalates business decisions |
 | UX / Service Designer         | Pod D + Pod A                                                 | Staff workflows unvalidated                 | Pod D observes/prototypes; Pod A synthesises product rules and open questions                       |
 | Data / Analytics Role         | Pod A + Kerem for Phase 1                                     | No OLTP/OLAP strategy                       | Pod A defines product metrics; Pod B reviews data model; dedicated role before Phase 3              |
@@ -2060,7 +2062,7 @@ Role gaps should be reviewed at every major phase gate. If a gap becomes a launc
 
 ## 25. Pilot and Staged Rollout Policy
 
-<!-- [NEEDS KEREM APPROVAL] -->
+<!-- K-09 recorded: cashier staff identify regular customers and invite them as early access / VIP users. Privacy notice acknowledgment remains mandatory during registration. -->
 
 The Phase 1 pilot should reduce rollout risk by exposing the platform gradually. The pilot is not only a technical test. It validates staff readiness, customer comprehension, operational fallback, monitoring, support workflow, and product value.
 
@@ -2241,6 +2243,7 @@ The following rules are mandatory:
 | 0.7 | 2026-06-07 | Pod B | BC-2 completion: corrected two stale §15 DoD rows missed in v0.6. "Migration reviewed by Pod B" → "Pod B + Kerem"; "Security-sensitive areas reviewed by Pod B" → "Pod B + Kerem". Both rows now match ADR-009 §3 and §11.1. No new gate introduced; reconciliation of existing K-11 approval (Kerem-approved 2026-06-07). |
 | 0.8 | 2026-06-07 | Pod B | BC-2 completion (OQ-BC2-01): corrected §15 DoD "Financially-sensitive" row. "Kerem" → "Kerem + Pod B". Reconciles with ADR-009 §3 and §11.1. No new gate introduced; last stale BC-2 row. Kerem-approved 2026-06-07. |
 | 0.9 | 2026-06-08 | Pod B | K-12: Record Kerem's explicit tenancy and ORM decisions. §19 ADR-004 updated to Accepted: Prisma. §19 ADR-008 updated to Accepted: shared schema + `tenant_id` (long-term). No methodology or gate change; decision-state recording only. |
+| 0.10 | 2026-06-16 | Pod A | Documentation-only drift cleanup: removes stale K-01 through K-10 placeholders where resolved; reconciles North Star, product metrics, Selcafe feasibility spike authorization, rollback threshold, feature flag deferral, feedback intake, VERBİS/KVKK owner notes, pilot selection, and §19 ADR backlog status for ADR-006/ADR-007/ADR-015. No methodology redesign, no approval-gate change, no §11.1 refactor, no IUP, and no Pod C authorization. |
 
 ### 28.4 Kerem Decisions — Repository-Controlled Pod Context
 
