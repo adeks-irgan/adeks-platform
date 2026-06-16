@@ -5,28 +5,30 @@
 | Field | Value |
 |---|---|
 | Document | MVP_SCOPE.md |
-| Version | v0.3 F&B lifecycle follow-on reconciliation |
+| Version | v0.4 repository-drift reconciliation — 2026-06-16 |
 | Owner | Pod A — Product & Planning |
 | Reviewer | Pod B — Architecture, Logic & Risk |
 | Approver | Kerem |
-| Current status | Reconciled with F&B lifecycle decisions recorded in `BUSINESS_RULES.md`; not implementation-ready |
-| Scope of this version | Cleans stale MVP wording that still described resolved F&B lifecycle items as unresolved. Establishes no new locked decision and does not authorize Pod C. |
+| Current status | Reconciled with accepted F&B lifecycle state model, accepted ADR-006/ADR-007, K-17/K-18/K-19, and current legal/security artifact state; not implementation-ready |
+| Scope of this version | Documentation cleanup only. Removes stale F&B lifecycle/state-review wording, refreshes current state to 2026-06-16, and does not authorize Pod C. |
 | Target repo path | `/docs/MVP_SCOPE.md` |
 
 ## Freshness Baseline
 
 | Source | Version / SHA / status read | Date read | Use in this draft |
 |---|---:|---:|---|
-| `/docs/AGENT_CONTEXT_MANIFEST.md` | SHA `47ba17e`; active context-routing index | 2026-06-11 | Confirmed required context loading and review routing. |
-| `/docs/PROJECT_METHODOLOGY.md` | SHA `d3355d0`; v0.8 | 2026-06-11 | Confirmed Pod A boundaries, Pod B review triggers, and no Pod C work without Definition of Ready. |
-| `/docs/PROJECT_DECISION_INDEX.md` | SHA `0bbb3fd`; last updated 2026-06-10 | 2026-06-11 | Confirmed ADR-015 Accepted, SMS provider not locked, ADR-005/006/007 backlog/stub state. |
-| `/docs/CORE_USER_FLOWS.md` | SHA `6fe9b2f`; v0.3 | 2026-06-11 | Confirmed OTP send-failure UX fallback in §3.5.3 and open notice/SMS items. |
-| `/docs/architecture/AUTH_THREAT_MODEL.md` | SHA `df9b30b`; v0.4 Accepted, BL-2 closed | 2026-06-11 | Reconciled authentication/security blocker state. |
-| `/docs/decision-support/SMS_PROVIDER_REPORT.md` | SHA `27892d4`; v0.1 decision-support | 2026-06-11 | Moved provider report from outstanding to done; provider selection remains open. |
-| `/docs/KEREM_DECISIONS.md` | SHA `47eaa47`; v1.4, K-01 through K-16 recorded | 2026-06-11 | Confirmed K-13/K-14/K-15/K-16 locked decisions and remaining legal dependencies. |
-| `/docs/BUSINESS_RULES.md` | SHA `2621d5c`; F&B lifecycle decisions recorded | 2026-06-12 | Source of truth for resolved F&B statuses, cancellation boundary, unavailable-item handling, combined payment/order guardrail, cashier-mediated F&B wallet settlement, and F&B loyalty accrual. |
-| Attached v0.1 packet | `MVP_SCOPE_v0_1.md`, `BUSINESS_RULES_v0_1.md`, `OPEN_QUESTIONS_v0_1.md` | 2026-06-11 | Baseline corrected into v0.2. |
-| Pod B risk triage + final confirmation | “Safe with corrections”; final confirmation received per PR context | 2026-06-11 | Applied B-1/B-2/B-3 and N-1…N-5; Pod B confirmed safe for Kerem decision-prep and documentation-class commit after Kerem approval. |
+| `/docs/AGENT_CONTEXT_MANIFEST.md` | SHA `6ff11efd`; active context-routing index | 2026-06-16 | Confirmed context loading and review routing. |
+| `/docs/PROJECT_METHODOLOGY.md` | SHA `d3355d0`; header stale at v0.8, revision log contains v0.9 | 2026-06-16 | Confirmed Pod boundaries, Definition of Ready, and methodology-governance review requirements. |
+| `/docs/PROJECT_DECISION_INDEX.md` | SHA `e9eaf85d`; last updated 2026-06-16 | 2026-06-16 | Confirmed ADR-006, ADR-007, ADR-015 accepted; K-17/K-18/K-19 locked. |
+| `/docs/KEREM_DECISIONS.md` | SHA `5999d9a`; v1.6 | 2026-06-16 | Confirmed K-01 through K-19 recorded, including K-17/K-18/K-19. |
+| `/docs/BUSINESS_RULES.md` | SHA `c8c00ad`; v0.2 decision-prep with F&B formula corrected | 2026-06-16 | Source for current business-rule wording. |
+| `/docs/OPEN_QUESTIONS.md` | SHA `d96c31e`; v0.2 replacement draft | 2026-06-16 | Confirmed F&B lifecycle, ADR-006, ADR-007, K-17, K-18, K-19 are no longer open. |
+| `/docs/architecture/FB_ORDER_LIFECYCLE_STATE_MODEL_v1.0.md` | SHA `91f21fe`; Accepted 2026-06-13 | 2026-06-16 | Confirms F&B lifecycle/state model accepted; no Pod C authorization. |
+| `/docs/architecture/AUDIT_EVENT_SCHEMA.md` | Accepted 2026-06-15; PR #66 | 2026-06-16 | Confirms OQ-AUDIT-001 resolved at design level; implementation still blocked by legal/KVKK and issue-readiness gates. |
+| `/docs/adr/ADR-006-wallet-append-only-ledger.md` | SHA `4a9a339`; Accepted 2026-06-14 | 2026-06-16 | Confirms wallet append-only ledger design accepted; implementation blocked. |
+| `/docs/adr/ADR-007-loyalty-append-only-ledger.md` | SHA `42ffd1a`; Accepted 2026-06-14 | 2026-06-16 | Confirms loyalty append-only ledger design and K-18 formula accepted; implementation blocked. |
+| `/docs/SECURITY_REVIEW.md` | SHA `f96af72`; draft/review-level security artifact | 2026-06-16 | Confirms review-level security artifact exists; still no Pod C authorization. |
+| `/docs/DATA_PROCESSING_INVENTORY.md` | SHA `5d6da97`; v0.1 Kerem-approved 2026-06-15 | 2026-06-16 | Confirms data-processing inventory prerequisite satisfied at inventory level only. |
 
 ## Purpose
 
@@ -34,21 +36,24 @@ This document defines the Phase 1 MVP scope for Adeks Platform and separates con
 
 Phase 1 is a customer PWA plus web cashier/admin foundation. It includes public catalog browsing, login-gated customer features, F&B ordering from seat, wallet visibility and cashier/admin top-up, loyalty visibility and cashier-handled redemption, staff-approved reservation requests, audit logging, and read-only Selcafe discovery/sync if feasible. It does not replace Selcafe or Selcafe PC/session control.
 
-This v0.3 draft is **decision-prep only**. It does not authorize Pod C implementation, does not select an SMS provider, does not resolve legal/KVKK questions, and does not add or change locked decisions.
+This v0.4 draft is **documentation cleanup only**. It does not authorize Pod C implementation, does not select an SMS provider, does not resolve legal/KVKK questions, and does not add or change locked decisions.
 
-## Reconciled Current State — 2026-06-12
+## Reconciled Current State — 2026-06-16
 
 | Area | Corrected state |
 |---|---|
-| Authentication strategy | ADR-015 is Accepted. Phase 1 customer authentication is Phone OTP (SMS); staff use individual username/password; ADMIN requires TOTP MFA. |
-| Auth threat model | `AUTH_THREAT_MODEL.md` is v0.4 Accepted and BL-2 is closed. Implementation remains blocked by BL-1/BL-3/BL-4/BL-5/BL-6 and separate Pod B + Kerem approved Pod C issues. |
-| SMS provider report | `SMS_PROVIDER_REPORT.md` exists as Pod B decision support. The report is done; provider selection remains open pending Kerem decision, commercial replies, and legal/KVKK processor/cross-border confirmation. |
-| OTP send-failure UX fallback | Customer-facing fallback is resolved in `CORE_USER_FLOWS.md` §3.5.3: neutral failure copy, no completed account, no persistent raw phone retention, derived-identifier audit only. Do not reopen this in this MVP scope. |
-| Privacy-notice flow mechanics | K-14/K-15/K-16 are locked: notice text canonical in `/docs/PRIVACY_NOTICE_TR.md` and build-time embedded; acknowledgment ephemeral before OTP verification and persisted only after successful OTP verification; same-session acknowledgment reuse allowed for OTP resend. |
-| Remaining legal/KVKK state | Open items are the actual Turkish Aydınlatma Metni text, legal-advisor sufficiency confirmation for K-15/K-16, VERBİS, retention, legal basis, data inventory, and cross-border transfer assessment. |
-| Wallet/loyalty ledgers | Append-only principles are locked. ADR-006 and ADR-007 remain backlog/stub-level; full ledger design is still Pod B-owned. |
-| Selcafe | Read-only Phase 1 posture is locked. ADR-005 remains backlog/stub-level and Selcafe sync depends on the feasibility spike. |
-| F&B order lifecycle | Customer-visible statuses, customer cancellation before Preparing, staff reason rules, unavailable-item full rejection/new order, one Ready / On the way label, combined order/payment guardrail, cashier-mediated wallet settlement, and F&B loyalty accrual are confirmed in `BUSINESS_RULES.md`. Remaining work is Pod B formalization/review; this does not authorize Pod C. |
+| Authentication strategy | ADR-015 is Accepted. Phase 1 customer authentication is Phone OTP (SMS); staff use individual username/password; ADMIN requires TOTP MFA. Authentication threat model (`AUTH_THREAT_MODEL.md` v0.4) is accepted. |
+| SMS provider state | `SMS_PROVIDER_REPORT.md` exists as decision support. Provider selection remains open pending commercial replies and legal/KVKK processor/cross-border assessment. |
+| Privacy-notice flow mechanics | K-14/K-15/K-16 are locked. Legal text and legal sufficiency confirmations remain open before Pod C propagation. |
+| Security/data artifacts | `SECURITY_REVIEW.md` exists at review level. `DATA_PROCESSING_INVENTORY.md` exists and is Kerem-approved at inventory level. `DATA_RETENTION_POLICY.md`, `KVKK_LEGAL_BASIS.md`, and `CROSS_BORDER_TRANSFER_ASSESSMENT.md` remain required blockers before launch/implementation claims. |
+| Wallet ledger | ADR-006 is Accepted as design. Implementation remains blocked by unresolved top-up methods/correction/report fields, legal/KVKK artifacts, security/DoR issue packets, and separate Pod B + Kerem-approved implementation issues. |
+| Loyalty ledger | ADR-007 is Accepted as design. F&B accrual formula is locked by K-18. Redemption, expiry, broader exclusions, non-F&B earning if included, legal/KVKK artifacts, and approved implementation packets remain open. |
+| Audit event schema | `AUDIT_EVENT_SCHEMA.md` is accepted at design level. Implementation remains blocked by legal/KVKK retention/legal-basis closure and approved issue packets. |
+| Selcafe | Read-only Phase 1 posture remains locked. Selcafe sync depends on read-only spike results and Pod B adapter/integration review. |
+| F&B order lifecycle | Accepted by `/docs/architecture/FB_ORDER_LIFECYCLE_STATE_MODEL_v1.0.md`; do not reopen the accepted state model. |
+| F&B settlement price source | K-17 locked 2026-06-14: settlement uses immutable price snapshot captured at order submission. |
+| F&B loyalty accrual | K-18 locked 2026-06-14: `floor(0.10 × settled_amount_TRY)` = `floor(settled_kuruş / 1000)`, triggered when cashier records settlement. |
+| F&B post-settlement correction | K-19 locked 2026-06-14: cashier same-shift self-correction for own settlements only; cashier-executed; minimized customer-visible history; append-only correction discipline. |
 
 ## Phase 1 Included Scope
 
@@ -58,9 +63,9 @@ This v0.3 draft is **decision-prep only**. It does not authorize Pod C implement
 | Authentication dependency | Customer login uses Phone OTP (SMS). Staff use individual username/password. ADMIN uses username/password + TOTP MFA. | Confirmed by ADR-015/K-13; SMS provider not selected |
 | Public catalog/menu | Public browsing is allowed without authentication. | Confirmed |
 | Cashier/admin web interface | Browser-based staff interface for order handling, wallet top-up, loyalty redemption, reservation review, permitted customer data, and audit visibility. | Confirmed |
-| F&B ordering | Customer submits F&B order from seat/PC context. Staff receives order. FB_STAFF handles fulfillment only. F&B wallet payment is cashier-mediated by CASHIER/ADMIN at delivery/settlement. | Confirmed; [REQUIRES POD B REVIEW] for formal lifecycle/state, actors, audit, combined display, wallet ledger, loyalty ledger, and reversal logic |
-| Wallet | Customer wallet visibility and cashier/admin wallet top-up. Append-only ledger, derived balance, no direct overwrite, audit logging. | Included; [REQUIRES POD B REVIEW] |
-| Loyalty | Customer loyalty visibility, confirmed F&B accrual, automatic earning on any later-approved eligible purchases, cashier-handled redemption. Append-only ledger, derived balance, no direct overwrite, audit logging. | Included; formula/redemption/general eligibility unresolved; [REQUIRES POD B REVIEW] |
+| F&B ordering | Customer submits F&B order from seat/PC context. Staff receives order. FB_STAFF handles fulfillment only. F&B wallet payment is cashier-mediated by CASHIER/ADMIN at delivery/settlement. | Confirmed. F&B lifecycle/state model is accepted. Still blocked for implementation by API/schema/security/KVKK/DoR issue packets and separate Pod B + Kerem-approved implementation issues. No Pod C authorization. |
+| Wallet | Customer wallet visibility and cashier/admin wallet top-up. Append-only ledger, derived balance, no direct overwrite, audit logging. | Included. ADR-006 accepted as design; top-up methods, top-up correction, daily report fields, legal/KVKK artifacts, and implementation issue packets remain blocking. |
+| Loyalty | Customer loyalty visibility, confirmed F&B accrual, automatic earning on any later-approved eligible purchases, cashier-handled redemption. Append-only ledger, derived balance, no direct overwrite, audit logging. | Included. ADR-007 accepted for loyalty ledger design and F&B accrual formula; redemption, expiry, broader exclusions, non-F&B earning if included, legal/KVKK artifacts, and implementation issue packets remain blocking. |
 | Reservations | Customer submits request. Staff approves/rejects. Automatic confirmation is excluded until reliable PC/session status exists. | Included; detailed rules unresolved; [REQUIRES POD B REVIEW] |
 | Audit | Sensitive/admin actions must be auditable. MVP includes product-level audit requirements, with storage/tamper/retention details owned by Pod B/legal. | Included; build on Accepted auth threat-model baseline |
 | Selcafe | Read-only discovery/sync if feasible. Selcafe remains legacy adapter and is not the core domain model. | Included only as read-only posture; spike-dependent |
@@ -104,12 +109,14 @@ This v0.3 draft is **decision-prep only**. It does not authorize Pod C implement
 | Customer order from seat | Included after login. |
 | Seat/PC context | Included if required for fulfillment. |
 | Staff order queue | Included. |
-| Status updates | Included using approved customer-visible statuses: Submitted, Accepted, Preparing, Ready / On the way, Delivered, Rejected, Cancelled. Pod B formalizes transitions, actors, audit points, and concurrency boundaries. |
+| Status updates | Included using accepted state model: Submitted, Accepted, Preparing, Ready / On the way, Delivered, Rejected, Cancelled. Transitions, actors, audit points, and concurrency boundaries are accepted in `FB_ORDER_LIFECYCLE_STATE_MODEL_v1.0.md`; implementation still requires API/schema/security/KVKK/DoR packets. |
 | Customer cancellation | Included until before Preparing; allowed while Submitted or Accepted, blocked once Preparing starts. |
 | Unavailable item handling | Included as full order Rejected; customer submits a new order. |
 | Combined order/payment display | Included with guardrail: no customer self-pay UI, payment link, payment button, payment prompt, or in-app payment flow. CASHIER/ADMIN remain the only payment actors. |
 | Café wallet payment for F&B | Included as cashier-mediated wallet debit at delivery/settlement. No wallet hold is created at order submission. |
-| F&B loyalty accrual | Included on cashier-recorded wallet payment/settlement. Cancelled and rejected orders do not accrue. General formula/exclusion rules and append-event design still require Kerem/Pod B follow-up where applicable. |
+| F&B loyalty accrual | Included on cashier-recorded F&B settlement. Formula locked by K-18 and ADR-007: `floor(settled_kuruş / 1000)`. Cancelled and rejected orders do not accrue. Broader loyalty exclusions/redemption/expiry remain separate open questions. |
+| F&B settlement price | Included. K-17 locks immutable price snapshot at order submission; catalog edits after submission do not affect settlement amount. |
+| F&B post-settlement correction | Included as accepted business policy under K-19 and accepted ledger design under ADR-006/ADR-007. Implementation still blocked by legal/KVKK artifacts and issue packets. |
 | F&B payment by FB_STAFF | Excluded. |
 | Online payment | Excluded; Phase 2. |
 | Inventory/stock management | Excluded unless separately approved. |
@@ -124,24 +131,24 @@ This v0.3 draft is **decision-prep only**. It does not authorize Pod C implement
 | Customer self top-up | Excluded. |
 | Online payment top-up | Excluded; Phase 2. |
 | Manual balance overwrite | Prohibited. |
-| Append-only wallet ledger | Required; full ADR/design still [REQUIRES POD B REVIEW]. |
+| Append-only wallet ledger | Required; ADR-006 accepted 2026-06-14. Implementation remains blocked by legal/KVKK artifacts and separate approved issue packets. |
 | Top-up threshold approval | No threshold in Phase 1 per K-13/KD-F; daily top-up report visible to ADMIN. |
 | Top-up method | Unresolved; Kerem decision required. |
-| F&B wallet settlement | Included for F&B payment as CASHIER/ADMIN-mediated debit at delivery/settlement; no order-submission hold. Ledger entry design [REQUIRES POD B REVIEW]. |
-| Correction/reversal | Unresolved business intent; mechanism must be compensating ledger event and [REQUIRES POD B REVIEW]. |
+| F&B wallet settlement | Included for F&B payment as CASHIER/ADMIN-mediated debit at settlement; no order-submission hold. ADR-006 accepts the append-only wallet settlement/correction design. |
+| F&B settlement correction/reversal | K-19 and ADR-006/ADR-007 accepted for F&B settlement correction/reversal. Wallet top-up correction remains open under wallet business rules. |
 
 ### Loyalty
 
 | Capability | Phase 1 Scope |
 |---|---|
 | Customer loyalty visibility | Included. |
-| Automatic earning | Included. F&B accrual is confirmed on cashier-recorded wallet payment/settlement; broader eligibility and formula remain unresolved. |
+| Automatic earning | Included for F&B settlement accrual. Formula locked by K-18 and ADR-007. Non-F&B earning eligibility/formula remain open only if Kerem includes non-F&B earning later. |
 | Cashier-handled redemption | Included. Redemption rules unresolved. |
 | Customer self-redemption | Excluded. |
 | Manual balance overwrite | Prohibited. |
-| Append-only loyalty ledger | Required; full ADR/design still [REQUIRES POD B REVIEW]. |
+| Append-only loyalty ledger | Required; ADR-007 accepted 2026-06-14. Implementation remains blocked by legal/KVKK artifacts and approved issue packets. |
 | Expiry rules | Unresolved; requires customer-notification policy and legal-advisor input. |
-| Earning formula | Unresolved. |
+| F&B earning formula | Locked by K-18: `floor(settled_kuruş / 1000)`. Non-F&B formula remains open only if non-F&B earning is later included. |
 | Redemption limits | Unresolved. |
 | Cashier override rules | Unresolved; security-sensitive if allowed. |
 
@@ -225,11 +232,11 @@ This v0.3 draft is **decision-prep only**. It does not authorize Pod C implement
 | K-15/K-16 propagation to Pod C | Legal advisor confirmation of KVKK sufficiency | Blocks Pod C propagation |
 | VERBİS position | Legal advisor confirmation | Blocks launch |
 | Data inventory/legal basis/retention/cross-border documents | Legal advisor + Pod B review | Blocks launch |
-| Wallet implementation | Pod B wallet ledger ADR/design and Kerem-sensitive approvals | Blocks Pod C |
-| Loyalty implementation | Kerem business rules + Pod B loyalty ledger ADR/design | Blocks Pod C |
+| Wallet implementation | ADR-006 accepted, but top-up methods, top-up correction/report fields, legal/KVKK artifacts, security/DoR issue packets, and separate Pod B + Kerem-approved implementation issues remain missing | Blocks Pod C |
+| Loyalty implementation | ADR-007 accepted for F&B accrual ledger design, but redemption, expiry, broader exclusions, non-F&B earning if included, legal/KVKK artifacts, security/DoR issue packets, and separate Pod B + Kerem-approved implementation issues remain missing | Blocks Pod C |
 | Loyalty expiry, if included | Customer notification policy + legal-advisor input | Blocks legal / Pod C if included |
 | Reservation implementation | Kerem reservation rules + Pod B state-machine review | Blocks Pod C |
-| F&B order lifecycle implementation | Pod B formal lifecycle/state model, actor permissions, audit fields, cancellation/concurrency boundaries, combined payment/order-display model, wallet debit ledger event design, loyalty accrual append-event design, and reversal logic | Blocks Pod C |
+| F&B implementation | F&B lifecycle state model, K-17, K-18, K-19, ADR-006, and ADR-007 are accepted; implementation still requires API/schema/security/KVKK/DoR issue packets and separate Pod B + Kerem-approved implementation issues | Blocks Pod C |
 | Selcafe read-only sync | Selcafe feasibility spike + Pod B adapter design + KVKK scoping | Blocks Pod C for integration |
 
 ## Kerem Decisions Still Useful While SMS / Legal Replies Are Pending
@@ -246,12 +253,12 @@ This v0.3 draft is **decision-prep only**. It does not authorize Pod C implement
 | MVP boundary | Confirm campaign/subscription/ARPU models remain outside Phase 1 MVP and go to feature discovery | Does not prevent future discovery. |
 | UX review | Decide whether Pod D should prototype/review onboarding, order, and reservation UX before Pod C issue drafting | No implementation authorization. |
 
-F&B order lifecycle product decisions are not listed here because they are resolved in `BUSINESS_RULES.md`. Remaining F&B work is Pod B formalization/review before Pod C.
+F&B order lifecycle product decisions are not listed here because they are resolved and formalized in the accepted F&B lifecycle state model. K-17, K-18, and K-19 are also locked. Remaining F&B work is implementation-readiness packaging after legal/KVKK, API/schema/security, and Definition-of-Ready gates are satisfied. This does not authorize Pod C.
 
 ## Review Routing
 
-- Ready for commit: Yes — documentation-only replacement after Kerem approval. Decision-prep only; not implementation-ready.
-- Requires Kerem approval: Yes — all unresolved business rules affecting loyalty, wallet, reservations, privacy, SMS provider, and launch gates. No new F&B lifecycle product decision is introduced by this reconciliation.
-- Requires Pod B review: Yes — wallet, loyalty, reservation state, audit, auth/KVKK/data handling, Selcafe integration, and any balance-affecting rules.
-- Requires Pod C implementation: No.
-- Requires Pod D prototype/audit/monitoring review: Later — PWA onboarding/order/reservation UX and required pre-go-live audit/monitoring review.
+- Ready for commit: Yes, as a documentation-only reconciliation after Kerem approval. No implementation readiness is created.
+- Requires Kerem approval: Yes — merge approval for this documentation cleanup and all future business-rule decisions still open.
+- Requires Pod B review: No further Pod B review required for this corrected patch; Pod B review is complete and B-1/B-2/NB-1/NB-2 are applied. Future Pod B review remains required for the deferred §11.1 refactor and for any future wallet/loyalty/reservation/audit/Selcafe/security/KVKK implementation packet.
+- Requires Pod C implementation: No. This patch does not authorize Pod C and creates no implementation issue.
+- Requires Pod D prototype/audit/monitoring review: No for this cleanup. Later only for separately scoped PWA UX review, monitoring spec, or pre-go-live audit.
