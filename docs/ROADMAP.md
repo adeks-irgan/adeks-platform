@@ -6,12 +6,13 @@
 |---|---|
 | Document | `ROADMAP.md` |
 | Project | Adeks Platform |
-| Version | v0.1 draft — post-PR-73 freshness note applied |
+| Version | v0.1 — landed on `main`; post-landing status/routing metadata reconciled |
 | Owner | Pod A — Product & Planning |
-| Reviewer | Pod B — Architecture, Logic & Risk |
+| Reviewer | Pod B — Architecture, Logic & Risk for future gate, owner, sequence, architecture/security/KVKK, or implementation-readiness changes |
 | Approver | Kerem |
-| Current status | Draft roadmap package while legal/KVKK advisor answers are pending |
+| Current status | Landed Phase 1 planning roadmap; legal/KVKK advisor answers and implementation-readiness gates remain open |
 | Target repo path | `/docs/ROADMAP.md` |
+| Change class | Documentation-only status/routing metadata reconciliation |
 | Implementation status | Does **not** authorize Pod C implementation |
 | Data rule | Synthetic examples only; no real customer, phone, transaction, wallet, loyalty, reservation, staff, screenshot, test, or prototype data |
 
@@ -35,7 +36,7 @@ This roadmap is a planning document only. It does not create GitHub issues, does
 
 ## Source Context
 
-This draft is based on the current repository context listed below.
+This roadmap is based on the current repository context listed below.
 
 | Source | Use in roadmap |
 |---|---|
@@ -57,10 +58,9 @@ This draft is based on the current repository context listed below.
 | `/docs/adr/ADR-007-loyalty-append-only-ledger.md` | Accepted loyalty ledger design and F&B accrual formula; implementation still blocked |
 | `/docs/adr/ADR-015-authentication-strategy.md` | Accepted Phase 1 authentication strategy; implementation still blocked |
 
-### Post-PR-73 Freshness Note
+### Post-Landing Freshness Note
 
-[ASSUMPTION] This roadmap draft has been re-evaluated after PR #73
-(`docs/b2-inventory-status-reconciliation`) merged into `main`.
+[ASSUMPTION] This roadmap has been re-evaluated after PR #73, PR #74, and PR #75 landed on `main`.
 
 PR #73 resolves the B-2 stale-status contradiction identified in
 `/docs/reviews/POD_B_REVIEW_ROADMAP_v0.1.md`:
@@ -73,8 +73,15 @@ PR #73 resolves the B-2 stale-status contradiction identified in
   artifacts.
 - Pod C remains unauthorized.
 
-No structural roadmap sequence change is required from B-2. The roadmap remains
-v0.1 draft, with this post-PR-73 freshness note applied before first commit.
+PR #74 landed this roadmap on `main` as a planning-only Phase 1 roadmap.
+
+PR #75 reconciled `/docs/OPEN_QUESTIONS.md` with the landed roadmap state and
+confirmed that the reconciliation is documentation-only, does not reopen accepted
+ADR-006, ADR-007, K-17, K-18, K-19, or the accepted F&B lifecycle state model,
+does not create Pod C issues, and does not authorize implementation.
+
+No structural roadmap sequence change is made by this note. The roadmap remains
+milestone-based, planning-only, and non-implementation-authorizing.
 
 [ASSUMPTION] This roadmap is milestone-based, not calendar-based, because Kerem approved milestone-based cadence. No delivery dates are invented here.
 
@@ -285,132 +292,33 @@ The following must not be converted into Pod C implementation issues until the l
 
 ## Review Routing
 
-- Ready for commit: No — v0.1 draft requires Pod B review and Kerem approval before commit.
-- Requires Kerem approval: Yes — roadmap sequence, milestone gates, legal/KVKK launch blockers, SMS operational decisions, business-rule sequencing, and go/no-go rules.
-- Requires Pod B review: Yes — architecture, security, KVKK, Selcafe, wallet, loyalty, auth, SMS, hosting, monitoring, F&B state, reservation state, and implementation-readiness risks.
-- Requires Pod C implementation: No — this roadmap explicitly does not authorize Pod C.
-- Requires Pod D prototype/audit/monitoring review: Yes — PWA flow prototype/review, monitoring/SLO specification, pre-go-live consistency audit.
+- Ready for commit: Yes — this status/routing metadata reconciliation is documentation-only and does not change the Phase 1 sequence, gates, owners, legal/KVKK posture, or implementation-readiness state.
+- Requires Kerem approval: Yes — for merging this documentation-only status reconciliation; no new product/business decision is introduced.
+- Requires Pod B review: No — not for this metadata-only reconciliation. Route to Pod B only if a future edit changes any gate, owner, sequence, architecture/security/KVKK implication, Selcafe boundary, wallet/loyalty/auth/F&B/reservation readiness language, or implementation-readiness language.
+- Requires Pod C implementation: No — this roadmap explicitly does not authorize Pod C, does not create implementation issues, and remains planning-only.
+- Requires Pod D prototype/audit/monitoring review: No for this metadata-only reconciliation. Future roadmap items still route to Pod D where PWA prototype/review, monitoring/SLO specification, or pre-go-live consistency audit work is required.
 
 ---
 
-## Handoff Prompt — Pod A to Pod B
+## Post-Landing Routing Note
 
-```text
-You are Pod B — Architecture, Logic & Risk for the Adeks Platform project.
+No active Pod A-to-Pod B handoff is open from this document solely because of this post-landing status/routing metadata reconciliation.
 
-## Handoff Summary
+Route a future roadmap change to Pod B only if it changes any of the following:
 
-Pod A drafted `/docs/ROADMAP.md` v0.1 while legal/KVKK advisor answers are pending. Please review the roadmap for architecture, security, KVKK, Selcafe, wallet, loyalty, auth, SMS, hosting, monitoring, and implementation-readiness risks.
+1. Phase 1 sequence.
+2. Gate ownership or review requirements.
+3. Legal/KVKK, SMS provider, Selcafe spike, reservation, monitoring, or issue-readiness gate state.
+4. Architecture, security, KVKK, Selcafe, wallet, loyalty, auth, SMS, hosting, monitoring, F&B state, reservation state, or implementation-readiness language.
+5. Any statement that could be read as Pod C authorization.
 
-## Source Pod
+The following remain open and are not resolved by this metadata reconciliation:
 
-Pod A — Product & Planning
+- legal/KVKK advisor closure;
+- SMS provider selection and outage/spend-ceiling response;
+- Selcafe read-only feasibility spike and ADR-005 completion;
+- reservation product rules and state-machine readiness;
+- monitoring/SLO readiness;
+- implementation issue Definition of Ready.
 
-## Target Pod
-
-Pod B — Architecture, Logic & Risk
-
-## Trigger
-
-`ROADMAP.md` v0.1 draft needs required Pod B review before Kerem approval/commit. The roadmap does not authorize Pod C and does not create implementation issues.
-
-## Relevant Links / Input Files to Attach
-
-Read from current `main`:
-
-- `/docs/ROADMAP.md` v0.1 draft from this handoff
-- `/docs/PROJECT_METHODOLOGY.md`
-- `/docs/AGENT_CONTEXT_MANIFEST.md`
-- `/docs/PROJECT_DECISION_INDEX.md`
-- `/docs/KEREM_DECISIONS.md`
-- `/docs/PROJECT_BRIEF.md`
-- `/docs/MVP_SCOPE.md`
-- `/docs/OPEN_QUESTIONS.md`
-- `/docs/DATA_PROCESSING_INVENTORY.md`
-- `/docs/SECURITY_REVIEW.md`
-- `/docs/BUSINESS_RULES.md`
-- `/docs/USER_ROLES_AND_PERMISSIONS.md`
-- `/docs/CORE_USER_FLOWS.md`
-- `/docs/architecture/FB_ORDER_LIFECYCLE_STATE_MODEL_v1.0.md`
-- `/docs/adr/ADR-005-selcafe-read-only-adapter.md`
-- `/docs/adr/ADR-006-wallet-append-only-ledger.md`
-- `/docs/adr/ADR-007-loyalty-append-only-ledger.md`
-- `/docs/adr/ADR-009-pr-approval-policy.md`
-- `/docs/adr/ADR-015-authentication-strategy.md`
-
-## Decision or Review Needed
-
-Review `/docs/ROADMAP.md` v0.1 for:
-
-1. Architecture sequencing risks.
-2. Security/KVKK blockers.
-3. Whether any item is incorrectly marked as able to proceed while legal/KVKK is pending.
-4. Whether any item is incorrectly marked as blocked.
-5. Whether any item accidentally authorizes Pod C.
-6. Selcafe read-only boundary correctness.
-7. Wallet/loyalty ledger readiness and remaining gates.
-8. Auth/SMS/provider/cross-border readiness.
-9. Hosting/deployment/monitoring and 99.9% SLO readiness.
-10. F&B lifecycle, audit trigger, and settlement/correction dependencies.
-11. Reservation state-machine dependencies.
-12. Definition of Ready and Definition of Done alignment.
-13. Any stale repo-context reconciliation needed, especially around `SECURITY_REVIEW.md` references to absent files if newer files now exist.
-
-## Assumptions
-
-- Roadmap is milestone-based, not date-based.
-- Legal/KVKK advisor answers are still pending.
-- `DATA_PROCESSING_INVENTORY.md` exists and is approved at inventory level only; it does not authorize implementation.
-- `SECURITY_REVIEW.md` exists as design/security review only; it does not authorize implementation.
-- ADR-006 and ADR-007 are accepted design records but do not authorize Pod C.
-- ADR-005 remains a read-only Selcafe adapter stub/full ADR pending.
-- Selcafe remains read-only in Phase 1 unless Kerem later explicitly approves a change and Pod B reviews it.
-- No real customer data may be used in docs, tests, screenshots, UAT, prototypes, examples, or AI prompts.
-
-## Open Questions
-
-Please identify any additional open questions that should be added to `OPEN_QUESTIONS.md`, especially around:
-
-- legal/KVKK closure gates;
-- SMS provider outage response;
-- hosting/cross-border implications;
-- monitoring and 99.9% SLO readiness;
-- F&B audit triggers;
-- reservation state-machine readiness;
-- Selcafe read-path controls;
-- Definition of Ready before Pod C.
-
-## Risk / Sensitivity
-
-High sensitivity. Roadmap touches:
-
-- customer personal data;
-- authentication and authorization;
-- wallet and loyalty ledgers;
-- audit logs;
-- Selcafe integration;
-- SMS provider and third-party processors;
-- hosting / monitoring / cross-border transfer;
-- launch readiness.
-
-No implementation is authorized.
-
-## Expected Output
-
-Return a written Pod B review with findings classified as:
-
-- Blocking
-- Non-blocking
-- Advisory
-- Requires Kerem decision
-
-For each finding, include:
-
-- affected roadmap section;
-- issue;
-- risk;
-- recommended correction;
-- whether Kerem approval is needed.
-
-Do not implement code. Do not create Pod C issues. Do not resolve legal questions without legal advisor input.
-```
+This document remains planning-only. It does not authorize Pod C, create implementation issues, select vendors, resolve legal/KVKK questions, approve schema/API contracts, approve direct Selcafe writes, or change wallet/loyalty ledger implementation readiness.
