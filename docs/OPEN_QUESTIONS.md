@@ -77,7 +77,7 @@
 
 | Former issue | Resolution | Remaining open dependencies / guardrails |
 |---|---|---|
-| OQ-AUDIT-001 — audit event schema | Resolved (design) by `/docs/architecture/AUDIT_EVENT_SCHEMA.md`; Kerem-accepted 2026-06-15 (KD-A unified store, KD-B scoped IP/device capture, KD-C Option B hash chain, KD-F mapping, KD-G accept). | Pod-B-then-Kerem architectural resolution; not a Kerem product-decision lock. KD-D retention remains open under OQ-LEGAL-005; KD-E `DATA_PROCESSING_INVENTORY.md` remains open. Does not authorize Pod C. |
+| OQ-AUDIT-001 — audit event schema | Resolved (design) by `/docs/architecture/AUDIT_EVENT_SCHEMA.md`; Kerem-accepted 2026-06-15 (KD-A unified store, KD-B scoped IP/device capture, KD-C Option B hash chain, KD-F mapping, KD-G accept). | Pod-B-then-Kerem architectural resolution; not a Kerem product-decision lock. KD-D retention remains open under OQ-LEGAL-005 (KD-D open). KD-E inventory entries are recorded in the now-present `DATA_PROCESSING_INVENTORY.md` (Kerem-approved 2026-06-15); KD-E inventory-artifact prerequisite satisfied. Does not authorize Pod C. |
 
 ### Kerem product-decision resolutions
 

@@ -13,8 +13,9 @@
              no decision. If this review and any of those sources disagree, the
              source wins and this review is stale until corrected.
   MERGE GATE: Pod B + Kerem (strictest §11.1 / ADR-009 §3 trigger). Kerem is sole merge authority.
-  REPO RECONCILIATION: NEEDS REPO RECONCILIATION — /docs/DATA_PROCESSING_INVENTORY.md,
-             /docs/DATA_RETENTION_POLICY.md, and /docs/KVKK_LEGAL_BASIS.md are ABSENT from main.
+  REPO RECONCILIATION: DATA_PROCESSING_INVENTORY.md present, Kerem-approved 2026-06-15;
+             inventory-artifact prerequisite satisfied at inventory level.
+             /docs/DATA_RETENTION_POLICY.md and /docs/KVKK_LEGAL_BASIS.md remain ABSENT from main.
              Per AGENT_CONTEXT_MANIFEST.md (Wallet / Loyalty / Auth rows) this artifact is
              review/design only and MUST NOT issue Pod C work.
   IMPLEMENTATION AUTHORITY: This document does NOT authorize Pod C. It creates no issues,
@@ -33,7 +34,7 @@
 | Reviewer / Approver | Pod B (self-review) + Kerem |
 | Current status | **Draft for Pod B + Kerem review.** Resolves the manifest's `SECURITY_REVIEW.md` dependency for the Wallet / Loyalty / Auth rows at the **review** level. Implementation remains blocked. |
 | Scope class | Architecture / security review. **Not** an ADR, **not** a DB migration, **not** an API contract, **not** a Pod C issue. |
-| Repo reconciliation | **NEEDS REPO RECONCILIATION** — `/docs/DATA_PROCESSING_INVENTORY.md`, `/docs/DATA_RETENTION_POLICY.md`, `/docs/KVKK_LEGAL_BASIS.md` absent from `main` (manifest fallback: review only, no Pod C work). |
+| Repo reconciliation | `DATA_PROCESSING_INVENTORY.md` **present, Kerem-approved 2026-06-15**; inventory-artifact prerequisite satisfied at inventory level. `/docs/DATA_RETENTION_POLICY.md`, `/docs/KVKK_LEGAL_BASIS.md` remain absent from `main` (manifest fallback: review only, no Pod C work). |
 | Implementation status | **Does NOT authorize Pod C.** Creates no issues, designs no endpoints, writes no migrations, sets no retention periods. |
 | Merge gate | **Pod B + Kerem** (strictest applicable §11.1 / ADR-009 §3 trigger). Kerem is sole merge authority. |
 
@@ -60,8 +61,8 @@ All sources read **live from `main`** at commit `7374adf464ec18f7210d63b763653ff
 | `BUSINESS_RULES.md` | `c8c00ad447e4` | BR-AUDIT-001 (coverage), BR-AUDIT-002 (immutability), BR-AUDIT-003 (auth baseline) — referenced via AUDIT_EVENT_SCHEMA §2. |
 | `OPEN_QUESTIONS.md` | `70bfe6aeddd0` | OQ-LEGAL-005 (retention); OQ-CUF-AUTH-001 (notice text); OQ-WAL-001/002/003 (top-up); OQ-LOY-001/004 (top-up earning / redemption). |
 | `SECURITY_REVIEW.md` | — | **This file (new).** Was ABSENT; satisfies the manifest's named dependency at the review level. |
-| `DATA_PROCESSING_INVENTORY.md` | — | **ABSENT (planned).** Required (§20.2) before any personal-data feature is built. Manifest fallback applies. |
-| `DATA_RETENTION_POLICY.md` | — | **ABSENT (planned).** Retention periods are OQ-LEGAL-005; **not set or invented here.** |
+| `DATA_PROCESSING_INVENTORY.md` | — | **PRESENT, Kerem-approved 2026-06-15.** Inventory-artifact prerequisite satisfied (§20.2). Personal-data implementation remains blocked by retention (OQ-LEGAL-005, KD-D), legal basis (`KVKK_LEGAL_BASIS.md`, absent), cross-border assessment (`CROSS_BORDER_TRANSFER_ASSESSMENT.md`, absent), SMS/provider gates (BL-1), and separately approved Pod C issues. |
+| `DATA_RETENTION_POLICY.md` | — | **ABSENT (planned).** Retention periods are OQ-LEGAL-005; **not set or invented here (KD-D).** Legal floors named as *input* only (5651 2-yr access-log floor; VUK/TTK financial retention — legal package P5/P6/P7). |
 | `KVKK_LEGAL_BASIS.md` | — | **ABSENT (planned).** Legal basis is K-08 advisor work; the FINAL advisor package is a *proposed* input, not the file. |
 | `architecture/SECURITY_VIEW.md` | — | **ABSENT (planned)** — named by the manifest Auth row. A separate architecture security-view artifact; **this review is not that file** (see SR-008). |
 | `SECURE_SDLC.md` | — | **ABSENT (referenced by §20.1).** Separate detailed-process file; this review covers the SDLC *posture*, not the process doc (SR-009). |
@@ -164,14 +165,14 @@ This maps the §20.1 stages to the current Adeks position. **Status reflects whe
 
 - **Existing controls (referenced).** Phone number is the primary PII anchor (§20.2). `CASHIER` sees masked last-4 only during top-up (`+90 555 *** ** 01`, IR-21, USER_ROLES §6.1); full phone is limited to `CUSTOMER` (own) and `ADMIN` (USER_ROLES §3). Every `ADMIN` full-phone access produces an audit record; bulk access is a step-up action (IR-09/IR-17, T-P2). No raw phone/OTP/secret in claims, logs, or audit records — UUID / phone hash only (IR-03, R-2, ADR-015 §4). Aydınlatma Metni displayed and acknowledged **before** OTP send — before any PII is committed (ADR-015 KVKK §1, T-P3; K-14/15/16). Data minimization: `FB_STAFF` sees no wallet/loyalty/payment data (USER_ROLES §6.2). Erasure-vs-immutability resolved by **pseudonymize-without-delete** (ADR-006 §13 / ADR-007 §11 / AUDIT_EVENT_SCHEMA §6.12). Confirmed PII exposure = **T-2** → immediate rollback + 72-hour KVKK clock (T-P5, ROLLBACK_POLICY §3.1).
 - **Residual risk.** Low for the modelled access paths given masking + audit + minimization. The main residual sits at the *legal* layer (basis/retention) and at *mutation flow completeness* (SR-005), not the access controls.
-- **Open / blocking items.** **NEEDS REPO RECONCILIATION** — `DATA_PROCESSING_INVENTORY.md` is absent; **every** personal-data feature (auth, wallet `reason_note`, loyalty linkage, audit `subject_ref`/`source_ip`) must be inventoried there before Pod C builds it (§20.2, KD-E). Legal basis (`KVKK_LEGAL_BASIS.md`) and retention (`DATA_RETENTION_POLICY.md`, OQ-LEGAL-005) absent. Customer **profile mutation** flow + its audit trigger (e.g. phone-number change) is not yet fully specified at the per-event level (SR-005). K-15 acknowledgment-persistence touches the consent-capture surface and is **pending K-08 legal-advisor confirmation** before Pod C propagation.
+- **Open / blocking items.** `DATA_PROCESSING_INVENTORY.md` **present, Kerem-approved 2026-06-15**; inventory-artifact prerequisite satisfied (KD-E). Personal-data implementation remains blocked by: retention (`DATA_RETENTION_POLICY.md`, OQ-LEGAL-005, KD-D, absent), legal basis (`KVKK_LEGAL_BASIS.md`, absent), cross-border assessment (`CROSS_BORDER_TRANSFER_ASSESSMENT.md`, absent), SMS/provider gates (BL-1), and separately approved Pod C issues. Customer **profile mutation** flow + its audit trigger (e.g. phone-number change) is not yet fully specified at the per-event level (SR-005). K-15 acknowledgment-persistence touches the consent-capture surface and is **pending K-08 legal-advisor confirmation** before Pod C propagation.
 - **Verdict: Dependent.** Access controls are design-complete and consistent; the area is **dependent** on the absent KVKK artifacts and OQ-LEGAL-005, and on SR-005. No real customer data is used anywhere.
 
 ### 4.5 Audit-log logic
 
 - **Existing controls (referenced).** One canonical, cross-domain, append-only `audit_event` store (KD-A) with the §5 envelope. Hard rules **R-1** (append-only; app role `INSERT`+`SELECT` only; no role incl. `ADMIN` may edit/delete), **R-2** (no raw phone/OTP/password/token/TOTP secret — UUID/hash only), **R-3** (no balance overwrite — derived/referenced only), **R-4** (completeness — every BR-AUDIT-001 action emits exactly one event; a missing event is a detectable control failure). Tamper-evidence = DB-grant append-only baseline (IR-20, Kerem-approved 2026-06-10) **plus** the adopted **KD-C Option B per-row hash chain** with periodic external anchoring (AUDIT_EVENT_SCHEMA §7). Closed `workflow_source` taxonomy, **fails closed** on unknown (§6.5). Scoped IP/device capture (KD-B). System-derived events attributed to the triggering human via `on_behalf_of_actor_id` (§6.4). Pod D consumes seq-gap / missing-event / hash-chain verification signals (§6.10).
 - **Residual risk.** A DB superuser who recomputes the **entire** chain — **mitigated** by periodic external anchoring of the head hash + Pod D completeness/chain-verification monitoring (AUDIT_EVENT_SCHEMA §10). Otherwise Low–Med (DB-grant append-only) reduced by the hash chain.
-- **Open / blocking items.** **SR-002** — the exact canonical serialization, the covered-field set for `row_hash`, and the pseudonymization-vs-hash interaction are left to the Pod B schema/migration deliverable (AUDIT_EVENT_SCHEMA §7 calls this an implementation constraint, not re-decided here). Audit store retention is OQ-LEGAL-005 (KD-D); the audit store is itself a personal-data store (IP, reason notes, linkage) and **cannot be built** until `DATA_PROCESSING_INVENTORY.md` exists (KD-E). Any `DROP`/`ALTER` of the audit table is a Pod B + Kerem schema-migration gate (§4.9).
+- **Open / blocking items.** **SR-002** — the exact canonical serialization, the covered-field set for `row_hash`, and the pseudonymization-vs-hash interaction are left to the Pod B schema/migration deliverable (AUDIT_EVENT_SCHEMA §7 calls this an implementation constraint, not re-decided here). Audit store retention is OQ-LEGAL-005 (KD-D); the audit store is itself a personal-data store (IP, reason notes, linkage) and implementation remains blocked by retention (OQ-LEGAL-005, KD-D), legal basis (`KVKK_LEGAL_BASIS.md`, absent), cross-border assessment, and separately approved Pod C issues. (`DATA_PROCESSING_INVENTORY.md` present, Kerem-approved 2026-06-15; KD-E inventory-artifact prerequisite satisfied.) Any `DROP`/`ALTER` of the audit table is a Pod B + Kerem schema-migration gate (§4.9).
 - **Verdict: Design-complete, blocked.** The audit design (envelope + R-1…R-4 + KD-C chain) is Kerem-accepted and adopted by this review per AUDIT_EVENT_SCHEMA §6.13. Implementation gated by the absent KVKK artifacts and SR-002.
 
 ### 4.6 Selcafe adapter data ingestion
@@ -236,7 +237,7 @@ Consolidates the §20.1 mandated abuse cases plus the per-domain abuse tables. *
 | §20.2 obligation | Artifact / action | Status at baseline |
 |---|---|---|
 | VERBİS registration | Kerem + legal advisor | `[NEEDS KEREM APPROVAL — legal]`; advisor to determine (legal package §3). |
-| Data processing inventory | `DATA_PROCESSING_INVENTORY.md` (Pod A drafts, Pod B reviews, Kerem approves) | **ABSENT — NEEDS REPO RECONCILIATION.** Required before any personal-data feature (auth, wallet `reason_note`, loyalty linkage, audit `subject_ref`/`source_ip`) is built. **(KD-E.)** |
+| Data processing inventory | `DATA_PROCESSING_INVENTORY.md` (Pod A drafts, Pod B reviews, Kerem approves) | **PRESENT, Kerem-approved 2026-06-15.** Inventory-artifact prerequisite satisfied (KD-E). Personal-data implementation remains blocked by retention (OQ-LEGAL-005, KD-D), legal basis (`KVKK_LEGAL_BASIS.md`, absent), cross-border assessment (`CROSS_BORDER_TRANSFER_ASSESSMENT.md`, absent), SMS/provider gates (BL-1), and separately approved Pod C issues. |
 | Legal basis per data type | `KVKK_LEGAL_BASIS.md` (Kerem + advisor) | **ABSENT.** A *proposed* basis matrix (P1–P15) exists in the FINAL advisor package as an **advisor question set** `[NEEDS KEREM APPROVAL]`; it is **not** the file and **not** policy. |
 | Privacy notice (Aydınlatma Metni) | `PRIVACY_NOTICE_TR.md` + PWA copy | **Legal text open** (OQ-CUF-AUTH-001 / BL-5). Flow side resolved (K-14 build-time embedded; K-15 persisted on verified OTP; K-16 same-session reuse). |
 | Data-subject rights (Art. 11) | `DATA_SUBJECT_RIGHTS_PROCESS.md` | Pending; erasure resolved at design via **pseudonymize-without-delete** (ADR-006 §13 / ADR-007 §11 / AUDIT §6.12). |
@@ -245,7 +246,7 @@ Consolidates the §20.1 mandated abuse cases plus the per-domain abuse tables. *
 | Cross-border transfer | `CROSS_BORDER_TRANSFER_ASSESSMENT.md` | **ABSENT** (OQ-LEGAL-006); depends on hosting/SMS provider decisions (K-08, BL-1). |
 | Phone as primary PII | In inventory + notice | Masked last-4 to `CASHIER` (IR-21); full-phone audited for `ADMIN` (IR-09/T-P2); never in claims/logs/audit plaintext (IR-03/R-2). |
 
-**Privacy posture summary.** The privacy-by-design controls in the design corpus are strong and self-consistent (minimization, masking, pseudonymization, audited full-phone access, notice-before-OTP). The privacy **gating gap** is entirely at the **artifact + legal** layer: the three named KVKK files are absent and OQ-LEGAL-005/006 are open. Per the manifest fallback, **no personal-data feature may be built** — and this review issues no Pod C work — until `DATA_PROCESSING_INVENTORY.md` exists, OQ-LEGAL-005 sets retention, and the legal basis is confirmed by the K-08 advisor. The legal-basis matrix and notice content in `legal/LEGAL_ADVISOR_KVKK_basis_and_notice_FINAL.md` are **proposed advisor inputs `[NEEDS KEREM APPROVAL]`**, not project policy, and include items the advisor must still rule on (minors, İYS/ETK boundary, consent records, cross-border, VERBİS).
+**Privacy posture summary.** The privacy-by-design controls in the design corpus are strong and self-consistent (minimization, masking, pseudonymization, audited full-phone access, notice-before-OTP). `DATA_PROCESSING_INVENTORY.md` is **present, Kerem-approved 2026-06-15**; the inventory-artifact prerequisite is satisfied. The remaining privacy **gating gap** is at the **legal** layer: `DATA_RETENTION_POLICY.md` and `KVKK_LEGAL_BASIS.md` remain absent; OQ-LEGAL-005/006 remain open. Per the manifest fallback, **no personal-data feature may be built** — and this review issues no Pod C work — until OQ-LEGAL-005 sets retention, the legal basis is confirmed by the K-08 advisor, and the cross-border assessment (`CROSS_BORDER_TRANSFER_ASSESSMENT.md`) is completed. The legal-basis matrix and notice content in `legal/LEGAL_ADVISOR_KVKK_basis_and_notice_FINAL.md` are **proposed advisor inputs `[NEEDS KEREM APPROVAL]`**, not project policy, and include items the advisor must still rule on (minors, İYS/ETK boundary, consent records, cross-border, VERBİS).
 
 ---
 
@@ -288,7 +289,7 @@ OQ-LEGAL-005 (retention periods, **KD-D**), legal basis per data type (**BL-4**,
 
 | Blocker | Effect |
 |---|---|
-| `DATA_PROCESSING_INVENTORY.md` absent (**KD-E**) | **NEEDS REPO RECONCILIATION**; no personal-data feature may be built; this review issues no Pod C work. |
+| `DATA_PROCESSING_INVENTORY.md` (**KD-E**) | **Present, Kerem-approved 2026-06-15.** Inventory-artifact prerequisite satisfied. Personal-data implementation remains blocked by the items below (retention, legal basis, cross-border, BL-1, approved Pod C issues). |
 | `DATA_RETENTION_POLICY.md` absent + OQ-LEGAL-005 open (**KD-D**) | Refresh-token + account + audit/PII retention undefined; **no period invented here** (blocks ADR-015 go-live tie; BL-3). |
 | `KVKK_LEGAL_BASIS.md` absent (**BL-4**) | Phone-as-identity processing basis not on record. |
 | BL-1 (SMS provider), BL-5 (notice text) | Customer OTP + registration notice cannot complete. |
@@ -313,7 +314,7 @@ Consolidated from the per-area assessments; accepted residuals reference their A
 | Full audit-chain recompute by a DB superuser | **Mitigated** by periodic external anchoring + Pod D chain verification | AUDIT §7/§10 |
 | Provider-side OTP / KVKK / cross-border exposure | **Open — cannot be assessed until BL-1 resolved** | AUTH §8 |
 | Selcafe read-path ingestion (injection / trust / credential / session-PII) | **Open recommendation (SR-003)**; read-only posture removes write-side risk | ADR-005; SR-003 |
-| Personal-data processing without inventory/basis/retention | **Open — dependent on absent KVKK artifacts + OQ-LEGAL-005** | §6; KD-D/KD-E |
+| Personal-data processing without inventory/basis/retention | **Open — dependent on absent KVKK artifacts + OQ-LEGAL-005** (inventory-artifact prerequisite now satisfied) | §6; KD-D |
 
 **`[LOCKED PRINCIPLE CONFLICT]`: none identified.** Every control and observation in this review is consistent with the locked principles (append-only wallet & loyalty ledgers; all admin actions auditable; KVKK required; human approval for wallet/payment/refund/security/customer-data; Selcafe read-only Phase 1; synthetic data only), with ADR-004/008, and with the Accepted ADRs and threat model.
 
@@ -347,3 +348,4 @@ Consolidated from the per-area assessments; accepted residuals reference their A
 | Version | Date | Author | Change |
 |---|---|---|---|
 | v0.1 | 2026-06-15 | Pod B | Initial draft. Covers §20.1 SDLC posture (§3); §20.3 mandatory review areas + schema-migration security (§4); cross-domain abuse-case register (§5); KVKK/privacy review (§6); cross-cutting findings SR-001…SR-009 (§7); consolidated approval/blocker register (§8); residual-risk summary (§9); ADR-009 assessment (§10). Adopts AUDIT_EVENT_SCHEMA R-1…R-4 / IR-03/IR-20 alignment / KD-C hash chain / §10 residual risks per its §6.13. Marked **Needs repo reconciliation** (DATA_PROCESSING_INVENTORY.md / DATA_RETENTION_POLICY.md / KVKK_LEGAL_BASIS.md absent). No retention periods invented; no Pod C authorization; no issues; no endpoints/migrations; synthetic data only. Merge gate Pod B + Kerem. |
+| v0.2 | 2026-06-16 | Pod B | B-2 status reconciliation (Kerem-authorized). `DATA_PROCESSING_INVENTORY.md` now **present, Kerem-approved 2026-06-15** — updated REPO RECONCILIATION header, Status table, freshness baseline, §4.4/§4.5/§6/§8.3 references, and §6 privacy-posture summary. `DATA_RETENTION_POLICY.md`, `KVKK_LEGAL_BASIS.md` remain absent and remain blockers. Three genuinely absent legal files (DATA_RETENTION_POLICY.md, KVKK_LEGAL_BASIS.md, CROSS_BORDER_TRANSFER_ASSESSMENT.md) not altered. Pod C gate unchanged. Status-only correction; no new decisions. Merge gate Pod B + Kerem. |
