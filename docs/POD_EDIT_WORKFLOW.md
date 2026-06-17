@@ -73,12 +73,7 @@ For routine documentation and design edits, the default path is:
 4. Kerem opens a PR using `.github/PULL_REQUEST_TEMPLATE.md`.
 5. Required reviews and approvals occur through the normal repo gates.
 
-Exception path:
-
-- Kerem may explicitly authorize a Pod B or Pod C write session for that session only.
-- The authorization must be explicit for the session.
-- The pod must still follow repository gates, PR review triggers, Definition of Ready, Definition of Done, and Kerem approval requirements.
-- This exception path does not become the default.
+Exception path: Kerem may select a keyword-gated execution mode (see Command Keyword Gate) in which a write actor other than Kerem-by-default applies edits — a pod under `gitpp` (only with explicit per-session Kerem authorization) or Codex under `gitcc`. In all modes: merge remains Kerem-only; no keyword authorizes direct commits to `main`; a `gitcc`/Codex write executes repo-edit / process changes only and never authorizes Pod C feature implementation (separately gated); all repository gates, PR review triggers, Definition of Ready, Definition of Done, and Kerem approval still apply. This exception path does not become the default.
 
 ---
 
@@ -156,7 +151,7 @@ Every repo-edit package or execution packet must state:
 | `gitpp` | Pod prepares exact edits and may attempt direct repo-write only if Kerem explicitly authorized pod write access for this session. Direct repo-write means branch, commit, push, and PR only. Merge remains Kerem-only. If direct repo-write fails or the pod lacks write tooling, the pod must ask Kerem which platform to use: PowerShell or macOS. After Kerem answers, the pod must provide exact edits plus the appropriate commands for Kerem to apply. |
 | `gitpkp` | Pod prepares exact edits plus one PowerShell command block for Kerem to apply. |
 | `gitpkm` | Pod prepares exact edits plus one macOS shell command block for Kerem to apply. |
-| `gitcc` | Pod prepares one complete Codex-ready prompt as one downloadable `.md` text file. The Codex-ready prompt file must contain only executor-facing material. Post-execution review handoffs must be provided in a separate file. If the platform cannot produce downloadable files, provide two complete fenced markdown blocks with intended filenames: one for Codex/executor and one for post-execution review. The Codex prompt must include: `show diff before commit`. Codex must prioritize the GitHub connector as the repository read/context path when available, and must prioritize GitHub CLI (gh) as the repository write path for branch creation, commits, pushes, and PR creation; if either path is unavailable, Codex must state the fallback before proceeding, and no fallback may authorize direct commits to main or merge.|
+| `gitcc` | Pod prepares one complete Codex-ready prompt as one downloadable `.md` text file. The Codex-ready prompt file must contain only executor-facing material. Post-execution review handoffs must be provided in a separate file. If the platform cannot produce downloadable files, provide two complete fenced markdown blocks with intended filenames: one for Codex/executor and one for post-execution review. The Codex prompt must include: `show diff before commit`. Codex must prioritize the GitHub connector as the repository read/context path when available, and must prioritize GitHub CLI (`gh`) as the repository write path for branch creation, commits, pushes, and PR creation; if either path is unavailable, Codex must state the fallback before proceeding, and no fallback may authorize direct commits to `main` or merge. |
 | `gitkkp` | Pod prepares checklist and constraints only. Kerem edits and writes using PowerShell. Commands are optional and, if provided, must remain checklist-style and must not attempt to perform edits automatically. |
 | `gitkkm` | Pod prepares checklist and constraints only. Kerem edits and writes using macOS shell. Commands are optional and, if provided, must remain checklist-style and must not attempt to perform edits automatically. |
 
@@ -192,10 +187,12 @@ For non-`gitcc` modes, apply the same principle where separate files are practic
 
 ## Allowed Paths
 
-| Path | Default? | Who applies edits? | When used | Notes |
+| Path | Default? | Who applies edits (write actor)? | When used | Notes |
 |---|---:|---|---|---|
-| Repo-edit package | Yes | Kerem | Routine pod-generated documentation/design edits | Lightweight path. Pod produces exact package; Kerem applies locally and opens PR. |
-| Authorized pod write session | No | Explicitly authorized Pod B or Pod C | Only when Kerem enables it per session | Exception path. Does not remove review, approval, CI, or PR gates. |
+| Repo-edit package (`gitpkp` / `gitpkm`) | Yes | Kerem | Routine pod-generated documentation/design edits | Lightweight path. Pod produces exact package; Kerem applies locally and opens PR. |
+| Authorized pod write session (`gitpp`) | No | Explicitly authorized pod (e.g. Pod B or Pod C) | Only when Kerem enables it per session | Exception. Merge Kerem-only; no direct commits to `main`. Does not remove review, approval, CI, or PR gates. |
+| Codex execution (`gitcc`) | No | Codex | When Kerem selects `gitcc` | Codex executes repo-edit / process changes only (branch/commit/push/PR). Merge Kerem-only; no direct commits to `main`. Never authorizes Pod C feature implementation. |
+| Kerem direct (`gitkkp` / `gitkkm`) | No | Kerem | When Kerem edits and writes himself | Pod supplies checklist/constraints only. |
 
 ---
 
@@ -254,7 +251,7 @@ Keyword-specific Section A rules:
 | `gitpp` | Exact edits and, only if explicitly authorized for this session, pod direct-write instructions for branch/commit/push/PR. Merge excluded. If pod write fails or tooling is unavailable, ask Kerem whether to use PowerShell or macOS before producing local commands. |
 | `gitpkp` | Exact edits plus one PowerShell command block for Kerem to apply. |
 | `gitpkm` | Exact edits plus one macOS shell command block for Kerem to apply. |
-| `gitcc` | One complete Codex-ready prompt in its own file. It must include: `show diff before commit`. Do not include post-execution review handoff text in this file. Codex must prioritize the GitHub connector as the repository read/context path when available, and must prioritize GitHub CLI (gh) as the repository write path for branch creation, commits, pushes, and PR creation; if either path is unavailable, Codex must state the fallback before proceeding, and no fallback may authorize direct commits to main or merge.|
+| `gitcc` | One complete Codex-ready prompt in its own file. It must include: `show diff before commit`. Do not include post-execution review handoff text in this file. Codex must prioritize the GitHub connector as the repository read/context path when available, and must prioritize GitHub CLI (`gh`) as the repository write path for branch creation, commits, pushes, and PR creation; if either path is unavailable, Codex must state the fallback before proceeding, and no fallback may authorize direct commits to `main` or merge. |
 | `gitkkp` | Checklist and constraints only. Kerem edits and writes using PowerShell. Do not provide auto-edit commands. |
 | `gitkkm` | Checklist and constraints only. Kerem edits and writes using macOS shell. Do not provide auto-edit commands. |
 
@@ -792,7 +789,7 @@ For documentation-only operator packages:
 
 ## Review Routing
 
-- Ready for commit: Yes, as a documentation-only draft after Kerem confirms Option A — coexistence is the intended operating model.
+- Ready for commit: Yes, as a keyword-gated operator guide after Kerem confirms the selected execution mode.
 - Requires Kerem approval: Yes. Kerem must approve the PR before merge or record required visibility per ADR-009 §2.
 - Requires Pod B review: Yes. This is a new process-adjacent operator guide and should receive Pod B review before merge.
 - Requires Pod C implementation: No.
