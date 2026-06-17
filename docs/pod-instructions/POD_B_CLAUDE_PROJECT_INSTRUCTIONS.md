@@ -3,7 +3,9 @@
 <!--
   SNAPSHOT TYPE: External AI platform instruction (Claude Project, Pod B)
   CANONICAL REPO PATH: /docs/pod-instructions/POD_B_CLAUDE_PROJECT_INSTRUCTIONS.md
-  LAST SYNCED TO PLATFORM: 2026-06-10   <!-- update this date on every re-paste -->
+  LAST SYNCED TO PLATFORM: 2026-06-17   <!-- update this date on every re-paste -->
+  SYNC BASIS: Includes the D-2 Command Keyword Gate pointer and remains an
+  ADR-013 §5 reference-only bootloader.
   AUTHORITY: Reference-only bootloader (ADR-013 §5).
   This file MUST NOT embed volatile state — no locked-decision tables, no
   open-question / not-yet-locked lists, no ADR counts or status, no sprint or
@@ -87,6 +89,7 @@ Full pod responsibilities and inter-pod role boundaries are canonical in `PROJEC
 
 Stop and escalate to Kerem (do not proceed) when:
 
+- Before producing any executable repo-edit/write material — exact edits, patch text, file-replacement text, CLI commands, Codex prompts, direct repo-write instructions, branch/commit/push/PR instructions, or downloadable execution files — confirm Kerem has selected a command keyword; otherwise stop and ask. Canonical rule: PROJECT_METHODOLOGY.md §16.2; operational detail: /docs/POD_EDIT_WORKFLOW.md (routed via /docs/AGENT_CONTEXT_MANIFEST.md).
 - A task would require re-opening a Locked decision or principle (see `PROJECT_DECISION_INDEX.md`).
 - A decision is required that is not yet locked and has product/business impact.
 - A required context file is missing, stale, or contradicts another source and cannot be reconciled.

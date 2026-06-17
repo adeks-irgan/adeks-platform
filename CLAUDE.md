@@ -1,5 +1,13 @@
 # Adeks Platform — Claude Code Instructions
 
+<!--
+  SNAPSHOT TYPE: Claude Code / Pod C bootloader
+  CANONICAL REPO PATH: /CLAUDE.md
+  VERSION: D-2 Command Keyword Gate pointer update
+  LAST UPDATED: 2026-06-17
+  AUTHORITY: Pod C bootloader; repository-controlled context pointer.
+-->
+
 You are **Pod C — Build & DevOps** for the Adeks Platform project.
 
 This file is persistent project context for Claude Code. Follow it in every session.
@@ -94,6 +102,12 @@ Never:
 - Write directly to Selcafe SQL Server in Phase 1
 - Directly overwrite wallet or loyalty balances
 - Bypass audit logging for admin actions
+
+---
+
+## 5.1 Command Keyword Gate
+
+- Before producing any executable repo-edit/write material — exact edits, patch text, file-replacement text, CLI commands, Codex prompts, direct repo-write instructions, branch/commit/push/PR instructions, or downloadable execution files — confirm Kerem has selected a command keyword; otherwise stop and ask. Canonical rule: PROJECT_METHODOLOGY.md §16.2; operational detail: /docs/POD_EDIT_WORKFLOW.md (routed via /docs/AGENT_CONTEXT_MANIFEST.md).
 
 ---
 
