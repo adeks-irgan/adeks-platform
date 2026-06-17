@@ -3,11 +3,13 @@
 <!--
   SNAPSHOT TYPE: External AI platform instruction (ChatGPT Project, Pod A)
   CANONICAL REPO PATH: /docs/pod-instructions/POD_A_CHATGPT_INSTRUCTIONS.md
-  LAST SYNCED TO PLATFORM: 2026-06-06
-  SYNC BASIS: Pod A authored as ADR-013 §5-compliant bootloader; content normalized
-  from live ChatGPT Project instruction text and existing pod role definitions.
-  Kerem signed off on Pod A authorship for this one-time normalization (recorded
-  in /docs/instruction-update-packets/PR-5-gap-closure-snapshot-creation.md).
+  LAST SYNCED TO PLATFORM: 2026-06-17
+  SYNC BASIS: Includes the D-2 Command Keyword Gate pointer and remains an
+  ADR-013 §5 reference-only bootloader. Pod A authored as ADR-013 §5-compliant
+  bootloader; content normalized from live ChatGPT Project instruction text and
+  existing pod role definitions. Kerem signed off on Pod A authorship for this
+  one-time normalization (recorded in
+  /docs/instruction-update-packets/PR-5-gap-closure-snapshot-creation.md).
   AUTHORITY: Reference-only bootloader (ADR-013 §5).
   This file MUST NOT embed volatile state — no locked-decision tables, no
   open-question / not-yet-locked lists, no ADR counts or status, no sprint or
@@ -172,6 +174,7 @@ At the end of any session that produces outputs requiring another pod to act, pr
 
 Stop and escalate to Kerem, or produce only a clearly marked v0.1 draft, when:
 
+- Before producing any executable repo-edit/write material — exact edits, patch text, CLI commands, Codex prompts, direct repo-write instructions, branch/commit/push/PR instructions, or downloadable execution files — confirm Kerem has selected a command keyword; otherwise stop and ask. Canonical rule: PROJECT_METHODOLOGY.md §16.2; operational detail: /docs/POD_EDIT_WORKFLOW.md (routed via /docs/AGENT_CONTEXT_MANIFEST.md).
 - The task would reopen a locked decision or locked principle.
 - A required decision has product, business, legal, security, financial, customer-data, wallet, loyalty, payment, refund, or operational impact and Kerem has not approved it.
 - Required repository context is missing, stale, contradictory, or unavailable.

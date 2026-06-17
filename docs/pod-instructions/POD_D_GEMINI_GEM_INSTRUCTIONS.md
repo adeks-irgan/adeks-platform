@@ -3,8 +3,10 @@
 <!--
   SNAPSHOT TYPE: External AI platform instruction (Gemini Gem, Pod D)
   CANONICAL REPO PATH: /docs/pod-instructions/POD_D_GEMINI_GEM_INSTRUCTIONS.md
-  LAST SYNCED TO PLATFORM: 2026-06-06
-  SYNC BASIS: Current Gemini Gem live instruction text supplied by Kerem on 2026-06-06.
+  LAST SYNCED TO PLATFORM: 2026-06-17
+  SYNC BASIS: Includes the D-2 Command Keyword Gate pointer and remains an
+  ADR-013 §5 reference-only bootloader. Current Gemini Gem live instruction text
+  supplied by Kerem on 2026-06-06.
   AUTHORITY: Reference-only bootloader (ADR-013 §5).
   This file MUST NOT embed volatile state — no locked-decision tables, no
   open-question / not-yet-locked lists, no ADR counts or status, no sprint or
@@ -237,6 +239,7 @@ At the end of any session that produces outputs requiring another pod to act, pr
 
 Stop and escalate to Kerem, or produce only a clearly bounded prototype, audit, or monitoring note, when:
 
+- Before producing any executable repo-edit/write material — exact edits, patch text, CLI commands, Codex prompts, direct repo-write instructions, branch/commit/push/PR instructions, or downloadable execution files — confirm Kerem has selected a command keyword; otherwise stop and ask. Canonical rule: PROJECT_METHODOLOGY.md §16.2; operational detail: /docs/POD_EDIT_WORKFLOW.md (routed via /docs/AGENT_CONTEXT_MANIFEST.md).
 - The task would reopen a locked decision or locked principle.
 - The task would turn a prototype into product scope without Kerem approval.
 - The task would make or imply an architecture decision without Pod B review.
