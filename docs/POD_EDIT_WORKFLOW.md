@@ -1,7 +1,7 @@
 # POD_EDIT_WORKFLOW.md
 
 <!--
-  STATUS: Draft — documentation-only operator guide
+  STATUS: Active — approved operator guide with Command Keyword Gate
   AUTHOR: Pod A — Product & Planning
   REVIEWER: Pod B — Architecture, Logic & Risk
   APPROVER: Kerem
@@ -35,6 +35,10 @@ This guide covers:
 - how PR review triggers are classified against ADR-009 §3;
 - how the ADR-009 §4 behavior-change gate is answered before edits are applied;
 - how the default repo-edit package path coexists with explicitly authorized pod write sessions.
+- how Kerem's Command Keyword Gate controls whether pods may produce executable repo-edit/write material;
+- how repo-edit packages and execution packets declare the selected keyword, actors, environment, and authorization boundaries;
+- how executor-facing prompts are separated into their own file from post-execution review handoffs;
+- how Complete Repo Execution Packet requirements are folded into this guide's repo-edit / execution package format.
 
 ### Excluded
 
@@ -51,6 +55,9 @@ This guide does not:
 - authorize direct commits to `main`;
 - authorize direct writes to Selcafe SQL Server;
 - authorize wallet, loyalty, payment, refund, security, customer-data, KVKK, schema, deployment, rollback, or integration decisions without the required review and approval path.
+- authorize merge by any pod, Codex, or executor other than Kerem;
+- allow command keywords to bypass ADR-009, Definition of Ready, Definition of Done, Kerem approval, Pod B review where required, legal/KVKK blockers, or the synthetic-data-only rule;
+- convert a repo-edit package into Pod C implementation authorization.
 
 ---
 
@@ -66,36 +73,144 @@ For routine documentation and design edits, the default path is:
 4. Kerem opens a PR using `.github/PULL_REQUEST_TEMPLATE.md`.
 5. Required reviews and approvals occur through the normal repo gates.
 
-Exception path:
+Exception path: Kerem may select a keyword-gated execution mode (see Command Keyword Gate) in which a write actor other than Kerem-by-default applies edits — a pod under `gitpp` (only with explicit per-session Kerem authorization) or Codex under `gitcc`. In all modes: merge remains Kerem-only; no keyword authorizes direct commits to `main`; a `gitcc`/Codex write executes repo-edit / process changes only and never authorizes Pod C feature implementation (separately gated); all repository gates, PR review triggers, Definition of Ready, Definition of Done, and Kerem approval still apply. This exception path does not become the default.
 
-- Kerem may explicitly authorize a Pod B or Pod C write session for that session only.
-- The authorization must be explicit for the session.
-- The pod must still follow repository gates, PR review triggers, Definition of Ready, Definition of Done, and Kerem approval requirements.
-- This exception path does not become the default.
+---
+
+## Command Keyword Gate
+
+### Purpose
+
+The Command Keyword Gate prevents pods from unintentionally producing executable repository-edit or repository-write material before Kerem selects the execution mode.
+
+It controls output mode only. It does not change approval authority, review gates, merge authority, Definition of Ready, Definition of Done, legal/KVKK blockers, or the synthetic-data-only rule.
+
+### Gate Rule
+
+Before preparing any executable repo-edit/write material, a pod must verify that Kerem has provided a valid command keyword in the current request or handoff.
+
+If no valid keyword is present, the pod may still discuss:
+
+- concepts;
+- risks;
+- review findings;
+- alternatives;
+- recommendations;
+- non-executable planning notes.
+
+If no valid keyword is present, the pod must stop and ask Kerem for a command keyword before producing any of the following:
+
+- exact edits;
+- patch text;
+- file replacement text;
+- CLI commands;
+- Codex prompts;
+- direct repo-write instructions;
+- branch, commit, push, or PR execution instructions;
+- downloadable execution files.
+
+### Command Keyword Table
+
+| Edit actor | Write actor | CLI / environment | Keyword |
+|---|---|---|---|
+| Pod | Pod | n/a | `gitpp` |
+| Pod | Kerem | PowerShell | `gitpkp` |
+| Pod | Kerem | macOS | `gitpkm` |
+| Codex | Codex | n/a | `gitcc` |
+| Kerem | Kerem | PowerShell | `gitkkp` |
+| Kerem | Kerem | macOS | `gitkkm` |
+
+Definitions:
+
+- Edit actor = who prepares or changes the file content.
+- Write actor = who applies the changes to the repo, commits, pushes, or opens the PR.
+- CLI / environment = command style required when Kerem is executing locally.
+- Merge is always Kerem's. No keyword authorizes merge by a pod, Codex, or any other executor.
+- No keyword authorizes direct commits to `main`.
+- No keyword overrides ADR-009, Definition of Ready, Definition of Done, Kerem approval, Pod B review where required, legal/KVKK blockers, or the synthetic-data-only rule.
+
+### Required Keyword Declaration
+
+Every repo-edit package or execution packet must state:
+
+| Field | Required content |
+|---|---|
+| Selected keyword | One valid keyword from the Command Keyword Table. |
+| Edit actor | Pod, Codex, or Kerem. |
+| Write actor | Pod, Codex, or Kerem. |
+| CLI / environment | `n/a`, PowerShell, or macOS. |
+| Allowed output | What the pod is allowed to produce under the selected keyword. |
+| Prohibited output | What the pod must not produce under the selected keyword. |
+| Merge excluded? | Must state that merge is Kerem-only. |
+| Direct repo write authorized? | Must state whether direct branch/commit/push/PR work is authorized for the selected write actor. |
+
+### Keyword Mode Behavior
+
+| Keyword | Required behavior |
+|---|---|
+| `gitpp` | Pod prepares exact edits and may attempt direct repo-write only if Kerem explicitly authorized pod write access for this session. Direct repo-write means branch, commit, push, and PR only. Merge remains Kerem-only. If direct repo-write fails or the pod lacks write tooling, the pod must ask Kerem which platform to use: PowerShell or macOS. After Kerem answers, the pod must provide exact edits plus the appropriate commands for Kerem to apply. |
+| `gitpkp` | Pod prepares exact edits plus one PowerShell command block for Kerem to apply. |
+| `gitpkm` | Pod prepares exact edits plus one macOS shell command block for Kerem to apply. |
+| `gitcc` | Pod prepares one complete Codex-ready prompt as one downloadable `.md` text file. The Codex-ready prompt file must contain only executor-facing material. Post-execution review handoffs must be provided in a separate file. If the platform cannot produce downloadable files, provide two complete fenced markdown blocks with intended filenames: one for Codex/executor and one for post-execution review. The Codex prompt must include: `show diff before commit`. Codex must prioritize the GitHub connector as the repository read/context path when available, and must prioritize GitHub CLI (`gh`) as the repository write path for branch creation, commits, pushes, and PR creation; if either path is unavailable, Codex must state the fallback before proceeding, and no fallback may authorize direct commits to `main` or merge. |
+| `gitkkp` | Pod prepares checklist and constraints only. Kerem edits and writes using PowerShell. Commands are optional and, if provided, must remain checklist-style and must not attempt to perform edits automatically. |
+| `gitkkm` | Pod prepares checklist and constraints only. Kerem edits and writes using macOS shell. Commands are optional and, if provided, must remain checklist-style and must not attempt to perform edits automatically. |
+
+### Non-Override Rule
+
+The selected keyword does not override:
+
+- ADR-009 review triggers;
+- ADR-009 behavior-change gate;
+- Definition of Ready;
+- Definition of Done;
+- Kerem approval;
+- Pod B review where required;
+- the no-direct-main rule;
+- the merge-is-Kerem-only rule;
+- the synthetic-data-only rule;
+- legal/KVKK blockers.
+
+### Executor / Review File Separation Rule
+
+Repo-edit packages and execution packets must keep executor-facing content in a separate file from post-execution review handoffs.
+
+For `gitcc`:
+
+- the Codex-ready handoff file must contain only executor-facing instructions;
+- the post-execution review handoff must be a separate file;
+- do not include review handoff text inside the Codex-ready prompt file;
+- do not place `DO NOT SEND THIS SECTION TO CODEX` content in a file intended for Codex.
+
+For non-`gitcc` modes, apply the same principle where separate files are practical. Executor-facing material and review handoff material must be clearly separated so the executor does not receive instructions intended only for later review routing.
 
 ---
 
 ## Allowed Paths
 
-| Path | Default? | Who applies edits? | When used | Notes |
+| Path | Default? | Who applies edits (write actor)? | When used | Notes |
 |---|---:|---|---|---|
-| Repo-edit package | Yes | Kerem | Routine pod-generated documentation/design edits | Lightweight path. Pod produces exact package; Kerem applies locally and opens PR. |
-| Authorized pod write session | No | Explicitly authorized Pod B or Pod C | Only when Kerem enables it per session | Exception path. Does not remove review, approval, CI, or PR gates. |
+| Repo-edit package (`gitpkp` / `gitpkm`) | Yes | Kerem | Routine pod-generated documentation/design edits | Lightweight path. Pod produces exact package; Kerem applies locally and opens PR. |
+| Authorized pod write session (`gitpp`) | No | Explicitly authorized pod (e.g. Pod B or Pod C) | Only when Kerem enables it per session | Exception. Merge Kerem-only; no direct commits to `main`. Does not remove review, approval, CI, or PR gates. |
+| Codex execution (`gitcc`) | No | Codex | When Kerem selects `gitcc` | Codex executes repo-edit / process changes only (branch/commit/push/PR). Merge Kerem-only; no direct commits to `main`. Never authorizes Pod C feature implementation. |
+| Kerem direct (`gitkkp` / `gitkkm`) | No | Kerem | When Kerem edits and writes himself | Pod supplies checklist/constraints only. |
 
 ---
 
-## Repo-Edit Package Format
+## Repo-Edit / Execution Package Format
 
-Every pod-generated repo-edit package must use the following structure.
+Every pod-generated repo-edit package or execution packet that contains executable repo-edit/write material must use the following structure.
 
-```md
-# Repo-Edit Package — [Short Name]
+The selected Command Keyword determines what Section A may contain.
+
+````md
+# Repo-Edit / Execution Package — [Short Name]
 
 ## Source Pod
 
 - Pod:
 - Date:
 - Session context loaded:
+  - /docs/POD_EDIT_WORKFLOW.md
   - /docs/PROJECT_METHODOLOGY.md
   - /docs/adr/ADR-009-pr-approval-policy.md
   - /docs/adr/ADR-013-repository-controlled-pod-context.md
@@ -103,26 +218,93 @@ Every pod-generated repo-edit package must use the following structure.
   - .github/PULL_REQUEST_TEMPLATE.md
   - Other relevant repo files:
 
+## Command Keyword Declaration
+
+| Field | Value |
+|---|---|
+| Selected keyword | |
+| Edit actor | |
+| Write actor | |
+| CLI / environment | |
+| What the pod is allowed to produce under this mode | |
+| What the pod must not produce under this mode | |
+| Merge excluded? | Yes — merge remains Kerem-only. |
+| Direct repo write authorized? | |
+
 ## Target Branch
 
 - Suggested branch name:
 - Base branch: main
 
-## Exact File Paths to Change
+## A — EXECUTOR PACKAGE
+
+- This is the only section to send to Codex, the pod writer, or Kerem-as-executor.
+- For `gitcc`, this section must be provided as a separate downloadable `.md` file containing only Codex/executor-facing instructions.
+- Post-execution review handoffs must be provided in a separate file and must not be included in the Codex/executor file.
+- If file output is not supported, provide separate complete fenced markdown blocks with intended filenames.
+- Must include exact file paths, branch name, base branch, included scope, excluded scope, and executor-specific instructions based on the selected keyword.
+
+Keyword-specific Section A rules:
+
+| Keyword | Section A content |
+|---|---|
+| `gitpp` | Exact edits and, only if explicitly authorized for this session, pod direct-write instructions for branch/commit/push/PR. Merge excluded. If pod write fails or tooling is unavailable, ask Kerem whether to use PowerShell or macOS before producing local commands. |
+| `gitpkp` | Exact edits plus one PowerShell command block for Kerem to apply. |
+| `gitpkm` | Exact edits plus one macOS shell command block for Kerem to apply. |
+| `gitcc` | One complete Codex-ready prompt in its own file. It must include: `show diff before commit`. Do not include post-execution review handoff text in this file. Codex must prioritize the GitHub connector as the repository read/context path when available, and must prioritize GitHub CLI (`gh`) as the repository write path for branch creation, commits, pushes, and PR creation; if either path is unavailable, Codex must state the fallback before proceeding, and no fallback may authorize direct commits to `main` or merge. |
+| `gitkkp` | Checklist and constraints only. Kerem edits and writes using PowerShell. Do not provide auto-edit commands. |
+| `gitkkm` | Checklist and constraints only. Kerem edits and writes using macOS shell. Do not provide auto-edit commands. |
+
+## B — EXPECTED FILE CHANGES
 
 | Path | Action | Intended change |
 |---|---|---|
 | /docs/example.md | Create / Update / Delete | Plain-language description |
 
-## Included Scope
+Include exact replacement text or insertion location where available.
 
--
+## C — COMMANDS
 
-## Excluded Scope
+- If the selected keyword requires Kerem to run commands, provide commands as exactly one copy/paste box.
+- For `gitpkp`, commands must be PowerShell.
+- For `gitpkm`, commands must be macOS shell.
+- For `gitkkp` and `gitkkm`, commands are optional because Kerem is both editor and writer; if provided, they must remain checklist-style and must not attempt to perform edits automatically.
+- For `gitcc`, do not provide local shell commands unless they are inside the Codex-ready prompt and clearly marked for Codex.
 
--
+## D — PR BODY DRAFT
 
-## Citation Integrity Check
+Use `.github/PULL_REQUEST_TEMPLATE.md` as the canonical PR body template.
+
+Must include:
+
+- ready-to-use PR summary;
+- included scope;
+- excluded scope;
+- review triggers per ADR-009 §3;
+- behavior-change gate answer per ADR-009 §4;
+- tests/checks run;
+- risk notes;
+- open questions;
+- Pod Impact Matrix and Instruction Update Packet references when required.
+
+## E — POST-EXECUTION REVIEW HANDOFF
+
+- Must be a separate file from the executor package when file output is supported.
+- Must not be included in the Codex-ready prompt file.
+- Include the prompt for Pod B, Pod D, or Kerem after Codex/pod/Kerem produces the diff or PR.
+
+## F — KEREM AFTER-EXECUTION CHECKLIST
+
+- [ ] Review `git diff`.
+- [ ] Confirm only expected files changed.
+- [ ] Confirm excluded scope was not touched.
+- [ ] Confirm no real personal data, secrets, credentials, transaction data, staff records, or operational data were added.
+- [ ] Confirm PR body matches the required review triggers and behavior-change gate.
+- [ ] Route to Pod B, Kerem, or Pod D if required.
+- [ ] Confirm merge remains Kerem-only.
+````
+
+### Citation Integrity Check
 
 Before applying edits, confirm every repo path cited in the PR body or edited files either:
 
@@ -138,7 +320,7 @@ Notes:
 
 -
 
-## Review Triggers per ADR-009 §3
+### Review Triggers per ADR-009 §3
 
 Authoritative source: `/docs/adr/ADR-009-pr-approval-policy.md` §3.
 
@@ -159,7 +341,7 @@ Check every category that applies:
 
 If multiple triggers apply, use the strictest applicable review path.
 
-## Behavior-Change Gate per ADR-009 §4
+### Behavior-Change Gate per ADR-009 §4
 
 Authoritative source: `/docs/adr/ADR-009-pr-approval-policy.md` §4.
 
@@ -181,13 +363,13 @@ If yes:
 - [ ] Affected pod instruction snapshots listed
 - [ ] External platform re-paste requirement listed where applicable
 
-## Kerem Approval / Visibility Requirement
+### Kerem Approval / Visibility Requirement
 
 - [ ] Kerem review path stated
 - [ ] Kerem visibility or approval required before merge per ADR-009 §2
 - [ ] Explicit Kerem approval required if the PR affects code, ADRs, strategic decisions, architecture, security, financial logic, customer data, operational policy, scope, wallet, loyalty, payments, refunds, Selcafe integration, schema, KVKK, or go-live risk
 
-## Local Checks Suggested
+### Local Checks Suggested
 
 - Documentation-only:
   - [ ] Markdown rendered/reviewed
@@ -198,38 +380,13 @@ If yes:
   - [ ] Tests
   - [ ] Build
 
-## PR Body Notes
-
-Use `.github/PULL_REQUEST_TEMPLATE.md` as the canonical PR body template.
-
-Suggested summary:
-
--
-
-Suggested included scope:
-
--
-
-Suggested excluded scope:
-
--
-
-Suggested review trigger selection:
-
--
-
-Suggested behavior-change gate answer:
-
--
-
-## Review Routing
+### Review Routing
 
 - Ready for commit:
 - Requires Kerem approval:
 - Requires Pod B review:
 - Requires Pod C implementation:
 - Requires Pod D prototype/audit/monitoring review:
-```
 
 ---
 
@@ -259,10 +416,25 @@ A PR body may note that a follow-up Pod D review is useful, but that does not au
 
 ## Kerem Local Application Workflow
 
+### 0. Confirm Command Keyword Gate
+
+Before accepting executable repo-edit/write material, confirm that the producing pod declared a valid command keyword.
+
+If no valid keyword is declared, Kerem should ask the pod to regenerate the package under the correct keyword before applying any executable content.
+
+If the package uses `gitcc`, Kerem should send only the separate Codex-ready executor file to Codex. Kerem should not send the separate post-execution review handoff file to Codex.
+
 ### 1. Receive the repo-edit package
 
 Kerem checks that the producing pod supplied:
 
+- selected command keyword;
+- edit actor;
+- write actor;
+- CLI/environment;
+- direct repo write authorization status;
+- merge exclusion statement;
+- executor-facing file clearly separated from post-execution review handoff file;
 - exact repo paths;
 - action per file;
 - intended change per file;
@@ -356,8 +528,16 @@ Authoritative sources:
 
 ---
 
-### A — Package Receipt
+### A — Command Keyword Gate and Package Receipt
 
+- [ ] Pod has declared a valid command keyword.
+- [ ] Pod has stated edit actor, write actor, and CLI/environment.
+- [ ] Pod has stated what it is allowed to produce under the selected keyword.
+- [ ] Pod has stated what it must not produce under the selected keyword.
+- [ ] Pod has stated whether direct repo write is authorized.
+- [ ] Pod has stated explicitly that merge remains Kerem-only.
+- [ ] If the selected keyword is `gitcc`, the Codex-ready executor prompt is in its own file.
+- [ ] If the selected keyword is `gitcc`, the post-execution review handoff is in a separate file and excluded from the Codex prompt.
 - [ ] Pod has specified exact file paths, relative to repo root, for every file to be changed.
 - [ ] Pod has described the intended change per file in plain language.
 - [ ] Pod has stated explicitly what is excluded from this package.
@@ -463,26 +643,44 @@ Do not merge until all required items are checked.
 
 Synthetic example only.
 
-```md
-# Repo-Edit Package — Add Staff FAQ Draft
+````md
+# Repo-Edit / Execution Package — Add Staff FAQ Draft
 
 ## Source Pod
 
 - Pod: Pod A
 - Date: 2026-06-16
 - Session context loaded:
+  - /docs/POD_EDIT_WORKFLOW.md
   - /docs/PROJECT_METHODOLOGY.md
   - /docs/adr/ADR-009-pr-approval-policy.md
   - /docs/adr/ADR-013-repository-controlled-pod-context.md
   - /docs/AGENT_CONTEXT_MANIFEST.md
   - .github/PULL_REQUEST_TEMPLATE.md
 
+## Command Keyword Declaration
+
+| Field | Value |
+|---|---|
+| Selected keyword | `gitpkp` |
+| Edit actor | Pod |
+| Write actor | Kerem |
+| CLI / environment | PowerShell |
+| What the pod is allowed to produce under this mode | Exact edits plus one PowerShell command block for Kerem to apply. |
+| What the pod must not produce under this mode | Direct repo-write actions, merge instructions, direct commits to `main`, or implementation authorization. |
+| Merge excluded? | Yes — merge remains Kerem-only. |
+| Direct repo write authorized? | No. Kerem applies, commits, pushes, and opens the PR. |
+
 ## Target Branch
 
 - Suggested branch name: docs/staff-faq-draft
 - Base branch: main
 
-## Exact File Paths to Change
+## A — EXECUTOR PACKAGE
+
+For `gitpkp`, provide exact edits plus one PowerShell command block for Kerem to apply. Keep any post-execution review handoff outside this executor package when a separate file is practical.
+
+## B — EXPECTED FILE CHANGES
 
 | Path | Action | Intended change |
 |---|---|---|
@@ -498,6 +696,31 @@ Synthetic example only.
 - No implementation issue.
 - No customer-data policy change.
 - No auth, wallet, loyalty, payment, refund, Selcafe, schema, or KVKK decision.
+
+## C — COMMANDS
+
+```powershell
+# Kerem applies the packaged edits locally, reviews the diff, then commits through the normal PR path.
+git checkout main
+git pull --ff-only origin main
+git checkout -b docs/staff-faq-draft
+git diff
+```
+
+## D — PR BODY DRAFT
+
+Use `.github/PULL_REQUEST_TEMPLATE.md` as the canonical PR body template.
+
+## E — POST-EXECUTION REVIEW HANDOFF
+
+Provide any Pod B, Pod D, or Kerem review handoff separately from the executor-facing material.
+
+## F — KEREM AFTER-EXECUTION CHECKLIST
+
+- [ ] Review `git diff`.
+- [ ] Confirm only expected files changed.
+- [ ] Confirm no real personal data, secrets, credentials, transaction data, staff records, or operational data were added.
+- [ ] Confirm merge remains Kerem-only.
 
 ## Citation Integrity Check
 
@@ -522,13 +745,15 @@ Synthetic example only.
 - Requires Pod B review: No ADR-009 §3 trigger identified.
 - Requires Pod C implementation: No.
 - Requires Pod D prototype/audit/monitoring review: No.
-```
+````
 
 ---
 
 ## Relationship to Pod C
 
 This document does not authorize Pod C implementation.
+
+A command keyword may authorize a pod or Codex to prepare or execute repository edits under the selected mode, but it never authorizes Pod C feature implementation unless a separate GitHub issue satisfies Definition of Ready and the required reviews and approvals are complete.
 
 Pod C implementation still requires:
 
@@ -564,7 +789,7 @@ For documentation-only operator packages:
 
 ## Review Routing
 
-- Ready for commit: Yes, as a documentation-only draft after Kerem confirms Option A — coexistence is the intended operating model.
+- Ready for commit: Yes, as a keyword-gated operator guide after Kerem confirms the selected execution mode.
 - Requires Kerem approval: Yes. Kerem must approve the PR before merge or record required visibility per ADR-009 §2.
 - Requires Pod B review: Yes. This is a new process-adjacent operator guide and should receive Pod B review before merge.
 - Requires Pod C implementation: No.

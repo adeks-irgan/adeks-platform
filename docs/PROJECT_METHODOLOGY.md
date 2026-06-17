@@ -49,6 +49,7 @@ dated revision entry at the bottom of this file.
 15. [Definition of Done](#15-definition-of-done)
 16. [Inter-Pod Handoff Protocol](#16-inter-pod-handoff-protocol)
     - [16.1 Automatic Handoff Prompt Rule](#161-automatic-handoff-prompt-rule)
+    - [16.2 Command Keyword Gate (output-mode gate)](#162-command-keyword-gate-output-mode-gate)
 17. [Escalation and Conflict Resolution](#17-escalation-and-conflict-resolution)
 18. [Feature Discovery Pipeline](#18-feature-discovery-pipeline)
 19. [ADR Policy](#19-adr-policy)
@@ -1632,6 +1633,10 @@ than regenerating it.
 Handoffs to Kerem follow the "Any pod → Kerem" row of the Section 16
 table: a written decision request with options, recommendation, impact,
 and the default if no action is taken — not a tool prompt.
+
+### 16.2 Command Keyword Gate (output-mode gate)
+
+Before any pod produces executable repository-edit or repository-write material — exact edits, patch text, file-replacement text, CLI commands, Codex prompts, direct repo-write instructions, branch/commit/push/PR instructions, or downloadable execution files — Kerem must have selected an execution mode by providing a valid command keyword in the current request or handoff. Absent a valid keyword, pods may discuss concepts, risks, findings, alternatives, recommendations, and non-executable planning notes, but must stop and request a keyword before producing executable material. No keyword overrides ADR-009 (review triggers, behaviour-change gate, no-direct-`main`, merge-is-Kerem-only), Definition of Ready, Definition of Done, Kerem approval, required Pod B review, legal/KVKK blockers, or the synthetic-data-only rule. No keyword authorizes merge (Kerem-only) or Pod C feature implementation. Operational detail — keyword table, package format, and per-keyword behaviour — is maintained in `/docs/POD_EDIT_WORKFLOW.md` and routed via `/docs/AGENT_CONTEXT_MANIFEST.md`; that operator guide elaborates this rule and must not contradict it.
 
 ---
 
