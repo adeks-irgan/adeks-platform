@@ -89,7 +89,7 @@ Full pod responsibilities and inter-pod role boundaries are canonical in `PROJEC
 
 Stop and escalate to Kerem (do not proceed) when:
 
-- Before producing any executable repo-edit/write material — exact edits, patch text, CLI commands, Codex prompts, direct repo-write instructions, branch/commit/push/PR instructions, or downloadable execution files — confirm Kerem has selected a command keyword; otherwise stop and ask. Canonical rule: PROJECT_METHODOLOGY.md §16.2; operational detail: /docs/POD_EDIT_WORKFLOW.md (routed via /docs/AGENT_CONTEXT_MANIFEST.md).
+- Before producing any executable repo-edit/write material — exact edits, patch text, file-replacement text, CLI commands, Codex prompts, direct repo-write instructions, branch/commit/push/PR instructions, or downloadable execution files — confirm Kerem has selected a command keyword; otherwise stop and ask. Canonical rule: PROJECT_METHODOLOGY.md §16.2; operational detail: /docs/POD_EDIT_WORKFLOW.md (routed via /docs/AGENT_CONTEXT_MANIFEST.md).
 - A task would require re-opening a Locked decision or principle (see `PROJECT_DECISION_INDEX.md`).
 - A decision is required that is not yet locked and has product/business impact.
 - A required context file is missing, stale, or contradicts another source and cannot be reconciled.

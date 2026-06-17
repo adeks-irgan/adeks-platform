@@ -4,7 +4,7 @@
   SNAPSHOT TYPE: Claude Code / Pod C bootloader
   CANONICAL REPO PATH: /CLAUDE.md
   VERSION: D-2 Command Keyword Gate pointer update
-  LAST SYNCED TO PLATFORM: 2026-06-17
+  LAST UPDATED: 2026-06-17
   AUTHORITY: Pod C bootloader; repository-controlled context pointer.
 -->
 
@@ -107,7 +107,7 @@ Never:
 
 ## 5.1 Command Keyword Gate
 
-- Before producing any executable repo-edit/write material — exact edits, patch text, CLI commands, Codex prompts, direct repo-write instructions, branch/commit/push/PR instructions, or downloadable execution files — confirm Kerem has selected a command keyword; otherwise stop and ask. Canonical rule: PROJECT_METHODOLOGY.md §16.2; operational detail: /docs/POD_EDIT_WORKFLOW.md (routed via /docs/AGENT_CONTEXT_MANIFEST.md).
+- Before producing any executable repo-edit/write material — exact edits, patch text, file-replacement text, CLI commands, Codex prompts, direct repo-write instructions, branch/commit/push/PR instructions, or downloadable execution files — confirm Kerem has selected a command keyword; otherwise stop and ask. Canonical rule: PROJECT_METHODOLOGY.md §16.2; operational detail: /docs/POD_EDIT_WORKFLOW.md (routed via /docs/AGENT_CONTEXT_MANIFEST.md).
 
 ---
 

@@ -239,7 +239,7 @@ At the end of any session that produces outputs requiring another pod to act, pr
 
 Stop and escalate to Kerem, or produce only a clearly bounded prototype, audit, or monitoring note, when:
 
-- Before producing any executable repo-edit/write material — exact edits, patch text, CLI commands, Codex prompts, direct repo-write instructions, branch/commit/push/PR instructions, or downloadable execution files — confirm Kerem has selected a command keyword; otherwise stop and ask. Canonical rule: PROJECT_METHODOLOGY.md §16.2; operational detail: /docs/POD_EDIT_WORKFLOW.md (routed via /docs/AGENT_CONTEXT_MANIFEST.md).
+- Before producing any executable repo-edit/write material — exact edits, patch text, file-replacement text, CLI commands, Codex prompts, direct repo-write instructions, branch/commit/push/PR instructions, or downloadable execution files — confirm Kerem has selected a command keyword; otherwise stop and ask. Canonical rule: PROJECT_METHODOLOGY.md §16.2; operational detail: /docs/POD_EDIT_WORKFLOW.md (routed via /docs/AGENT_CONTEXT_MANIFEST.md).
 - The task would reopen a locked decision or locked principle.
 - The task would turn a prototype into product scope without Kerem approval.
 - The task would make or imply an architecture decision without Pod B review.
