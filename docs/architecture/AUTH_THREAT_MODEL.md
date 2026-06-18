@@ -2,13 +2,13 @@
 
 <!--
   DOCUMENT TYPE: Pod B Security Artifact (Threat Model)
-  VERSION: v0.4
-  STATUS: Accepted by Kerem — BL-2 closed (PR #46 merge accepted as BL-2 closure, confirmed 2026-06-11). Implementation remains blocked by BL-1/BL-3/BL-4/BL-5/BL-6. See §10, §13, §14.
+  VERSION: v0.5
+  STATUS: Accepted by Kerem — BL-2 closed (PR #46 merge accepted as BL-2 closure, confirmed 2026-06-11). v0.5 records the Kerem-decided IR-25 closure (app-side SMS ceiling values + operational response-path owner = ADMIN, 2026-06-19; see §15); IR-24 (admin bootstrap procedure) remains the only open [NEEDS KEREM APPROVAL] item. Implementation remains blocked by BL-1/BL-3/BL-4/BL-5/BL-6. See §10, §13, §14, §15.
   AUTHOR: Pod B — Architecture, Logic & Risk
   REVIEWER: Pod B (self) + Kerem (subject-matter sensitivity: Authentication/
             authorization + Customer personal data handling + Security-sensitive)
   APPROVER: Kerem
-  DATE: 2026-06-11
+  DATE: 2026-06-19
   CANONICAL REPO PATH: /docs/architecture/AUTH_THREAT_MODEL.md
   AUTHORITY: Derives from ADR-015 (Accepted). ADR-015 is authoritative; this
              document does NOT establish or change any decision. If this document
@@ -154,7 +154,7 @@ in-process and require no token auth (`ADR-015` §4).
 |---|---|---|---|---|---|---|
 | T-C1 | I/D | Phone enumeration: attacker probes the OTP-request endpoint to learn which numbers are registered | M | M | Consistent user-facing response regardless of registration status `[ADR-015 §2]` | Low |
 | T-C2 | D | SMS flooding / cost-abuse: attacker triggers mass OTP sends to a victim number or to inflate SMS spend | M | M | Rate-limit OTP requests by **IP and by phone number** `[ADR-015 §1]`; per-number send cap + cooldown `[IR-01]` | Low–Med |
-| T-C2b | D | Distributed/low-and-slow abuse evades per-number limits and drives runaway SMS spend across many numbers | L–M | M | App-side **global send-volume / spend ceiling** with circuit-breaker, anomaly alerting on send-rate spikes, and a defined operational response path `[IR-25]`; these are app-side controls and do not depend on provider selection | Low–Med |
+| T-C2b | D | Distributed/low-and-slow abuse evades per-number limits and drives runaway SMS spend across many numbers | L–M | M | App-side **global send-volume ceiling** (send-count proxy for spend) with circuit-breaker, anomaly alerting on send-rate spikes, and an **`ADMIN`-owned** operational response path `[IR-25]`; values + response-path owner **decided (Kerem 2026-06-19) — see §15**; app-side controls, independent of provider selection | Low–Med |
 | T-C3 | S | OTP brute force on the verify endpoint: attacker guesses the code | M | H | Verify-side attempt limit per OTP, short OTP TTL, sufficient code entropy, lock/expire OTP after N failures `[IR-02]` | Low |
 | T-C4 | T/S | OTP replay / reuse: a captured or already-used code is replayed | L | H | OTP single-use; invalidated immediately on success or expiry; ephemeral — never persisted after verification `[ADR-015 KVKK §2]` `[IR-02]` | Low |
 | T-C4b | I/T | OTP recoverable from temporary storage before verification (DB/cache/log) and used to bypass delivery | L | H | OTP must be short-lived and TTL-bound, single-use, and **not stored in recoverable plaintext before verification** (store a hash/derivation, not the raw code); discard on verify or TTL expiry `[IR-23]` | Low |
@@ -370,7 +370,7 @@ hashing) is incorporated by reference and is not restated as new.
 | IR-22 | All tenant-scoped auth/session tables carry non-null `tenant_id`; tenant scoping enforced by the mandatory Prisma Client Extension | T-P4 | ADR-004/008 |
 | IR-23 | OTP temporary storage: codes short-lived and TTL-bound, single-use, and **not stored in recoverable plaintext before verification** (store a hash/derivation); discarded on verify or expiry | T-C4b | extends KVKK §2 |
 | IR-24 | Initial-admin bootstrap: controlled one-time provisioning path (not public/self-service), first TOTP enrolled and confirmed in the same step over TLS, path disabled and any seed credential rotated/removed after first use, all bootstrap events audited | T-A10, T-A11, T-A12 | §3 |
-| IR-25 | App-side SMS abuse/cost controls: global send-volume / spend ceiling with circuit-breaker, anomaly alerting on send-rate spikes, and a defined operational response path (independent of provider selection) | T-C2b | extends §1 |
+| IR-25 | App-side SMS abuse/cost controls: global send-volume ceiling (send-count proxy for spend) with circuit-breaker, anomaly alerting on send-rate spikes, and an **`ADMIN`-owned** operational response path (independent of provider selection). **Values + response-path owner decided (Kerem 2026-06-19) — full specification in §15.** | T-C2b | extends §1 |
 
 ---
 
@@ -393,8 +393,9 @@ DB-level append-only sufficient for Phase 1, hash-chaining/WORM deferred to the 
 (T-G4 / IR-20).
 
 **Still open — `[NEEDS KEREM APPROVAL]`:** the **initial-admin bootstrap procedure** (who
-creates the first `ADMIN` and how the first TOTP secret is delivered/confirmed — §6.3 / IR-24),
-and the **SMS global spend/volume ceiling value and operational response-path owner** (IR-25).
+creates the first `ADMIN` and how the first TOTP secret is delivered/confirmed — §6.3 / IR-24).
+The IR-25 SMS app-side ceiling values and operational response-path owner are **now decided**
+(Kerem 2026-06-19; owner = `ADMIN`) and specified in §15 — IR-25 is no longer an open approval item.
 
 **v0.4 blocker changes:** **BL-2 closed** (2026-06-11; Kerem accepted the threat model — PR #46
 merge accepted as BL-2 closure). **BL-5 narrowed** to the outstanding Aydınlatma Metni legal text
@@ -402,6 +403,12 @@ merge accepted as BL-2 closure). **BL-5 narrowed** to the outstanding Aydınlatm
 Implementation remains blocked: **BL-1, BL-3, BL-4, BL-5, BL-6 are still open.** IR-24 (admin
 bootstrap) and IR-25 (app-side SMS controls) are implementation requirements, not blockers —
 IR-25 in particular is implementable now and does not depend on BL-1 (SMS provider selection).
+
+**v0.5 blocker changes:** none — no blocker added or removed. IR-25 is **resolved at the design
+level**: app-side ceiling values + `ADMIN`-owned operational response path decided (Kerem
+2026-06-19), specified in §15; it was never a blocker (implementable without BL-1). IR-24 (admin
+bootstrap procedure) remains the only open `[NEEDS KEREM APPROVAL]` item. Implementation remains
+blocked: **BL-1, BL-3, BL-4, BL-5, BL-6 are still open.**
 
 ---
 
@@ -415,6 +422,7 @@ IR-25 in particular is implementable now and does not depend on BL-1 (SMS provid
 | Short-lived access-token replay window | Low–Med after mitigations; bounded by ~15-min lifetime + TLS | T-C12 |
 | Staff session hijack on shared terminals | Med; mitigated by timeout + shift-end logout (operational control) | T-S4 |
 | Provider-side OTP / KVKK exposure | **Open — cannot be assessed until BL-1 resolved** | §8 |
+| Distributed / low-and-slow SMS send abuse (cost) | Low–Med after the app-side ceiling + circuit-breaker (§15); thresholds provisional pending calibration | T-C2b; §15 |
 
 No `[LOCKED PRINCIPLE CONFLICT]` was identified — every mitigation here is consistent with
 ADR-015, ADR-004/008, and the locked audit/KVKK principles.
@@ -444,18 +452,23 @@ ADR-015, ADR-004/008, and the locked audit/KVKK principles.
 
 ## 13. Review Routing and Status
 
-- **Status:** v0.4 — **Accepted by Kerem (BL-2 closed 2026-06-11).** Implementation remains blocked by BL-1/BL-3/BL-4/BL-5/BL-6.
+- **Status:** v0.5 — **Accepted by Kerem (BL-2 closed 2026-06-11); v0.5 records the Kerem-decided IR-25 closure (2026-06-19).** Implementation remains blocked by BL-1/BL-3/BL-4/BL-5/BL-6.
 - **Pod B:** Author and security reviewer (self-review complete).
 - **Kerem:** Review/approval was **required** before merge (§12). **Accepted: BL-2 closed
   2026-06-11** (PR #46 merge accepted as BL-2 closure). Acceptance unblocks BL-2 only; the
   other blockers (BL-1/BL-3/BL-4/BL-5/BL-6) still gate implementation.
+- **IR-25 (v0.5):** SMS app-side ceiling values + operational response-path owner **decided by
+  Kerem 2026-06-19** (owner = `ADMIN`); specified in §15. Recorded **under IR-25 in this document
+  only** — no KD-A/KD-B, no new K-xx, no `PROJECT_DECISION_INDEX.md` row change this PR.
+  `SECURITY_REVIEW.md` §4.1/§8.1 reconciliation is a **follow-up** (not this PR).
 - **Pod A:** Aydınlatma-Metni-before-OTP registration flow aligned — `CORE_USER_FLOWS.md`
   v0.3 reviewed 2026-06-10 (K-14/15/16 recorded). Outstanding Pod A / legal dependency is the
   notice legal text only (OQ-CUF-AUTH-001 / BL-5).
 - **Pod C:** **Not unblocked.** §9 requirements must become separately approved Pod C issues
   before any implementation; this document does not authorize work and creates no issues.
 - **Pod D:** Optional later — monitoring/alerting for failed-login thresholds, anomalous OTP
-  request volume, and audit-log completeness checks.
+  request volume, **the IR-25 send-volume soft/hard thresholds, circuit-breaker trips, and
+  override grants (§15)**, and audit-log completeness checks.
 
 *This document is a Pod B security artifact. It derives from and does not modify ADR-015.
 No item is implemented until ADR-015 remains Accepted, this threat model is reviewed, the
@@ -471,3 +484,175 @@ blockers in §10 are cleared, and separate Pod B + Kerem approved Pod C issues e
 | v0.2 | 2026-06-10 | Pod B | Pre-PR revision: (1) §12 + header → Pod B + Kerem review/approval **required** before merge (strictest ADR-009 §3 trigger governs). (2) Added OTP temporary-storage requirement IR-23 / threat T-C4b (short-lived, TTL-bound, single-use, no recoverable plaintext before verification). (3) §7.2 failed-login expanded to all four channels: customer OTP verify (T-F1), staff password (T-F2), admin password (T-F3), admin TOTP (T-F4), plus disclosure/audit rows (T-F5–T-F7). (4) Added initial-admin bootstrap + first TOTP enrollment §6.3 (T-A10–T-A12) / IR-24. (5) Added app-side SMS abuse/cost controls IR-25 / threat T-C2b (global send-volume/spend ceiling, anomaly alerting, operational response path) — independent of provider selection. (6) §8 clarified that SMS provider selection remains `[NEEDS KEREM APPROVAL]` after the provider report and that this document does not request provider approval now. ADR-015 unchanged; no provider selected; no Pod C issues created. |
 | v0.3 | 2026-06-10 | Pod B | Recorded Kerem decision (2026-06-10) resolving three open items: staff failed-login → progressive backoff + temporary lockout + admin/Kerem unlock + alerting, no indefinite hard lockout in Phase 1 (T-S5 / IR-10); admin MFA recovery → manual break-glass / admin-assisted reset, Kerem-approved + audited, no self-service recovery codes in Phase 1 (T-A6 / IR-16); audit tamper-evidence → DB-level append-only sufficient for Phase 1, hash-chaining/WORM deferred to audit-log ADR (T-G4 / IR-20). `[NEEDS KEREM APPROVAL]` flags cleared on those three and marked `[KEREM APPROVED 2026-06-10]`. Two open items remain (IR-24 bootstrap procedure, IR-25 SMS ceiling/response-path). No blocker added/removed. ADR-015 unchanged; no provider selected; no Pod C issues created. |
 | v0.4 | 2026-06-11 | Pod B | **BL-2 closed:** Kerem accepted the threat model (confirmed the PR #46 merge of v0.3 constitutes BL-2 closure). **BL-5 narrowed:** CORE_USER_FLOWS.md v0.3 flow reviewed (Pod B review complete 2026-06-10) and Kerem decisions K-14/15/16 recorded (notice location, acknowledgment persistence, same-session reuse); outstanding BL-5 dependency reduced to the Aydınlatma Metni legal text (OQ-CUF-AUTH-001). T-P3 Pod A alignment tag updated; §13 status set to Accepted. The v0.4 delta alters no threat, mitigation, or IR; ADR-015 unchanged; no provider selected; no Pod C issues created; BL-1/BL-3/BL-4/BL-5/BL-6 remain open. |
+| v0.5 | 2026-06-19 | Pod B | **IR-25 resolved (design level).** Added §15 provider-independent addendum specifying app-side SMS abuse/cost controls: counter = backend-approved OTP sends in a rolling 60-min window; soft-alert 150/hr; hard-stop 300/hr; cashier override +100 (effective 400); 1 cashier-unilateral grant per rolling hour with mandatory real-time `ADMIN` notification; 2nd in-window override requires `ADMIN` approval; base-ceiling raise beyond +100 is `ADMIN`-only, no-auto-expiry, and audited; auto-expiry after 60 min or on normal-resume (<150); 60-min cooldown; mandatory fail-closed `reason_code` enum; deny-by-default override scope; IR-25 audit-event set consuming the existing audit envelope; calibration caveat (150/300/+100 provisional). **Operational response-path owner = `ADMIN`** (Kerem 2026-06-19). Updated header, T-C2b (§4.1), IR-25 (§9), §10 open-items (IR-25 removed; IR-24 remains), §11 residual-risk summary, and §13 status/routing. No KD-A/KD-B, no new K-xx, no Decision-Index change; closure recorded under IR-25 here only. No provider selected; no Pod C issues created; BL-1/BL-3/BL-4/BL-5/BL-6 remain open. |
+
+---
+
+## 15. IR-25 Provider-Independent App-Side SMS Abuse/Cost Controls
+
+### 15.1 Purpose
+
+IR-25 (extends ADR-015 §1) requires an app-side global send ceiling with a circuit-breaker, anomaly alerting, and a defined operational response path to bound distributed/low-and-slow SMS abuse and runaway cost (threat T-C2b). This section fixes the operative values, the override authority model, the mandatory reason capture, the notification rule, and the **named owner** of the operational response path.
+
+### 15.2 Counter unit and thresholds
+
+- **Counter unit:** **backend-approved OTP sends** — sends the backend authorizes after the per-IP / per-number rate limits (IR-01/IR-02) — counted over a **rolling 60-minute window**. This is a global, cross-number volume counter.
+- **Soft-alert threshold:** **150 backend-approved sends / rolling hour** → raise an anomaly alert (no block).
+- **Hard-stop threshold (base ceiling):** **300 / rolling hour** → circuit-breaker trips; further backend-approved sends are blocked until the count falls or an override is active.
+
+| Signal | Value (rolling 60-min) | Effect |
+|---|---|---|
+| Soft alert | 150 sends | Anomaly alert to the response path; sends continue. |
+| Hard stop (base ceiling) | 300 sends | Circuit-breaker blocks further backend-approved sends. |
+| Effective ceiling while a +100 override is active | 400 sends | Sends permitted up to 400 for the override lifetime. |
+
+### 15.3 Override model (authority and escalation)
+
+The base hard stop is **300/hour**. A single override band of **+100** (effective ceiling **400**) is available, governed by the authority below. Going **beyond** the +100 band is not an override — it is an `ADMIN`-only **base-ceiling raise**.
+
+| Event | Who may act | Required control | Magnitude |
+|---|---|---|---|
+| **1st override** in a rolling 60-min window | `CASHIER` (unilateral) | **Mandatory real-time `ADMIN` notification** | +100 → effective 400 |
+| **2nd override** in the **same** rolling 60-min window | `CASHIER` requests | **`ADMIN` approval required** | +100 → effective 400 |
+| **Base-ceiling raise** (anything past the +100 band, i.e. >400) | **`ADMIN` only** | Audited; **no auto-expiry** (ADMIN-managed) | raises the base ceiling |
+
+- **Cashier-unilateral grants are capped at 1 per rolling 60-min window.** A further override inside the same window is not unilateral — it requires `ADMIN` approval (the 2nd-override row).
+- Every override grant (cashier-unilateral and ADMIN-approved) and every base-ceiling raise **must emit an immutable audit event** (actor UUID + timestamp + reason, IR-09 and the common audit-event envelope) and trigger a **real-time `ADMIN` notification** (§15.6).
+
+### 15.4 Override expiry, normal-resume, and cooldown
+
+- **Auto-expiry:** an override expires **60 minutes after grant, or on normal-resume, whichever comes first.**
+- **Normal-resume** = the rolling-hour count falls **below 150** (the soft-alert threshold). On normal-resume the override ends and the base ceiling (300) is restored.
+- **Cooldown:** after an override **expires or exhausts**, a further **cashier-unilateral** override may not be granted for **60 minutes**. (An `ADMIN`-approved override may be granted inside the cooldown — that is the 2nd-override path.)
+- **Base-ceiling raises (`ADMIN`)** have **no auto-expiry**; they persist until `ADMIN` lowers them, and are audited.
+
+### 15.5 Mandatory reason capture
+
+- A **`reason_code` is mandatory on 100% of overrides** (cashier-unilateral, ADMIN-approved, and ADMIN base-ceiling raises). **Absence fails the override closed** — no override is granted without a reason.
+- The `reason_code` is drawn from this **fixed enum**:
+
+| `reason_code` | Use |
+|---|---|
+| `legitimate-rush` | Genuine in-café traffic spike. |
+| `event/pre-order-batch` | Known event or pre-order batch driving sends. |
+| `retry-storm-benign` | Benign client retry storm (no abuse). |
+| `suspected-false-positive` | Threshold believed mis-calibrated for current legitimate load. |
+| `other-with-note` | Anything else — **requires** the free-text note. |
+
+- **Optional constrained free-text** may accompany any code; it is **required** for `other-with-note`. The free-text is operational metadata only (no customer PII; synthetic/operational content), captured per the audit envelope.
+
+### 15.6 Notification and operational response-path owner
+
+- **Real-time `ADMIN` notification fires on 100% of override grants** (and on base-ceiling raises). The 1st (cashier-unilateral) override is notify-only to `ADMIN`; the 2nd in-window override is gated on `ADMIN` **approval**.
+- **Operational response-path owner = `ADMIN`** (Kerem, 2026-06-19). `ADMIN` owns the response when the soft alert (150) or hard stop (300) fires and when overrides are requested: `ADMIN` receives every notification, approves the 2nd in-window override, is the sole authority for base-ceiling raises, and is accountable for investigating sustained or anomalous send volume. `CASHIER` is the constrained first-line actor (a single bounded, auto-expiring, audited override).
+
+### 15.7 Override scope (deny-by-default)
+
+An override (cashier-unilateral or ADMIN-approved) and an ADMIN base-ceiling raise relax
+**exactly one** control: the **global aggregate backend-approved OTP-send ceiling** (§15.2/§15.3).
+Every other control is **denied by default** and is **unaffected** by any override. Explicitly, an
+override **cannot**:
+
+- affect **SMS provider outage handling / availability** behavior (a separate signal and
+  workstream — §15.8);
+- affect any **authentication control** (tokens, sessions, MFA, step-up, logout);
+- relax the **per-phone** OTP send cap or cooldown (IR-01);
+- relax the **per-IP** request rate limiting (IR-01 / ADR-015 §1);
+- relax **verify-side** OTP controls (attempt limit, short TTL, single-use, lock/expire — IR-02);
+- relax **phone-enumeration** protection (consistent registration-agnostic response —
+  ADR-015 §2 / T-C1);
+- change **customer failure-notice behavior** (the user-facing response when a send is blocked or
+  fails stays enumeration-safe and unchanged).
+
+The override is therefore a narrow, single-purpose relaxation of the aggregate cost/abuse throttle
+and grants no other capability. An override does **not** mitigate or mask an SMS outage — outage is
+a distinct availability condition (§15.8); raising the cost ceiling neither detects nor resolves it.
+
+### 15.8 Auditability and monitoring
+
+**IR-25 audit-event set.** The following IR-25 events are emitted into the **existing** common
+audit-event envelope (AUDIT_EVENT_SCHEMA §5). **No new schema is created here**; concrete
+`event_type` naming and the DB/API implementation remain **downstream** (Pod B schema deliverable →
+separately approved Pod C issues):
+
+- `soft-ceiling-reached` — rolling-hour count crosses 150 (soft alert).
+- `hard-ceiling-reached` — rolling-hour count crosses 300 (circuit-breaker trips).
+- `override-granted` — a +100 override is granted (records whether **cashier-unilateral** or
+  **ADMIN-approved**, and the approving `ADMIN` where applicable).
+- `override-cap-exhausted` — the cashier-unilateral 1-per-rolling-hour grant is used up (a further
+  override requires `ADMIN` approval).
+- `override-auto-expired` — an override ends on the 60-minute timer.
+- `normal-resume` — the rolling-hour count falls below 150; any active override ends and the base
+  ceiling (300) is restored.
+- `repeated-override` — anomaly signal raised when overrides recur within or across windows
+  (Pod D frequency signal).
+
+**Envelope consumption and privacy.**
+
+- These events **consume the existing audit envelope** — they add no fields and no new store.
+- They are **aggregate-ceiling events**: each describes the global send counter, not a single
+  customer. Accordingly **`subject_ref` = N/A** (aggregate sentinel — no customer subject).
+- **Derived identifiers only.** Where a human actor exists (`override-granted`,
+  `override-cap-exhausted`) the `actor_id` is the cashier/`ADMIN` UUID; threshold-trip, expiry, and
+  resume events are `SYSTEM`-attributed. **No raw phone number and no OTP value ever appears** in any
+  IR-25 audit record (R-2 / IR-03).
+- `ADMIN` approval of a 2nd in-window override and any `ADMIN` **base-ceiling raise** are
+  additionally audited as `ADMIN` actions under IR-09 and the same envelope.
+
+**Monitoring — two separate signals (do not conflate).**
+
+- **Ceiling-hit / cost-abuse signal:** `soft-ceiling-reached`, `hard-ceiling-reached`, and override
+  frequency (`repeated-override`) — a **send-volume** signal owned by the §15.6 response path
+  (`ADMIN`) and surfaced to Pod D.
+- **SMS outage / availability signal:** provider unavailability or send-delivery failure is a
+  **distinct** signal with its own alerting and its own (separate, queued) response workstream. It
+  is **not** an IR-25 ceiling event; an override does not address it (§15.7); the two alert streams
+  are kept separate so a cost spike is never read as an outage, or an outage as a cost spike.
+
+### 15.9 Reconciliation with the locked "human approval for security" principle
+
+The locked principle requires **human approval for wallet / payment / refund / security /
+customer-data** actions. A cashier-unilateral first override loosens a **security/cost** control, so
+the reconciliation is stated explicitly — no `[LOCKED PRINCIPLE CONFLICT]` is raised:
+
+- The actor is an **identified, individually-credentialed human** (`CASHIER`; no shared accounts) —
+  a human is on record for every override.
+- The action is **bounded and self-reverting**: +100 only, **one** cashier-unilateral grant per
+  hour, auto-expiry ≤60 min or on normal-resume, 60-min cooldown.
+- `ADMIN` has **real-time oversight on 100% of grants**, **approval authority** over the 2nd
+  in-window override, and **sole authority** over base-ceiling raises — so escalation beyond a single
+  bounded grant always carries human approval.
+- A **mandatory fail-closed `reason_code`** + **100% immutable audit** preserve full attribution.
+- The control adjusted is a **send-rate abuse/cost throttle** — it cannot move money or expose PII
+  (§15.7). The worst-case residual of an over-permissive cashier override is **bounded SMS cost**,
+  detected in real time and auto-reverting.
+
+On that basis the cashier-unilateral first override is **consistent** with the locked principle: a
+human is on record, `ADMIN` holds real-time oversight and escalation approval, and the action is
+bounded, auditable, and auto-expiring.
+
+### 15.10 Calibration caveat
+
+The values **150 (soft) / 300 (hard) / +100 (override)** are **provisional**. They must be
+**rechecked against observed legitimate peak traffic** once real send-volume data exists, and
+re-tuned if they misfire (the `suspected-false-positive` reason_code is the in-flow signal for this).
+Re-calibration is a later tuning step; it is **not a blocker** for v0.5 or for implementation
+readiness.
+
+### 15.11 Send-count as the spend proxy
+
+The Phase-1 control is a **send-count** ceiling (backend-approved sends per rolling hour). It stands
+in for SMS **spend** because each send carries cost. A distinct **currency-denominated spend
+ceiling** is **not** defined by these values and is out of scope for v0.5; if a monetary cap is later
+wanted it is a separate Kerem decision and a new Pod B note.
+
+### 15.12 What this addendum does NOT do
+
+- It does **not** select or assume an SMS provider and does **not** change BL-1 (provider selection
+  remains `[NEEDS KEREM APPROVAL]`; these controls are provider-independent).
+- It does **not** authorize Pod C or create issues; IR-25 becomes Pod C work only via separately
+  Pod B + Kerem approved issues.
+- It does **not** design audit `event_type`s, API endpoints, or migrations; the IR-25 events
+  (§15.8) reuse the existing audit envelope and become concrete downstream.
+- It does **not** create KD-A/KD-B, add a new K-xx, or change any `PROJECT_DECISION_INDEX.md` row —
+  the closure is recorded **under IR-25 in this document only**.
