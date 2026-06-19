@@ -42,7 +42,7 @@
 | ID | Question | Owner | Blocker level | Recommended next resolver | Notes / guardrails |
 |---|---|---|---|---|---|
 | OQ-SMS-001 | What SMS provider is approved after provider price/commercial replies and KVKK data-processor/cross-border assessment? | Kerem + Pod A + Pod B + legal advisor | blocks Pod C / BL-1 | Kerem after commercial replies + legal/KVKK input | Pod B report exists. Report informs decision; it does not select provider. |
-| OQ-SMS-002 | What is the provider-outage operational response path if SMS provider is unavailable or spend/volume ceiling is hit? | Kerem + Pod B | blocks Pod C auth issue prep | Kerem + Pod B | Narrowed to operational response only: secondary-provider/switchover policy, IR-25 ceiling value, and response-path owner. Customer-facing send-failure UX is resolved by CUF §3.5.3. |
+| OQ-SMS-002 | What is the provider-outage / availability response path if the SMS provider is unavailable? | Kerem + Pod B | blocks Pod C auth issue prep | Kerem + Pod B | Narrowed to provider outage/availability response only: secondary-provider policy, switchover posture, and availability-failure response path. Spend-volume ceiling values and `ADMIN` response-path owner are resolved at design level — see `AUTH_THREAT_MODEL.md` v0.5 §15. Customer-facing send-failure UX is resolved by CUF §3.5.3. |
 | OQ-LEGAL-001 | What exact Turkish Aydınlatma Metni text must be displayed in the PWA? | Kerem + legal advisor | blocks legal / launch | legal advisor | K-14 is locked: text lives in `/docs/PRIVACY_NOTICE_TR.md`, build-time embedded, no CMS in Phase 1. Only the wording remains open. |
 | OQ-LEGAL-002 | Does legal advisor confirm K-15's acknowledgment persistence model is KVKK-sufficient? | Kerem + legal advisor + Pod B | blocks Pod C propagation | legal advisor | K-15 is locked: ephemeral pre-verification, persisted only on successful OTP verification. Only legal sufficiency remains open. |
 | OQ-LEGAL-003 | Does legal advisor confirm K-16's same-session acknowledgment reuse for OTP resend is KVKK-sufficient? | Kerem + legal advisor + Pod B | blocks Pod C propagation | legal advisor | K-16 is locked: reuse valid only in uninterrupted session; re-ack on session break or phone-number change. Only legal sufficiency remains open. |
@@ -68,7 +68,6 @@
 | OQ-MVP-001 | Are campaign/subscription/ARPU features explicitly excluded from Phase 1 MVP and tracked only in feature discovery? | Kerem + Pod A | not blocking yet | Kerem | Can be answered while SMS/legal replies are pending. |
 | OQ-UX-001 | Does the Phase 1 PWA order/reservation/onboarding UX need Pod D prototype review before Pod C issues are drafted? | Pod A + Kerem | not blocking yet | Pod A, then Pod D | Can be answered while SMS/legal replies are pending. |
 | OQ-LAUNCH-001 | What launch gate checklist must be satisfied after SMS and legal advisor feedback arrive? | Kerem + Pod A + Pod B | blocks launch | Kerem + Pod A + Pod B | Should be finalized after provider/legal inputs land. |
-| OQ-AUTH-001 | Who owns the Phase 1 SMS global spend/volume ceiling response path, and what ceiling value triggers circuit breaker/escalation? | Kerem + Pod B | blocks Pod C auth issue prep | Kerem + Pod B | Can be answered while provider/legal replies are pending. Does not select provider. |
 | OQ-AUTH-002 | What is the initial ADMIN bootstrap procedure for Phase 1? | Kerem + Pod B | blocks Pod C auth issue prep | Kerem + Pod B | From Accepted auth threat model IR-24; security-sensitive, not a Pod A decision. |
 
 ## Resolved / No Longer Open in This List
@@ -77,6 +76,7 @@
 
 | Former issue / dependency | Resolution | Remaining open dependencies / guardrails |
 |---|---|---|
+| OQ-AUTH-001 — IR-25 SMS app-side spend/volume ceiling and response-path owner | Resolved at design level by `AUTH_THREAT_MODEL.md` v0.5 §15 (Kerem decision 2026-06-19). Spend-count ceiling values decided: soft 150/hr, hard 300/hr, +100 override band (effective ceiling 400 while a cashier-unilateral override is active). Operational response-path owner decided: `ADMIN`. Does not select a provider; does not define a currency-denominated spend ceiling. Calibration caveat: 150/300/+100 values are provisional pending observed live OTP traffic. | Remaining open dependencies: BL-1 (provider-side cost controls cannot be assessed until a provider is named); OQ-SMS-002 narrowed (provider outage/availability — see open table). Does not authorize Pod C. |
 | OQ-AUDIT-001 — audit event schema | Resolved at design level by `/docs/architecture/AUDIT_EVENT_SCHEMA.md`; Kerem-accepted 2026-06-15 in PR #66. KD-A unified store, KD-B scoped IP/device capture, KD-C Option B hash chain, KD-F mapping, and KD-G accept are accepted. | Pod-B-then-Kerem architectural resolution; not a Kerem product-decision lock. KD-D retention remains open under OQ-LEGAL-005. KD-E inventory entries are recorded in the now-present `/docs/DATA_PROCESSING_INVENTORY.md` (Kerem-approved 2026-06-15); KD-E inventory-artifact prerequisite is satisfied. Audit implementation still requires legal/KVKK retention/legal-basis closure and approved issue packets. Does not authorize Pod C. |
 | F&B lifecycle/state-model formalization | Resolved by accepted `/docs/architecture/FB_ORDER_LIFECYCLE_STATE_MODEL_v1.0.md`. | Do not reopen the accepted state model. F&B implementation still requires API/schema/security/KVKK/ledger/DoR issue packets. Does not authorize Pod C. |
 | ADR-006 wallet append-only ledger design | Resolved at design level by accepted `/docs/adr/ADR-006-wallet-append-only-ledger.md`. | Implementation remains blocked by legal/KVKK artifacts, wallet top-up methods, top-up correction/report fields, security/DoR issue packets, and separate Pod B + Kerem-approved implementation issues. |
@@ -107,7 +107,7 @@ Yes — for the remaining business/product decisions that can be decided without
 
 Use this list to prepare decisions on:
 
-1. SMS outage / spend-ceiling response ownership and threshold.
+1. SMS provider outage / availability response path (secondary-provider policy, switchover posture). Spend-ceiling values and `ADMIN` response-path owner are decided at design level — `AUTH_THREAT_MODEL.md` v0.5 §15.
 2. Wallet top-up methods, top-up correction policy, and ADMIN daily report fields.
 3. Loyalty redemption, expiry, broader exclusion, and cashier/admin override rules.
 4. Reservation slots, limits, cancellation, no-show, and manual approval rules.
@@ -146,7 +146,7 @@ Reasons:
 - Final Turkish `/docs/PRIVACY_NOTICE_TR.md` legal text is still pending.
 - K-15/K-16 legal sufficiency still awaits legal-advisor confirmation before Pod C propagation.
 - SMS provider selection is still pending commercial replies and legal/KVKK processor/cross-border review.
-- SMS provider outage / spend-ceiling operational response path is still pending.
+- SMS provider outage / availability response path is still pending. (Spend-volume ceiling values and `ADMIN` response-path owner are decided at design level — `AUTH_THREAT_MODEL.md` v0.5 §15.)
 - Wallet top-up methods, top-up correction policy, and ADMIN daily report fields remain unresolved.
 - Loyalty redemption, expiry, broader exclusions, and cashier/admin override rules remain unresolved.
 - Reservation product rules and reservation state machine remain unresolved.
@@ -160,7 +160,7 @@ Reasons:
 1. Obtain and record legal/KVKK advisor answers for privacy notice text, K-15/K-16 sufficiency, VERBİS/exemption, retention, legal basis, and cross-border transfer.
 2. Approve or direct production of `/docs/DATA_RETENTION_POLICY.md`, `/docs/KVKK_LEGAL_BASIS.md`, and `/docs/CROSS_BORDER_TRANSFER_ASSESSMENT.md` after legal/KVKK input.
 3. Select SMS provider after commercial replies and legal/KVKK processor/cross-border assessment.
-4. Decide SMS provider outage / spend-ceiling response owner and threshold.
+4. Decide SMS provider outage / availability response path (secondary-provider policy, switchover posture). Spend-volume ceiling values and `ADMIN` response-path owner are decided at design level — `AUTH_THREAT_MODEL.md` v0.5 §15.
 5. Decide wallet top-up methods for Phase 1.
 6. Decide wallet top-up correction policy and ADMIN daily top-up report fields.
 7. Decide loyalty redemption unit, targets, limits, and cashier/admin override policy.

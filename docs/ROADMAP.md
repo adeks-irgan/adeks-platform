@@ -117,7 +117,7 @@ milestone-based, planning-only, and non-implementation-authorizing.
 | 9 | Produce/approve `DATA_RETENTION_POLICY.md` | Kerem + legal advisor; Pod A supports | OQ-LEGAL-005 retention answers | Pod B | Kerem | No | Documentation-only / legal decision |
 | 10 | Produce/approve `CROSS_BORDER_TRANSFER_ASSESSMENT.md` | Kerem + legal advisor + Pod B | Hosting, SMS provider, monitoring/logging vendors | Pod B | Kerem | No | Documentation-only / legal decision |
 | 11 | Decide SMS provider after commercial replies and KVKK processor/cross-border review | Kerem + Pod A + Pod B + legal advisor | Provider prices/commercial terms; legal processor/cross-border assessment | Pod B | Kerem | No | Decision-only |
-| 12 | Decide SMS provider outage / spend-ceiling response path | Kerem + Pod B | IR-25 ceiling value and response owner | Pod B | Kerem | Yes | Decision-only |
+| 12 | Decide SMS provider outage / availability response path | Kerem + Pod B | SMS provider selection (BL-1); spend-volume ceiling values and `ADMIN` response-path owner decided at design level (`AUTH_THREAT_MODEL.md` v0.5 §15); outage/availability path depends on provider selection | Pod B | Kerem | Yes | Decision-only |
 | 13 | Define initial ADMIN bootstrap procedure | Kerem + Pod B | Security-sensitive one-time admin setup | Pod B | Kerem | Yes, if no customer data is processed | Design-only / decision-only |
 | 14 | Execute read-only Selcafe feasibility spike | Pod C executes; Pod B supplies script; Kerem supplies credentials securely | Pod B spike script; secure read-only credentials; no row data copied | Pod B | Kerem already authorized K-10; further access requires Kerem | Yes, with no real data copied into docs/AI | Spike-only |
 | 15 | Produce `/docs/SELCAFE_SPIKE_REPORT.md` | Pod C drafts report from schema-only spike; Pod B reviews | Completed read-only spike | Pod B | Kerem for further operational impact | Yes, if schema-only / no real data | Spike-only / documentation-only |
@@ -171,7 +171,7 @@ milestone-based, planning-only, and non-implementation-authorizing.
 | VERBİS / exemption | Open | Legal advisor determination + Kerem action |
 | Retention and legal basis | Open | `DATA_RETENTION_POLICY.md` + `KVKK_LEGAL_BASIS.md` |
 | Cross-border transfer | Open | `CROSS_BORDER_TRANSFER_ASSESSMENT.md`, dependent on SMS/hosting/monitoring vendors |
-| SMS provider and provider outage response | Provider not selected; outage/spend ceiling open | Kerem decision + Pod B review |
+| SMS provider and provider outage response | Provider not selected (BL-1 open); spend-volume ceiling values and `ADMIN` response-path owner decided at design level (`AUTH_THREAT_MODEL.md` v0.5 §15); provider outage/availability response path: open | Kerem decision + Pod B review |
 | Data-processing inventory | Exists and approved at inventory level only | Future changes need Pod B/Kerem; does not authorize implementation |
 | Security review | Exists as design-level security review; implementation remains blocked | Pod B + Kerem gates remain for sensitive issues |
 | Wallet ledger | ADR-006 accepted; implementation blocked | Legal/KVKK + Pod B/Kerem-approved issue required |
@@ -210,7 +210,7 @@ milestone-based, planning-only, and non-implementation-authorizing.
 |---|---|---|
 | `ROADMAP.md` approval and Pod B review | Pod A + Pod B + Kerem | Planning only |
 | Open-question cleanup and blocker register maintenance | Pod A | No legal answers invented |
-| SMS outage/spend ceiling operational decision | Kerem + Pod B | Does not select provider |
+| SMS provider outage/availability operational decision (spend-volume ceiling values and `ADMIN` response-path owner decided at design level — `AUTH_THREAT_MODEL.md` v0.5 §15; outage/availability path remains open) | Kerem + Pod B | Does not select provider |
 | Initial ADMIN bootstrap policy | Kerem + Pod B | Security-sensitive; no implementation |
 | Read-only Selcafe spike preparation/execution | Pod B + Pod C + Kerem | Schema/column names only; no row data; no real customer data copied |
 | Selcafe adapter full ADR drafting | Pod B | Keep read-only posture |
@@ -276,7 +276,7 @@ The following must not be converted into Pod C implementation issues until the l
 
 [OPEN QUESTION] Which SMS provider is selected after commercial and legal/KVKK review?
 
-[OPEN QUESTION] Who owns SMS provider outage response and what spend/volume ceiling triggers circuit breaker/escalation?
+[OPEN QUESTION] What is the provider outage/availability response path (secondary-provider policy, switchover posture) if the SMS provider is unavailable? (Spend-volume ceiling values and `ADMIN` response-path owner are decided at design level — `AUTH_THREAT_MODEL.md` v0.5 §15; this question covers provider availability only.)
 
 [OPEN QUESTION] What are Phase 1 wallet top-up methods, top-up correction policy, and daily report fields?
 
@@ -315,7 +315,7 @@ Route a future roadmap change to Pod B only if it changes any of the following:
 The following remain open and are not resolved by this metadata reconciliation:
 
 - legal/KVKK advisor closure;
-- SMS provider selection and outage/spend-ceiling response;
+- SMS provider selection; provider outage/availability response path (spend-volume ceiling values and ADMIN response-path owner decided at design level — AUTH_THREAT_MODEL.md v0.5 §15);
 - Selcafe read-only feasibility spike and ADR-005 completion;
 - reservation product rules and state-machine readiness;
 - monitoring/SLO readiness;
