@@ -315,7 +315,7 @@ Route a future roadmap change to Pod B only if it changes any of the following:
 The following remain open and are not resolved by this metadata reconciliation:
 
 - legal/KVKK advisor closure;
-- SMS provider selection and outage/spend-ceiling response;
+- SMS provider selection; provider outage/availability response path (spend-volume ceiling values and ADMIN response-path owner decided at design level — AUTH_THREAT_MODEL.md v0.5 §15);
 - Selcafe read-only feasibility spike and ADR-005 completion;
 - reservation product rules and state-machine readiness;
 - monitoring/SLO readiness;
