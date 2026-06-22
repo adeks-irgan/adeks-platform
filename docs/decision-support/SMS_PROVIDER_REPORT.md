@@ -16,8 +16,6 @@
   APPROVER: Kerem
   DATE: 2026-06-22
   CANONICAL REPO PATH: /docs/decision-support/SMS_PROVIDER_REPORT.md
-                       (acceptable alternative: /docs/architecture/SMS_PROVIDER_REPORT.md —
-                       Kerem's choice of home; pick one before commit)
   AUTHORITY: Derives from ADR-015 (Accepted) and AUTH_THREAT_MODEL.md (Accepted, BL-2 closed).
              ADR-015 is authoritative. This document does NOT change any decision. If this
              document and ADR-015 / the decision index ever disagree, those win.
