@@ -2,9 +2,11 @@
 
 <!--
   DOCUMENT TYPE: Pod B Decision-Support Artifact (Provider comparison + Kerem decision packet)
-  VERSION: v0.2
-  STATUS: v0.2 Draft for Kerem review — KVKK document review pass added (2026-06-22);
-          awaiting Kerem review and Pod A commercial overlay before joint decision packet.
+  VERSION: v0.3
+  STATUS: v0.3 Draft for Kerem review — narrow re-review incorporating Pod A post-v0.2
+          delta findings (2026-06-22); İleti Merkezi re-assessed (technical/commercial vs KVKK
+          separated); Verimor R8 refined (polling preferred; webhook conditional). Awaiting
+          Kerem review and Pod A commercial overlay before joint decision packet.
           This document is DECISION SUPPORT — it does NOT select a provider and does NOT
           establish any decision. Provider selection is `[NEEDS KEREM APPROVAL]` and is
           made by Kerem with Pod A on commercial/price aspects (KD-B). Resolves nothing
@@ -37,7 +39,7 @@
     - Netgsm KVKK.07 Rev.02 (01.11.2025) — Müşteri/Abone–Müşteri Adayı/Abone Adayı Aydınlatma Metni
     - Verimor Veri İşleme Kapsamı (HİZMETE ÖZEL) — SMS hizmeti kapsamında veri işleme bildirimi
     - İleti Merkezi: no DPA or data-residency materials received — see §18.3
-  FRESHNESS BASELINE (files read fresh from refs/heads/main, HEAD d76eede, 2026-06-22):
+  FRESHNESS BASELINE (files read fresh from refs/heads/main, HEAD b43de0d, 2026-06-22):
     PROJECT_DECISION_INDEX.md · ADR-015 · AUTH_THREAT_MODEL.md v0.5 (SHA bb1f270) ·
     KEREM_DECISIONS.md · CORE_USER_FLOWS.md v0.3 · PROJECT_METHODOLOGY.md §20
   SYNTHETIC DATA ONLY: all examples use synthetic references (Customer A, +90 555 000 00 01). No real Adeks data.
@@ -55,6 +57,8 @@ This report supplies that provider report. It exists to let Kerem make an inform
 - specify exactly what must be recorded in the repo after Kerem chooses, and what Pod C must not start until then.
 
 **v0.2 additions (2026-06-22):** send-rate SLA derivation from AUTH_THREAT_MODEL.md v0.5 §15 IR-25 ceiling values (§17); KVKK document review for Netgsm and Verimor (§18); updated cross-border risk flags, R8 flag, DPA readiness, and legal-advisor addendum (§18 + §10 updates).
+
+**v0.3 additions (2026-06-22):** narrow re-review incorporating Pod A post-v0.2 delta findings. §18.3 (İleti Merkezi) split into technical/commercial assessment (assessed — competitive) and KVKK/DPA assessment (unassessable — blocking); §18.4 Verimor R8 refined from "delivery mechanism unknown" to "polling preferred (R8 not triggered); webhook R8-conditional"; §6 table, §7, §9, §10 (L13), §14, §15 updated accordingly. Verimor public pricing accessibility noted (OTP = standard SMS credits; no separate OTP package required).
 
 ## 2. What this report is and is not
 
@@ -120,22 +124,22 @@ Two structural categories, distinguished primarily by data location and therefor
 
 | Dimension (R#) | Turkish providers (Netgsm / Verimor / İleti Merkezi) | Global (Twilio exemplar) |
 |---|---|---|
-| **Data location / cross-border (R6)** | Processed **in Turkey** → **no KVKK cross-border transfer** for OTP. Lowest-risk path. **Verimor: explicitly confirmed** in Veri İşleme Kapsamı (§18.2). **Netgsm: credible, unconfirmed at DPA level** — data-residency clause needed in KVKK.09 (§18.1, L7). **İleti Merkezi: unassessable** — no docs (§18.3). `[confirm per-provider in DPA — see §18.5 cross-border flags]` | Processed **outside Turkey** → **cross-border transfer**; needs KVKK **standard contract + 5-business-day notification** (no adequacy exists). `[whether vendor will execute the Turkish SCC is uncertain — procurement + legal]` |
+| **Data location / cross-border (R6)** | Processed **in Turkey** → **no KVKK cross-border transfer** for OTP. Lowest-risk path. **Verimor: explicitly confirmed** in Veri İşleme Kapsamı (§18.2). **Netgsm: credible, unconfirmed at DPA level** — data-residency clause needed in KVKK.09 (§18.1, L7). **İleti Merkezi: KVKK/DPA unassessable** — no materials received; technical/commercial evidence separately assessed (§18.3). `[confirm per-provider in DPA — see §18.5 cross-border flags]` | Processed **outside Turkey** → **cross-border transfer**; needs KVKK **standard contract + 5-business-day notification** (no adequacy exists). `[whether vendor will execute the Turkish SCC is uncertain — procurement + legal]` |
 | **Regulatory standing (R7)** | **BTK-licensed**, İYS-integrated, Turkish sender-ID (başlık) provisioning native. | Routes via Turkish carriers; sender-ID registration via LOA + carrier process (~2 wks). |
 | **Transactional OTP fit (R1)** | **Dedicated OTP products** (single-send, API-only) — a good structural match; bulk/marketing kept separate. | **Verify** product purpose-built for OTP; also raw Programmable SMS. Strong fit. |
 | **Turkey delivery reliability (R2)** `[ASSUMPTION]` | Core competency: direct local carrier routing to Turkcell/Vodafone/Türk Telekom. Expected high domestic deliverability. | Reaches the same carriers via an additional routing hop; globally strong, Turkey-specific results to be validated. |
-| **Delivery reporting (R3)** | Real-time delivery reports (Verimor explicit; Netgsm refunds undelivered domestic — implies per-message delivery accounting). Delivery mechanism (push/poll) to confirm for R8 — see §18.4. | Detailed delivery/status callbacks and analytics. |
+| **Delivery reporting (R3)** | Real-time delivery reports (Verimor explicit; Netgsm refunds undelivered domestic — implies per-message delivery accounting). **Verimor: both polling (outbound API query) and webhook (push callback) delivery reporting available per public API docs; polling preferred (outbound-only; R8 not triggered); webhook R8-conditional — see §18.4.** | Detailed delivery/status callbacks and analytics. |
 | **Native abuse / fraud controls (R4)** | OTP product is inherently single-send (a structural anti-flood control); Verimor has mandatory API source-IP allowlisting. App-side IR-01/IR-25 still required. | Verify **Fraud Guard** + rate limiting at the provider layer, on top of app-side IR-01/IR-25. Richest native controls. |
-| **Cost structure (R4 cost)** `[price = Kerem + Pod A, KD-B]` | Prepaid domestic-SMS / OTP packages; generally **lower per Turkish SMS** than global rates; **Netgsm refunds undelivered domestic SMS**. Billed in TRY (no FX exposure). | Per-message + per-verification pricing; generally **higher for Turkey**; **USD billing → FX exposure**. |
+| **Cost structure (R4 cost)** `[price = Kerem + Pod A, KD-B]` | Prepaid domestic-SMS / OTP packages; generally **lower per Turkish SMS** than global rates; **Netgsm refunds undelivered domestic SMS**. Billed in TRY (no FX exposure). **v0.3:** Verimor public 5k/10k/25k package pricing accessible; OTP uses standard SMS credits — no separate OTP-only package required (simpler cost model than Netgsm's OTP-vs-normal pricing split). İleti Merkezi strongest apparent pricing on available offer. | Per-message + per-verification pricing; generally **higher for Turkey**; **USD billing → FX exposure**. |
 | **Operational / support (R3, ops)** | **Turkish-language support**, local business hours (Netgsm off-hours too); IP-allowlisting and credential controls native. | Mature status pages, SDKs, global docs; support in English; provider SLAs published. |
-| **Inbound auth surface (R8)** | OTP send is outbound-only; no inbound callback assumed. **Verimor: R8 CONDITIONAL** — delivery-reporting mechanism (push/poll) to confirm before integration design (§18.4). | Verify can be outbound-only; any webhook is a new inbound surface → separate Pod B review. |
+| **Inbound auth surface (R8)** | OTP send is outbound-only; no inbound callback assumed. **Verimor: R8 CONDITIONAL** — polling preferred (outbound API query; R8 not triggered); webhook chosen triggers R8 review before Pod C integration (§18.4). | Verify can be outbound-only; any webhook is a new inbound surface → separate Pod B review. |
 | **99.9% SLO single-point risk (K-05)** | Single-provider dependency; mitigate with app-side circuit-breaker (IR-25) + neutral failure UX (flow §3.5.3). Multi-provider failover is a Phase 2 consideration. | Same single-point consideration; large provider with published uptime, but cross-border + cost trade-offs remain. |
-| **DPA instrument** | **Netgsm:** pre-existing KVKK.09 template (Rev.02, 2025) — Netgsm brings it, Adeks signs; gaps: no data-residency clause, no retention period (§18.1). **Verimor:** Adeks drafts DPA, Verimor signs; more legal prep, more drafting control (§18.2). **İleti Merkezi:** unknown. | DPA availability and willingness to execute Turkish standard contract uncertain — procurement + legal. |
+| **DPA instrument** | **Netgsm:** pre-existing KVKK.09 template (Rev.02, 2025) — Netgsm brings it, Adeks signs; gaps: no data-residency clause, no retention period (§18.1). **Verimor:** Adeks drafts DPA, Verimor signs; more legal prep, more drafting control (§18.2). **İleti Merkezi:** not received — KVKK-blocking (L13). Public subscription contract accessible for commercial terms; does not constitute a data-processing instrument. | DPA availability and willingness to execute Turkish standard contract uncertain — procurement + legal. |
 | **Retention period (R6)** | **Verimor: explicitly 5 years** per BTK electronic-comms law, secure destruction — see §18.2. **Netgsm: not stated** in KVKK.09 — must be negotiated (§18.1). **İleti Merkezi: unknown.** | Provider-dependent; likely outside Turkish BTK framework. |
 
 ## 7. Dimension notes
 
-- **Technical fit (R1, R8).** All candidates expose a server-to-server REST API consumable from the NestJS auth module. Turkish OTP products are deliberately single-send, which matches the OTP use case and limits blast radius. Twilio Verify offers the most "batteries-included" OTP orchestration; for a single-channel Phase 1 OTP that convenience is real but not decisive. The integration credential stays in secrets configuration outside the user-auth layer (R5 / ADR-015 §4). No inbound webhook is assumed; introducing one (any provider) triggers a separate Pod B auth review (R8). **Verimor's delivery-reporting mechanism (push vs. poll) must be confirmed before integration design — R8 is CONDITIONAL for Verimor (§18.4).**
+- **Technical fit (R1, R8).** All candidates expose a server-to-server REST API consumable from the NestJS auth module. Turkish OTP products are deliberately single-send, which matches the OTP use case and limits blast radius. Twilio Verify offers the most "batteries-included" OTP orchestration; for a single-channel Phase 1 OTP that convenience is real but not decisive. The integration credential stays in secrets configuration outside the user-auth layer (R5 / ADR-015 §4). No inbound webhook is assumed; introducing one (any provider) triggers a separate Pod B auth review (R8). **Verimor: both polling (outbound API query for delivery status) and webhook (push callback) delivery reporting are available per public API docs. Polling is the preferred integration path (outbound-only; R8 not triggered). Webhook choice triggers a Pod B inbound auth surface review before Pod C integration — R8 CONDITIONAL for Verimor (§18.4).**
 - **Turkey delivery reliability (R2) — `[ASSUMPTION]`.** Pod B has no measured Adeks delivery data and does not invent it. Local carrier routing is the Turkish providers' core competency; global providers reach the same carriers with an extra hop. Reliability should be validated with a **bounded pilot send test** to synthetic/owned test numbers before go-live, not assumed from marketing claims. The pilot test should be bounded at < 300 sends/run (§17.4).
 - **OTP abuse controls (R4).** The binding controls are **app-side and provider-independent**: per-IP and per-phone OTP request rate limiting plus per-phone send cap/cooldown (IR-01), verify-side attempt limits (IR-02), and a **global send-volume / spend ceiling with circuit-breaker and anomaly alerting** (IR-25). Provider-native controls (Twilio Fraud Guard; the single-send shape of Turkish OTP products; Verimor's mandatory IP allowlisting) are **defense-in-depth on top**, not a substitute. **IR-25 ceiling values and operational response-path owner are decided (Kerem 2026-06-19): soft-alert 150/hr, hard-stop 300/hr, +100 override, ADMIN response-path owner — see AUTH_THREAT_MODEL.md v0.5 §15 and §17 below.**
 - **Cost and spend control (R4 cost).** Two cost levers matter: unit price (Kerem + Pod A own this, KD-B) and **waste avoidance**. Netgsm's undelivered-domestic-SMS refund and the app-side spend ceiling (IR-25) are the main waste-avoidance mechanisms. TRY billing (Turkish providers) removes FX exposure that USD-billed global providers carry. Pod B does **not** quote per-SMS prices here — they change frequently and depend on volume and negotiation; they belong to the commercial evaluation.
@@ -159,7 +163,7 @@ These are already binding via the threat model and are restated only so the deci
 
 - **Lead candidate — Verimor:** dedicated OTP product, publicly documented developer-friendly REST API, real-time delivery reporting, mandatory API source-IP allowlisting (a useful built-in credential/abuse control). Best-documented integration path of the three. **v0.2 update: strongest explicit KVKK data-residency declaration of all candidates reviewed** (§18.2). DPA prep falls to Adeks (Verimor signs a presented DPA); R8 delivery-mechanism check needed before integration.
 - **Co-lead — Netgsm:** largest/most-established, BTK operator licence, own Turkish data centres, **undelivered-domestic-SMS refund** (direct spend-control benefit), off-hours support. Pre-existing KVKK.09 DPA template (Netgsm brings it). **v0.2 update: data-residency clause and retention period must be added via DPA negotiation** (§18.1, L7, L9).
-- **Third compliant option — İleti Merkezi:** strong explicit KVKK / information-security positioning; viable if its commercial terms or compliance tooling are preferred. **v0.2 update: unassessable at KVKK level** — no DPA or data-residency materials received; cannot be confirmed as a final candidate without them (§18.3).
+- **Third compliant option — İleti Merkezi:** strongest apparent commercial pricing of the three; technical/API readiness confirmed via public documentation (§18.3). **v0.3 update: commercial and technical candidacy assessed; KVKK/DPA still blocking** — no DPA or data-residency materials received; cannot be confirmed as a KVKK-compliant final candidate without them (§18.3, L13). If İleti Merkezi supplies DPA + data-residency + retention/destruction evidence, it is a competitive option on commercial terms and API fit.
 
 The choice between Verimor and Netgsm turns on **commercial terms, support experience, and a short delivery pilot** — which Kerem + Pod A own (KD-B). Pod B's position is that **both Verimor and Netgsm are architecturally and KVKK-acceptable** (with the DPA negotiation steps noted); the global option (Twilio et al.) is **not recommended for Phase 1** purely because the cross-border overhead is disproportionate, not because it is technically weak. Global providers remain a reasonable **Phase 2/3** reconsideration if multi-region scale or a failover tier is wanted, at which point the cross-border instrument can be put in place deliberately.
 
@@ -183,7 +187,7 @@ Pod B flags these explicitly; they are **legal determinations, not Pod B's to ma
 | L10 | **Verimor 5-year log retention (BTK):** Confirm whether the BTK-mandated 5-year log retention (covering recipient phone numbers and SMS/OTP text content) must be disclosed in the Aydınlatma Metni (OQ-CUF-AUTH-001 / BL-5) and in DATA_PROCESSING_INVENTORY.md. Adeks cannot reduce Verimor's BTK-mandated retention; confirm disclosure obligations. `[see §18.2]` | v0.2 |
 | L11 | **OTP code in Verimor SMS text content:** Confirm the DATA_PROCESSING_INVENTORY.md entry for Verimor correctly categorises OTP codes (as "İşlem Güvenliği" data, processed and logged by Verimor for delivery, short-lived at source, provider-retained per BTK) and that the legal basis for this processor activity is complete. `[see §18.2]` | v0.2 |
 | L12 | **Turkish carrier routing characterisation:** Netgsm and Verimor both share the recipient GSM number and SMS content with Turkcell/Vodafone/Türk Telekom for delivery. Confirm this constitutes inherent service delivery (not a KVKK Art. 8/9 "aktarım" requiring a separate instrument), consistent with BTK licensing framework. `[applies to any Turkish provider chosen]` | v0.2 |
-| L13 | **İleti Merkezi DPA/data-residency materials** needed before KVKK cross-border assessment is possible. Without them İleti Merkezi cannot be confirmed as a final candidate. `[see §18.3]` | v0.2 |
+| L13 | **İleti Merkezi DPA/data-residency materials** needed before KVKK cross-border assessment is possible. v0.3: technical/commercial evidence has been assessed (§18.3); KVKK/DPA materials remain the blocking condition. Without them İleti Merkezi cannot be confirmed as a KVKK-compliant final candidate. `[see §18.3]` | v0.2 |
 
 ## 11. What must be recorded in the repo after Kerem decides
 
@@ -235,8 +239,9 @@ In short: **provider selection unblocks BL-1 only.** It does not start the build
 - `[ASSUMPTION]` Turkey-hosted providers process and retain phone-number data within Turkey. **Verimor: explicitly confirmed** in Veri İşleme Kapsamı (KVKK m.9, Turkey-only data centres — §18.2). **Netgsm: credible, unconfirmed at DPA level** — data-residency clause and retention period required in KVKK.09 DPA negotiation (§18.1, L7, L9). **İleti Merkezi: unassessable** — no materials (§18.3). In all cases, confirm in the executed DPA (L3).
 - `[ASSUMPTION]` OTP is transactional and exempt from İYS opt-in / time-window rules (§4.3; L1).
 - `[ASSUMPTION]` Per-SMS pricing and volume discounts are not quoted here; they belong to the Kerem + Pod A commercial evaluation (KD-B).
-- `[ASSUMPTION]` Verimor's real-time delivery reporting mechanism (push webhook vs. pull polling) must be confirmed before integration design — R8 flag is CONDITIONAL (§18.4).
+- `[ASSUMPTION]` Verimor supports both polling (outbound API query) and webhook (push callback) delivery reporting per public API docs. Polling is preferred (outbound-only; R8 not triggered); webhook triggers R8 review. Integration design must specify which is used — R8 flag is CONDITIONAL on webhook choice (§18.4).
 - `[ASSUMPTION]` International SMS feature must be disabled at the Verimor account level for Phase 1 (§18.2); confirm during provisioning.
+- `[ASSUMPTION]` İleti Merkezi technical/API items require written confirmation from İleti Merkezi before integration design if selected: IP restriction behaviour, OTP-vs-normal-SMS pricing equivalence (confirm OTP uses same credits), failure-reason granularity.
 - `[NEEDS KEREM APPROVAL]` Provider selection (Option A/B/C) and the named provider.
 - Open: whether to record the selection as ADR-016 or a KD-B sub-decision (§11).
 - Open: İleti Merkezi KVKK/DPA materials — pending Pod A outreach result.
@@ -255,6 +260,12 @@ Provider landscape (public product pages), paraphrased:
 - Verimor OTP SMS product page and public SMS-API developer guide (REST API, delivery reporting, IP allowlisting).
 - İleti Merkezi product/compliance pages (BTK authorisation, İYS integration, KVKK/info-security positioning).
 - Twilio Verify / Programmable SMS and Turkey sender-ID registration documentation (representative global provider).
+- Verimor SMS package/pricing page (public 5k/10k/25k package prices; OTP-as-standard-SMS-credits framing — reviewed v0.3).
+- Verimor SMS API documentation (delivery report fields; polling and webhook delivery-reporting mechanisms — reviewed v0.3).
+- Verimor Ses ve SMS Hizmetleri Abonelik Sözleşmesi (public subscription contract; incident action/solution windows — reviewed v0.3).
+- Verimor SMS başlığı izin dilekçesi (sender-title application form and process documentation — reviewed v0.3).
+- İleti Merkezi SMS API documentation (API structure, delivery reporting, IP restriction behaviour — reviewed v0.3).
+- İleti Merkezi abonelik sözleşmesi (public subscription contract; commercial terms, high-level review — reviewed v0.3).
 
 Provider KVKK documents reviewed (v0.2 pass, 2026-06-22):
 - Netgsm KVKK.09 Rev.02 (01.11.2025) — Kişisel Verilerin İşlenmesi Protokolü (Müşteri/Abone). Supplied by Kerem.
@@ -268,6 +279,7 @@ Provider KVKK documents reviewed (v0.2 pass, 2026-06-22):
 | Version | Date | Author | Change |
 |---|---|---|---|
 | v0.1 | 2026-06-11 | Pod B | Initial SMS provider comparison + Kerem decision packet. Resolves (on Kerem decision) OQ-CUF-AUTH-005 / BL-1. No decision established; no Pod C work authorized; provider selection `[NEEDS KEREM APPROVAL]`. |
+| v0.3 | 2026-06-22 | Pod B | **Narrow re-review incorporating Pod A post-v0.2 delta findings.** §18.3 split into technical/commercial assessment (assessed — competitive) and KVKK/DPA assessment (unassessable — blocking). §18.4 Verimor R8 refined: both polling and webhook available per public API docs; polling preferred (R8 not triggered); webhook R8-conditional. §6 table (data-residency, delivery reporting, inbound surface, DPA instrument, cost structure rows), §7 R8 note, §9 İleti Merkezi paragraph, §10 L13, §14 assumptions, §15 sources updated. Verimor public pricing noted (OTP = standard SMS credits). No provider selected; no Pod C authorized; BL-1 remains open. |
 | v0.2 | 2026-06-22 | Pod B | **KVKK document review pass.** Added §17 (send-rate SLA derivation from AUTH_THREAT_MODEL.md v0.5 §15 IR-25 ceiling values) and §18 (KVKK document review: Netgsm KVKK.09/KVKK.07 and Verimor Veri İşleme Kapsamı; İleti Merkezi unassessable — no materials). Updated §6 table (data-residency row with per-provider document findings; DPA and retention period rows added); §7 KVKK dimension note; §9 recommendation (Verimor KVKK posture strengthened; Netgsm DPA gaps noted; İleti Merkezi reduced to pending); §10 legal items (L7–L13 added); §14 assumptions (Turkey-residency updated per-provider). IR-25 values noted as decided (Kerem 2026-06-19). No provider selected; no Pod C authorized; BL-1 remains open. |
 
 ---
@@ -394,11 +406,51 @@ These measures substantively address the B2 trust-boundary risk surface (AUTH_TH
 | DPA instrument | Adeks drafts; Verimor signs — more prep, more control |
 | OTP code in logs | Inherent (İşlem Güvenliği); no new risk; data inventory entry required (L11) |
 
-### 18.3 İleti Merkezi — Document Gap
+### 18.3 İleti Merkezi — v0.3 Re-Assessment
 
-**No DPA or data-residency materials were received for İleti Merkezi.** İleti Merkezi's cross-border posture, processor terms, retention period, and technical measures are **unassessable** based on available information.
+> **v0.3 note:** Pod A's delta update (2026-06-22) supplied evidence from İleti Merkezi's public API documentation, offer, and subscription contract. This section now separates technical/commercial assessability from KVKK/DPA assessability. These are independent assessments.
 
-İleti Merkezi **cannot be confirmed as a final candidate** without these materials. If Pod A's commercial outreach yielded DPA or data-residency documents, they should be shared for a follow-on Pod B KVKK pass. Until then, İleti Merkezi remains in the shortlist as a conditional option pending documentation (L13).
+#### 18.3.1 Technical and Commercial Evidence (Post-v0.2 Pass — Assessed)
+
+Based on public API documentation, offer pricing, and subscription contract reviewed in the post-v0.2 delta pass:
+
+| Item | Evidence | Assessment |
+|---|---|---|
+| API / OTP send capability | Public SMS API docs confirm OTP-capable server-to-server API sending | ✅ Confirmed — R1 satisfied |
+| Delivery reporting | Report API and webhook-style report mechanisms documented | ✅ Confirmed — R3 addressed; failure-reason granularity to confirm in writing |
+| IP restriction | API docs indicate fixed-IP behaviour/error handling | ✅ Likely — needs written confirmation if selected |
+| Test / pilot feasibility | Test account and free test credits available | ✅ Confirmed |
+| Pricing position | 10k = 879 TL; 25k = 2,149 TL; 50k = 4,199 TL (offer pricing, KDV/ÖİV included) | Strongest apparent commercial pricing of the three |
+| Subscription contract | Public abonelik sözleşmesi accessible for commercial-terms review | ✅ Commercial terms reviewable before selection |
+| Turkish operator delivery (R2) | BTK STH licensed; İYS-integrated | ✅ Expected — validate via pilot |
+| Sender-ID path | Required documents and originator setup path supplied | Approval lead time: confirm |
+
+**Summary:** İleti Merkezi's technical/API readiness and commercial positioning are assessed and competitive. The technical profile is sufficient to retain İleti Merkezi as a shortlist candidate, subject to KVKK/DPA clearance below.
+
+`[ASSUMPTION]` Items requiring written confirmation from İleti Merkezi before integration design if selected: IP restriction, OTP-vs-normal-SMS pricing equivalence (confirm OTP uses same package credits), failure-reason granularity, sender-title average approval time.
+
+#### 18.3.2 KVKK/DPA Assessment (Unassessable — Blocking)
+
+**No DPA or data-residency materials have been received for İleti Merkezi.** The following remain unassessable:
+
+- Cross-border posture and data-residency (Turkey-only processing vs transfer abroad)
+- Processor status (veri işleyen confirmation and commitment scope)
+- Data categories processed, retention periods, and destruction methods
+- Technical and administrative security measures for OTP/SMS data
+- Breach notification commitment and timeline
+
+A public subscription contract covering commercial terms does **not** constitute a DPA or data-processing instrument and does not satisfy the KVKK items above. İleti Merkezi **cannot be confirmed as a KVKK-compliant final candidate** without: (a) a formal DPA confirming processor status and data-handling obligations, (b) an explicit Turkey-data-residency commitment, and (c) retention periods and destruction methods (L13).
+
+If Pod A's continued outreach yields DPA or data-residency materials, they should be shared for a follow-on Pod B KVKK pass.
+
+**Summary — İleti Merkezi v0.3 status:**
+
+| Dimension | Status |
+|---|---|
+| Technical/API readiness | ✅ Assessed — competitive; written confirmations needed before integration |
+| Commercial terms | ✅ Assessed — strongest apparent pricing |
+| KVKK / DPA / data-residency | ❌ Unassessable — blocking (L13) |
+| Shortlist candidacy | Retained — conditional on KVKK/DPA evidence |
 
 ### 18.4 R8 Flag — Verimor Webhook / Inbound Surface
 
@@ -407,9 +459,9 @@ R8 (§3) requires a separate Pod B review if any provider integration introduces
 - **Pull (polling):** app queries Verimor API for delivery status → outbound request only → **R8 not triggered.**
 - **Push (webhook callback):** Verimor calls an Adeks-owned endpoint on delivery event → inbound surface → **R8 triggered; separate Pod B inbound auth surface review required before Pod C integrates.**
 
-The Veri İşleme Kapsamı does not specify the delivery-reporting mechanism. It must be confirmed from Verimor's API documentation during integration planning.
+**v0.3 update:** Verimor's public SMS API documentation shows that both pull (polling — outbound API query for delivery status) and push (webhook callback — Verimor calls an Adeks-owned endpoint) delivery-reporting mechanisms are available. The delivery-reporting mechanism is no longer unknown; the choice is a design decision for Pod C integration.
 
-**R8 status: CONDITIONAL for Verimor.** If push-webhook, a Pod B review of the inbound auth surface (webhook source validation, IP-pinning or HMAC signature, replay prevention) is required before implementation. This does **not** require a standalone ADR — it is a discrete implementation concern within the existing B2 trust-boundary model (AUTH_THREAT_MODEL.md §3.3, §8). Scope as a requirement within the relevant Pod C issue when the integration design is confirmed.
+**R8 status: CONDITIONAL for Verimor.** Polling is the preferred design (outbound-only; R8 not triggered). If webhook is chosen instead, a Pod B review of the inbound auth surface (webhook source validation, IP-pinning or HMAC signature, replay prevention) is required before Pod C integration. This does **not** require a standalone ADR — it is a discrete implementation concern within the existing B2 trust-boundary model (AUTH_THREAT_MODEL.md §3.3, §8). Scope as a requirement within the relevant Pod C issue when the integration design is confirmed.
 
 **R8 for Netgsm and İleti Merkezi:** Assumed outbound-only (Netgsm); unknown (İleti Merkezi). Confirm for each provider during integration planning.
 
