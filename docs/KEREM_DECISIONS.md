@@ -1,13 +1,14 @@
 # KEREM_DECISIONS.md
 
 <!--
-  STATUS: COMPLETE — K-01 through K-19 recorded
+  STATUS: v1.7-draft — K-01 through K-19 recorded (complete); K-20 proposed — locks only on Kerem approval/merge
   SOURCE: Kerem interview session, Pod B facilitation; K-11 from Kerem chat approval 2026-06-07;
           K-13 from Kerem session decisions 2026-06-09 (OQ-001 auth resolution);
           K-14/15/16 from Kerem session decisions 2026-06-10 (CORE_USER_FLOWS OQ-CUF-AUTH-002/003/004);
           K-17/18/19 from Kerem session decisions 2026-06-14 (F&B settlement: price source, loyalty formula, correction policy)
+          K-20 proposed by Pod A on 2026-06-23 from ADR-005 PI-1/PI-2; locks only on Kerem approval/merge
   AUTHOR: Pod B (Architecture, Logic & Risk)
-  VERSION: 1.6
+  VERSION: 1.7-draft
   PATH: /docs/KEREM_DECISIONS.md
 
   PURPOSE:
@@ -47,6 +48,7 @@
 | K-17 | F&B price source for settlement | Price captured at order submission (immutable snapshot); catalog edits after submission do not affect settlement amount | ✅ Recorded |
 | K-18 | F&B loyalty accrual formula | Loyalty accrues on settled F&B amount (post-payment); formula = floor(0.10 × settled_amount_TRY) = floor(settled_kuruş / 1000); 10% of settled F&B amount, rounded down to whole points; cashier payment recording is the trigger | ✅ Recorded |
 | K-19 | F&B post-settlement correction policy | Cashier same-shift correction permitted (own settlements only); executor = cashier; customer-visible history = minimized (neutral label + value delta); follow-up decisions resolved 2026-06-14 | ✅ Recorded |
+| K-20 | Selcafe Phase 1 product implications (PI-1/PI-2) | Proposed: PI-1 real-time station/session status is deferred to Phase 2 as an active product consumer; PI-2 Phase-1 customer menu is sourced from Selcafe `urun` / `menudetay` through vendor-neutral Adeks read models | 🟡 Proposed — locks only on Kerem approval/merge |
 
 ---
 
@@ -617,6 +619,45 @@ Records the correction policy. Does NOT authorize Pod C. ADR-006 and ADR-007 rem
 
 ---
 
+## 20. K-20 — Selcafe Phase 1 Product Implications (PI-1 / PI-2)
+
+**Date:** 2026-06-23  
+**Source:** Pod A response to ADR-005 product-implication gates (PI-1 / PI-2)  
+**Status:** [NEEDS KEREM APPROVAL] Proposed for Kerem approval via PR. This section becomes a durable Kerem decision only if Kerem approves/merges the PR containing it.  
+**Scope:** Which ADR-005 non-PII Selcafe surfaces are actual Phase-1 product consumers.
+
+**Related:** `ADR-005-selcafe-read-only-adapter.md` §4.1–§4.3 and D-5; `DATA_PROCESSING_INVENTORY.md` Selcafe-derived data-surface section; `PROJECT_BRIEF.md` §6 and §11; `PROJECT_DECISION_INDEX.md` §4 K-20 row.
+
+### Proposed Decision
+
+| ID | Question | Proposed decision | Product / data-surface effect |
+|---|---|---|---|
+| PI-1 | Is real-time station/session status consumed by any Phase-1 feature? | **Deferred to Phase 2 as an active product consumer.** Phase 1 customer PWA does not expose PC availability, and Phase 1 reservations remain staff-approved requests. Automatic confirmation and PC-status-dependent confirmation remain Phase 2 candidates once reliable station/session state exists. | `dbo.masa` / `dbo._pc` remain ADR-005 permitted non-PII surfaces, but they are not required Phase-1 build targets unless Kerem explicitly adds a staff-facing station-status consumer to Phase 1. |
+| PI-2 | Is the Phase-1 customer menu sourced from Selcafe `urun`, or is it Adeks-native? | **Selcafe-sourced for Phase 1.** The customer menu/catalog should be sourced from `dbo.urun` / `dbo.menudetay` through the read-only `SelcafeAdapter`, mapped into vendor-neutral Adeks catalog read models. | `dbo.urun` / `dbo.menudetay` become Phase-1 catalog read targets. The Selcafe category-source gap remains open for product/UX handling before category filtering is treated as implementation-ready. |
+
+### Product rationale
+
+- Phase 1 PWA scope includes public catalog browsing and F&B ordering from seat, so a menu/catalog source is required.
+- Selcafe `urun` / `menudetay` are already inside ADR-005's bounded non-PII candidate read surface.
+- Using Selcafe as the Phase-1 menu source avoids duplicate menu/price maintenance during the first launch.
+- Phase 1 reservations are staff-approved requests, not automatic station-status-based confirmations.
+- Deferring station/session status as an active product consumer shrinks Phase-1 scope and reduces freshness/reliability pressure on the Selcafe adapter.
+
+### Constraints
+
+| Constraint | Rule |
+|---|---|
+| Vendor-neutral mapping | Selcafe table/column names must not leak into Adeks domain models, DTOs, API contracts, or persisted Adeks rows. |
+| No member resolution | Phase 1 must not resolve `masa` / session state to `adisyon` / `uye_no` / member identity. |
+| No wallet/loyalty authority | Selcafe catalog/status data is not financial truth. Adeks append-only wallet and loyalty ledgers remain authoritative. |
+| Category gap | If the menu is Selcafe-sourced, category filtering remains blocked until the product-category source gap is resolved. |
+| `ayar` open-hours | Scoped `ayar` open-hours read remains dependent on the separate K-A3 / OQ-SC-NEW-005 authorization. |
+| Implementation gate | This decision does not authorize Pod C. Any adapter work still requires a separate Pod B + Kerem-approved issue meeting Definition of Ready. |
+
+### What this does NOT unlock
+
+This records a proposed product-scope position for ADR-005 PI-1/PI-2 only. It does **not** authorize Pod C, SQL credentials, SelcafeAdapter implementation, schema, API contracts, polling, caching, infrastructure, or any read of Selcafe PII/member-linked surfaces.
+
 ## Open Actions Summary
 
 | Action | Owner | Dependency | Priority |
@@ -641,6 +682,7 @@ Records the correction policy. Does NOT authorize Pod C. ADR-006 and ADR-007 rem
 | Produce SMS provider comparison report | Pod B | — | High — blocks KD-B / ADR-015 |
 | Draft ADR-015: Authentication strategy | Pod B | K-13 locked; provider report complete | High — blocks Pod C auth implementation |
 | Legal advisor (K-08) to confirm K-15 + K-16 KVKK sufficiency | Kerem + legal advisor | K-15/K-16 recorded | High — gates Pod C propagation of these decisions |
+| Review and approve/reject K-20 PI-1/PI-2 proposal | Kerem + Pod B | ADR-005 PI-1/PI-2; `DATA_PROCESSING_INVENTORY.md` v0.2 draft | High — gates Selcafe menu/status implementation scoping |
 
 ---
 
@@ -655,3 +697,4 @@ Records the correction policy. Does NOT authorize Pod C. ADR-006 and ADR-007 rem
 | 1.4 | 2026-06-10 | Pod B | K-14/15/16 recorded (CORE_USER_FLOWS OQ-CUF-AUTH-002/003/004 resolved): notice text location, acknowledgment persistence, same-session reuse. Summary table, Open Actions (K-08 confirmation of K-15/K-16), and revision log updated. |
 | 1.5 | 2026-06-14 | Pod B | K-17/18/19 recorded (F&B settlement decisions: price source, loyalty formula, correction policy). Follow-up decisions KD-FB-CORR-001/002/003 resolved 2026-06-14. Reason-code enum home (ADR-006 pending). Summary table and revision log updated. |
 | 1.6 | 2026-06-14 | Pod A | K-18 formula corrected to 10% round-down — `floor(0.10 × settled_amount_TRY)` = `floor(settled_kuruş / 1000)` — per Kerem 2026-06-14. Supersedes the earlier 1-point-per-TRY record. Summary table, §18 decision table (Formula + Floor rows), and §18 architectural implications updated. |
+| 1.7-draft | 2026-06-23 | Pod A | Adds proposed K-20 decision note for ADR-005 PI-1/PI-2: station/session status deferred to Phase 2 as active product consumer; Phase-1 customer menu sourced from Selcafe `urun` / `menudetay`. Requires Pod B review and Kerem approval/merge before becoming durable. No Pod C authorization. |

@@ -6,7 +6,8 @@
   OWNER / AUTHOR: Pod A — Product & Planning
   REVIEWER: Pod B — Architecture, Logic & Risk
   APPROVER: Kerem
-  STATUS: v0.1 — Pod B-reviewed per follow-on handoff; Kerem-approved 2026-06-15
+  STATUS: v0.2 draft — Selcafe-derived data surface inventory + PI-1/PI-2 proposal;
+          requires Pod B review and Kerem approval before merge
   AUTHORITY: This document inventories personal-data-bearing surfaces for Phase 1 planning.
              It does not establish legal basis, retention periods, schema, API contracts,
              security architecture, or implementation authority.
@@ -24,11 +25,11 @@
 | Owner / Author | Pod A — Product & Planning |
 | Reviewer | Pod B — Architecture, Logic & Risk |
 | Approver | Kerem |
-| Current status | **v0.1 — Pod B-reviewed per follow-on handoff; Kerem-approved 2026-06-15** |
+| Current status | **v0.2 draft — adds Selcafe-derived data surface inventory and PI-1/PI-2 product-position proposal; requires Pod B review and Kerem approval before merge** |
 | Scope class | KVKK / product-data inventory |
 | Implementation status | **Does NOT authorize Pod C** |
 | Build-gate effect | Satisfies the **data-processing-inventory artifact** prerequisite only; all other legal, retention, security, architecture, and issue-readiness gates still apply |
-| Required next review | Future updates after legal/privacy advisor response and Pod B security/data review where affected |
+| Required next review | Pod B review + Kerem approval for this v0.2 Selcafe/KVKK data-surface update before merge |
 
 ---
 
@@ -42,11 +43,15 @@ It exists because `/docs/PROJECT_METHODOLOGY.md` §20.2 requires every feature t
 
 [REQUIRES POD B REVIEW] Pod B remains reviewer for any future change affecting auth, wallet, loyalty, audit, customer personal data, security review dependencies, pseudonymisation, retention impact, or processor/security posture.
 
+[REQUIRES POD B REVIEW] This v0.2 update inventories Selcafe-derived data surfaces from ADR-005. It is documentation-only and does not approve adapter implementation, SQL access, credentials, schema, API contracts, or runtime behavior.
+
+[NEEDS KEREM APPROVAL] This v0.2 update includes Pod A's product-position proposal for ADR-005 PI-1/PI-2. It becomes durable only after Pod B review and Kerem approval/merge.
+
 ---
 
 ## Scope
 
-### In scope for v0.1
+### In scope for v0.2
 
 | Area | Included in this inventory |
 |---|---|
@@ -55,9 +60,10 @@ It exists because `/docs/PROJECT_METHODOLOGY.md` §20.2 requires every feature t
 | Loyalty | Customer-loyalty linkage, loyalty-account references, system-derived accrual/reversal traceability to human actor |
 | Audit store | `subject_ref`, actor/customer linkage, `source_ip`, `user_agent_digest`, `reason_note_ref`, `change_set` derived identifiers, event references, correlation identifiers |
 | Role-based access | Which Phase 1 roles see or generate each data class |
+| Selcafe-derived data surfaces | ADR-005 bounded non-PII read surface, hard-excluded PII surfaces, and Pod A PI-1/PI-2 product-position proposal for Phase 1 data-surface minimization |
 | Build gating | What this inventory satisfies and what remains blocked before Pod C can receive implementation work |
 
-### Out of scope for v0.1
+### Out of scope for v0.2
 
 | Out of scope | Owner / next artifact |
 |---|---|
@@ -68,6 +74,7 @@ It exists because `/docs/PROJECT_METHODOLOGY.md` §20.2 requires every feature t
 | Cross-border transfer assessment | `/docs/CROSS_BORDER_TRANSFER_ASSESSMENT.md` |
 | Database schema, physical types, encryption/key management, API contracts | Pod B architecture/security deliverables |
 | Implementation tasks, migrations, tests, CI | Pod C only after approved issues; **not authorized here** |
+| SelcafeAdapter implementation, SQL credential provisioning, query design, polling, caching, API contracts, schema, or runtime integration | Pod B architecture/security review + separately approved Pod C issue; not authorized by this inventory |
 
 ---
 
@@ -83,6 +90,9 @@ This v0.1 inventory is based on:
 - `/docs/adr/ADR-007-loyalty-append-only-ledger.md`
 - `/docs/adr/ADR-015-authentication-strategy.md`
 - `/docs/adr/ADR-009-pr-approval-policy.md`
+- `/docs/adr/ADR-005-selcafe-read-only-adapter.md`
+- `/docs/PROJECT_BRIEF.md` §6 and §11
+- `/docs/PROJECT_DECISION_INDEX.md` ADR-005 and related K-decision rows
 
 If any source document conflicts with this inventory, the more authoritative source governs and this inventory must be updated.
 
@@ -116,6 +126,69 @@ If any source document conflicts with this inventory, the more authoritative sou
 ---
 
 ## Data Inventory by Area
+
+### Selcafe-derived data surfaces (ADR-005 / OQ-SC-NEW-010)
+
+[REQUIRES POD B REVIEW] This section inventories the Selcafe-derived data surfaces discovered through ADR-005 and the Selcafe spike. It records product-data scope and minimization posture only. It does not define query design, SQL credentials, adapter implementation, schemas, API contracts, retention, legal basis, or deployment.
+
+[NEEDS KEREM APPROVAL] This v0.2 section includes Pod A's PI-1/PI-2 product-position proposal. It is not durable until Pod B review and Kerem approval/merge.
+
+#### Inventory stance
+
+| Rule | Position |
+|---|---|
+| Selcafe role in Phase 1 | Legacy read-only source behind `CafeManagementAdapter` / `SelcafeAdapter`; not the Adeks core domain |
+| Data examples | Schema/table/column names only; no row values |
+| PII posture | No Selcafe personal data should enter Adeks Phase 1 read models under ADR-005 |
+| Financial truth | Selcafe values are not authoritative for Adeks wallet/loyalty; Adeks append-only ledgers remain authoritative |
+| Adapter leakage | Selcafe object names and column names must not leak into Adeks domain models, DTOs, API contracts, or persisted Adeks rows |
+| Implementation authority | None — this inventory does not authorize Pod C |
+
+#### PI-1 / PI-2 product-position proposal
+
+| ID | Question | Pod A position for review | Data-surface effect |
+|---|---|---|---|
+| PI-1 | Is real-time station/session status consumed by any Phase-1 feature? | **Deferred to Phase 2 as an active product consumer.** Phase 1 reservations remain staff-approved requests; automatic confirmation and PC-status-dependent confirmation stay deferred until reliable station/session state exists. | `dbo.masa` / `dbo._pc` remain ADR-005 permitted non-PII surfaces, but should not be treated as required Phase-1 build targets unless Kerem explicitly adds a staff-facing station-status consumer. |
+| PI-2 | Is the Phase-1 customer menu sourced from Selcafe `urun`, or is it Adeks-native? | **Selcafe-sourced for Phase 1.** The customer menu/catalog should be sourced from `dbo.urun` / `dbo.menudetay` through vendor-neutral Adeks read models. | `dbo.urun` / `dbo.menudetay` become Phase-1 catalog read targets. Category filtering remains constrained until the Selcafe category-source gap is resolved. |
+
+#### Included / permitted non-PII Selcafe-derived surfaces
+
+| Selcafe object | Data-surface description | Neutral Adeks read model / use | Personal-data status | Constraints |
+|---|---|---|---|---|
+| `dbo.masa` | Station status / occupancy / session-start surface: `masa_no`, `tip`, `durum`, `baslangic_zaman`, `sure_limit` only | `StationStatus` | Non-PII if no member resolution occurs | PI-1 proposes deferring active Phase-1 consumption to Phase 2. Must not resolve `aktif_adisyon_no` to `adisyon` / `uye_no`; must not propagate `aktif_adisyon_no`; must not read device/client-config fields such as `mac`, `idle_exe*`, or `busy_exe*`. |
+| `dbo._pc` | Station type / label / price reference: `tip`, `ad`, `fiyat` | `StationType` | Non-PII | Allowed only as station-type reference data. PI-1 proposes no required active Phase-1 consumer unless Kerem adds staff-facing station status to Phase 1. |
+| `dbo.urun` | Menu/catalog item reference: `kod`, `ad`, `fiyat`, `birim`, `aktif`, `menu` | `CatalogItem` | Non-PII | PI-2 proposes Selcafe-sourced Phase-1 menu. Adeks must snapshot order-submission price separately under K-17; runtime catalog edits must not change submitted order settlement amount. |
+| `dbo.menudetay` | Combo/menu component mapping: `menu_urun_kod`, `urun_kod`, `miktar` | `CatalogComboComponent` | Non-PII | Use only for catalog composition. Do not infer customer purchase history from this surface. |
+| `dbo.uyesinif` | Membership-tier definitions only: `sinif`, `indirim_oran`, `kullanim_limit`, `on_odeme` | `MembershipTierDefinition` | Non-PII when read as tier definitions only | Must not join to `dbo.uye` or member rows. Must not become a source of Adeks wallet balance or loyalty balance. |
+| `dbo.ayar` | Scoped open-hours key/value source, limited to confirmed non-sensitive open-hours keys | `OperatingHours` | Non-PII only if scoped to confirmed non-sensitive open-hours keys | Not enabled until Kerem authorizes the controlled `ayar.kod` key-name read under ADR-005 K-A3 / OQ-SC-NEW-005. Do not read unrelated settings or sensitive values. |
+
+#### Hard-excluded Selcafe PII / sensitive surfaces
+
+These surfaces are excluded from Phase 1 and must not appear in adapter queries, projections, read models, logs, or persisted Adeks rows.
+
+| Excluded Selcafe object / column | Exclusion rationale |
+|---|---|
+| `dbo.uye` | Member master contains heavy customer PII such as name, email, phone/mobile, address/district, password-like fields, and mutable legacy balance. Reading it would create a new KVKK personal-data surface. |
+| `dbo.basvuru` | Application records contain heavy PII and `sifre`; not required for Phase 1 non-PII catalog/status surface. |
+| `dbo.kullanici` | Staff user table contains staff PII and `sifre`; not required for Phase 1 customer PWA/catalog/order scope and creates credential/security exposure. |
+| Any `sifre` column, including `uye.sifre`, `basvuru.sifre`, and `kullanici.sifre` | Credential-storage risk. These columns must never be read, logged, synced, displayed, copied into fixtures, or used for authentication migration without a separate security/KVKK design. |
+| `uye.bakiye` | Mutable legacy `float` balance. It is incompatible with Adeks append-only wallet principles and must never be exposed as the Adeks wallet balance. |
+| `adisyon.uye_no`, `kasaislem.uye_no`, `kuyruk.uye_no` | Member-linkage columns create PII by linkage. They are not needed for the bounded non-PII Phase 1 read surface. |
+| `dbo.adisyon` and `dbo.kasaislem` as member-linked transaction tables | These contain member linkage and SP-computed financial values. They are excluded from Phase 1 because Adeks financial truth must come from Adeks append-only wallet/loyalty ledgers, not Selcafe transaction tables. |
+| Any `masa` → `adisyon` → `uye_no` resolution path | This would identify which member occupies a live station and would flip the KVKK/legal-advisor gate. Not authorized by ADR-005 or this inventory. |
+
+#### Future-gate rule for excluded surfaces
+
+Any future request to read Selcafe member, staff, credential, legacy-balance, or member-linked transaction/session data is a new personal-data/security surface and requires all of the following before implementation:
+
+1. Kerem approval.
+2. Pod B architecture/security/KVKK review.
+3. Legal/privacy advisor review where personal data or cross-border processing is implicated.
+4. Updated `DATA_PROCESSING_INVENTORY.md`.
+5. Updated legal-basis, retention, privacy-notice, and cross-border-transfer artifacts where applicable.
+6. A separate Pod B + Kerem-approved implementation issue meeting Definition of Ready.
+
+This v0.2 inventory does not authorize such future reads.
 
 ### Authentication and account access
 
@@ -189,6 +262,8 @@ No new processor is approved by this inventory.
 
 | Area | Legal basis status | Retention status |
 |---|---|---|
+| Selcafe-derived bounded non-PII read models | Not treated as customer personal data if ADR-005 hard exclusions and no-member-resolution rule hold; Pod B review required | Retention/cache policy for non-authoritative read models remains a Pod B implementation design topic |
+| Selcafe PII/sensitive surfaces explicitly excluded from Phase 1 | Not processed in Phase 1 by Adeks; however, any pre-existing Selcafe→GCP replication pipeline creates a cross-border transfer obligation independent of Adeks adapter reads — see `CROSS_BORDER_TRANSFER_ASSESSMENT.md` (absent; required). Any future Adeks processing requires Kerem + legal/privacy advisor + Pod B review. | Not applicable while excluded from Adeks processing; future retention must be defined before any Adeks processing. Cross-border assessment is required if the pre-existing replication exists, independent of this adapter's Phase 1 read scope. |
 | Customer phone / OTP identity | [OPEN QUESTION] `/docs/KVKK_LEGAL_BASIS.md` absent | [OPEN QUESTION] `/docs/DATA_RETENTION_POLICY.md` absent; OQ-LEGAL-005 |
 | Auth/security event metadata | [OPEN QUESTION] Legal basis pending | [OPEN QUESTION] Retention pending; `source_ip` may require separate treatment |
 | Staff/admin accounts and activity | [OPEN QUESTION] Legal basis pending | [OPEN QUESTION] Retention pending |
@@ -213,6 +288,9 @@ No new processor is approved by this inventory.
 | DPI-GATE-005 | Legal basis remains blocked by `/docs/KVKK_LEGAL_BASIS.md` and legal/privacy advisor input. |
 | DPI-GATE-006 | Third-party SMS/provider processing remains blocked by provider selection, KVKK processor assessment, and cross-border assessment where applicable. |
 | DPI-GATE-007 | Pod C is not authorized by this inventory. Pod C work requires separate approved GitHub issues that meet Definition of Ready and the ADR-009 / methodology review gates. |
+| DPI-GATE-008 | This v0.2 Selcafe inventory update does **not** authorize SelcafeAdapter implementation, SQL credentials, polling, caching, schema, API contracts, or infrastructure. |
+| DPI-GATE-009 | Any future Selcafe PII/member-linked read flips the Kerem + legal/privacy advisor + Pod B gate and requires inventory/legal-basis/retention/cross-border updates before implementation. Separately, the cross-border transfer obligation is independent of Adeks adapter read scope and applies now if the pre-existing Selcafe→GCP replication pipeline exists. |
+| DPI-GATE-010 | PI-1/PI-2 are product-position proposals until Kerem approval/merge. They narrow product scope only; they do not change ADR-005 hard exclusions and do not authorize Pod C. |
 
 ---
 
@@ -228,16 +306,18 @@ No new processor is approved by this inventory.
 | DPI-OQ-006 | Which external processors will handle phone numbers, logs, backups, monitoring, or audit metadata? | Kerem + Pod B | Provider/security/KVKK assessment |
 | DPI-OQ-007 | How should `reason_note` free text be constrained in UI to reduce accidental personal-data entry? | Pod A + Pod B; Kerem approves product policy | Wallet correction UX / business rules |
 | DPI-OQ-008 | How will hash-chain canonicalization and pseudonymization interact for audit records that later need personal-data redaction/pseudonymization? | Pod B | SR-002 follow-on design |
+| DPI-OQ-009 | Should Kerem authorize the controlled `ayar.kod` key-name read to confirm non-sensitive open-hours keys under ADR-005 K-A3 / OQ-SC-NEW-005? | Kerem + Pod B | Selcafe open-hours sourcing |
+| DPI-OQ-010 | If the Phase-1 menu is Selcafe-sourced under PI-2, what is the Phase-1 source for customer-facing menu categories given the Selcafe product-category gap? | Pod A + Pod B; Kerem approves product behavior | OQ-SC-NEW-001 / catalog UX |
 
 ---
 
 ## Review Routing
 
-- Ready for commit: Yes — v0.1 is Pod B-reviewed per follow-on handoff and Kerem-approved on 2026-06-15.
-- Requires Kerem approval: Future legal-basis/retention routing; third-party processor decisions; material changes to inventory scope.
-- Requires Pod B review: Future auth/wallet/loyalty/audit/customer-data changes; SR-002/SR-008/SR-009 dependencies; security/KVKK consistency.
+- Ready for commit: Yes — as a v0.2 documentation draft on a PR branch; **not ready to merge** until Pod B review and Kerem approval.
+- Requires Kerem approval: Yes — this v0.2 update changes documented Selcafe data-surface scope and records PI-1/PI-2 product-position proposals.
+- Requires Pod B review: Yes — Selcafe integration, data minimization, KVKK/security boundary, read-surface exclusions, and implementation gating are affected.
 - Requires Pod C implementation: No — **do not authorize Pod C from this document**.
-- Requires Pod D prototype/audit/monitoring review: Later — audit completeness/hash-chain monitoring and possible admin audit-view UX review after Pod B design.
+- Requires Pod D prototype/audit/monitoring review: Later only if menu/catalog UX, station-status UX, or admin/audit monitoring scope changes.
 
 ---
 
@@ -246,3 +326,4 @@ No new processor is approved by this inventory.
 | Version | Date | Author | Change |
 |---|---|---|---|
 | v0.1 | 2026-06-15 | Pod A | Initial data-processing inventory after `SECURITY_REVIEW.md` merge context. Inventories audit-store personal-data fields (`subject_ref`, customer linkage, `reason_note`, `source_ip`) and auth/wallet/loyalty PII surfaces. Pod B review reported complete in follow-on handoff; Kerem approval recorded 2026-06-15. No legal basis or retention periods set. No Pod C authorization. |
+| v0.2 draft | 2026-06-23 | Pod A | Adds Selcafe-derived data-surface inventory per ADR-005 / OQ-SC-NEW-010: bounded non-PII surfaces, hard-excluded PII/sensitive surfaces, future-gate rule, and PI-1/PI-2 product-position proposal. Requires Pod B review and Kerem approval before merge. No Pod C authorization. |
