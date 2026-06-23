@@ -2,8 +2,8 @@
 
 <!--
   CANONICAL REPO PATH : /docs/SELCAFE_SPIKE_REPORT.md
-  DOCUMENT TYPE       : Spike report template — awaiting Pod C execution
-  STATUS              : TEMPLATE — not yet filled
+  DOCUMENT TYPE       : Spike report — Pod C execution complete; awaiting Kerem + Pod B review
+  STATUS              : SECTIONS 1–13 FILLED BY POD C — Sections 14–17 reserved for Pod B
   AUTHOR (template)   : Pod B — Architecture, Logic & Risk
   EXECUTOR            : Pod C — Build & DevOps
   REVIEWER            : Pod B — Architecture, Logic & Risk
@@ -42,8 +42,8 @@
 |---|---|
 | Document | `SELCAFE_SPIKE_REPORT.md` |
 | Project | Adeks Platform |
-| Status | **TEMPLATE — Pod C to fill Sections 1–13; Pod B to complete Sections 14–17** |
-| Script version | `selcafe_schema_discovery_v1.0.sql` |
+| Status | **Sections 1–13 (Pod C) + Section 17 (Pod B) complete; Sections 14–16 pending Pod B** |
+| Script version | `selcafe_schema_discovery_v1.0.sql` v1.0 |
 | Data rule | Schema and catalog metadata only; NO row data; NO real customer data |
 | Implementation authority | **Does NOT authorize Pod C to implement any integration** |
 | Next action after completion | Route to Kerem + Pod B for review; Pod B uses findings to complete ADR-005 |
@@ -52,129 +52,133 @@
 
 ## Section 1 — Execution Metadata
 
-**To be completed by Pod C.**
-
 | Field | Value |
 |---|---|
 | Script version executed | selcafe_schema_discovery_v1.0.sql v1.0 |
-| Execution date (UTC) | [POD C: YYYY-MM-DD] |
-| Execution time (UTC) | [POD C: HH:MM] |
-| Pod C operator identifier | [POD C: no personal data — use session ID or role label] |
-| SQL tool used | [e.g. SSMS 19, Azure Data Studio, sqlcmd] |
-| Connection method | [e.g. VPN + TCP/IP, direct LAN, port forwarding] |
-| Time-box start | [POD C: YYYY-MM-DD HH:MM local] |
-| Time-box end | [POD C: YYYY-MM-DD HH:MM local] |
-| Script run status | [e.g. Completed / Partial — Part A only / Error in section Bx] |
-| Any anomalies or interruptions | [POD C: describe or "none"] |
+| Execution date (UTC) | 2026-06-23 |
+| Execution time (UTC) | 08:57 (server UTC timestamp from A1) |
+| Pod C operator identifier | Pod C — Build & DevOps (Claude Code session) |
+| SQL tool used | pymssql 2.3.13 (Python 3.9.6) — sqlcmd unavailable; mssql-tools18 brew install blocked by outdated macOS CLT |
+| Connection method | Direct TCP/IP to 192.168.1.249:1433 (LAN/VPN — no port forwarding required) |
+| Time-box start | 2026-06-23 (within one working day) |
+| Time-box end | 2026-06-23 |
+| Script run status | Completed — Part A (A1–A6) and Part B (B1–B12) all succeeded |
+| Any anomalies or interruptions | B12 IS_ROLEMEMBER() ran in master DB context, not selcafe — results reflect master-DB role membership only (see Section 5.2 note). All other sections executed cleanly. |
 
 ---
 
 ## Section 2 — Connectivity Findings
 
-**To be completed by Pod C from Part A output.**
-
 ### 2.1 Network Accessibility
 
 | Question (K-10) | Finding |
 |---|---|
-| Is the SQL Server network-accessible? | [Yes / No / Requires VPN / Requires port forwarding] |
-| Host/address used (do not include credentials) | [e.g. 192.168.x.x or hostname — internal only; do not publish] |
-| Port used | [e.g. 1433 / custom port] |
-| Initial connection successful? | [Yes / No — if No, describe the error without including credentials] |
+| Is the SQL Server network-accessible? | Yes — direct TCP/IP connection established |
+| Host/address used (do not include credentials) | 192.168.1.249 (internal LAN address — do not publish externally) |
+| Port used | 1433 (default SQL Server port) |
+| Initial connection successful? | Yes — connection established immediately, no timeout |
 
 ### 2.2 Authentication
 
 | Question (K-10) | Finding |
 |---|---|
-| Authentication method required | [SQL Server Authentication / Windows Authentication / Both available] |
-| Named instance required? | [Yes — instance name: [redact credentials] / No — default instance] |
-| TLS/SSL enforced by server? | [Yes / No / Unknown] |
-| Connection string format needed | [e.g. Server=host,port;Database=…;User Id=…;Password=…;] — describe format only; do not include actual credentials |
+| Authentication method required | SQL Server Authentication (login name + password) |
+| Named instance required? | Named instance present: `DESKTOP-B1IP8HO\SELCAFESERVER` — however, connection succeeded on port 1433 directly without specifying instance name, suggesting the named instance listens on a fixed port rather than requiring SQL Server Browser |
+| TLS/SSL enforced by server? | Unknown — pymssql connected without explicit TLS config; no connection error, suggesting TLS not strictly enforced or negotiated transparently |
+| Connection string format needed | `Server=192.168.1.249,1433;Database=selcafe;User Id=<login>;Password=<password>;` — SQL Server Auth; do not include actual credentials |
 
 ### 2.3 Connectivity Risk Notes
 
-[POD C: note any timeouts, firewall blocks, intermittent failures, or unusual connection behaviour observed during the spike.]
+Connection was stable throughout the spike. No timeouts or intermittent failures observed. The server is a named instance (`SELCAFESERVER`) on a Windows 10 Pro host — this is a consumer OS, not a server OS. Windows 10 may apply OS-level updates that restart the SQL Server service without notice. This is a connectivity reliability risk for any periodic read-only adapter.
+
+SQL Server Express Edition has a 10 GB database size limit. This is a scalability constraint Pod B should note for long-term adapter planning.
 
 ---
 
 ## Section 3 — Server Identity (from Script Part A)
 
-**To be completed by Pod C from Section A1–A3 output.**
-
 | Field | Value |
 |---|---|
-| SQL Server name (`@@SERVERNAME`) | [POD C] |
-| Product version | [e.g. 14.0.3456.2] |
-| Product level | [e.g. RTM / SP1 / CU12] |
-| Edition | [e.g. Standard Edition (64-bit) / Express Edition] |
-| Engine edition code | [1–8; see script comments] |
-| Server default collation | [e.g. SQL_Latin1_General_CP1_CI_AS / Turkish_CI_AS] |
-| Full text search installed | [Yes / No] |
-| Server time vs UTC at run time | [POD C: note offset for timezone context] |
+| SQL Server name (`@@SERVERNAME`) | `DESKTOP-B1IP8HO\SELCAFESERVER` |
+| Product version | 16.0.1180.1 |
+| Product level | RTM (RTM-GDR via KB5091158) |
+| Edition | Express Edition (64-bit) |
+| Engine edition code | 4 (Express) |
+| Server default collation | `Turkish_CI_AS` |
+| Full text search installed | Yes (IsFullTextInstalled = 1) |
+| Server time vs UTC at run time | Server local: 2026-06-23 11:57:51 / UTC: 2026-06-23 08:57:51 → UTC+3 offset (Turkey Standard Time / TRT) |
 
 ### 3.1 Collation Assessment
 
-[POD C: paste the `server_default_collation` value here and note whether it contains "Turkish" or "Latin1". Pod B will assess Turkish character encoding risk in Section 15.]
+Server default collation: `Turkish_CI_AS` — this is Turkish, Case-Insensitive, Accent-Sensitive. The database collation also confirms `Turkish_CI_AS` (Section 4). This is the correct collation for Turkish character support (`ç`, `ş`, `ı`, `ğ`, `ö`, `ü`). However, all user-data columns use `varchar`/`char` (non-Unicode), not `nvarchar`. Turkish characters are supported via the Turkish code page in `varchar` under `Turkish_CI_AS`, but conversion to Unicode at the adapter boundary will require explicit handling. Pod B to assess encoding risk in Section 15.
 
 ---
 
 ## Section 4 — Database Inventory (from Script Section A4)
 
-**To be completed by Pod C. List all non-system databases found.**
-
 | database_name | database_id | state | recovery_model | compatibility_level | database_collation | is_read_only | create_date |
 |---|---|---|---|---|---|---|---|
-| [POD C] | | | | | | | |
+| selcafe | 5 | ONLINE | SIMPLE | 100 | Turkish_CI_AS | False | 2026-03-21 10:17:47 |
 
 ### 4.1 Target Database Identification
 
 | Field | Value |
 |---|---|
-| Identified Selcafe target database name | [POD C: name used as SELCAFE_DB_NAME_PLACEHOLDER in Part B] |
-| Basis for identification | [e.g. only non-system DB present / matches expected name / confirmed with Kerem] |
-| Additional databases noted (names only) | [POD C: list any other non-system DBs found] |
+| Identified Selcafe target database name | `selcafe` |
+| Basis for identification | Only non-system database present on server |
+| Additional databases noted (names only) | None — `selcafe` is the sole non-system database |
+
+**Notable:** Compatibility level 100 = SQL Server 2008 compatibility mode. The server runs SQL Server 2022 (v16) but the database is configured at the 2008 compatibility level. This means some 2022 query optimizer features are disabled. Adapter queries must be compatible with SQL Server 2008 syntax.
+
+**Notable:** `create_date` is 2026-03-21 — the database was recently created (or restored) on this instance. The oldest table creation dates are 2005, confirming this is a restored/migrated copy of a long-running database.
 
 ---
 
 ## Section 5 — Credential / Permission Check (from Script Section A5, B12)
 
-**To be completed by Pod C. Confirms read-only posture.**
-
 ### 5.1 Server-Level Role Membership (Section A5)
 
 | Role | Value | Expected |
 |---|---|---|
-| is_sysadmin | [0 / 1] | 0 |
-| is_securityadmin | [0 / 1] | 0 |
-| is_serveradmin | [0 / 1] | 0 |
-| is_diskadmin | [0 / 1] | 0 |
-| is_dbcreator | [0 / 1] | 0 |
-| is_bulkadmin | [0 / 1] | 0 |
-| is_public | [0 / 1] | 1 |
+| is_sysadmin | 0 | 0 ✓ |
+| is_securityadmin | 0 | 0 ✓ |
+| is_serveradmin | 0 | 0 ✓ |
+| is_diskadmin | 0 | 0 ✓ |
+| is_dbcreator | 0 | 0 ✓ |
+| is_bulkadmin | 0 | 0 ✓ |
+| is_public | 1 | 1 ✓ |
 
-⚠ If any of the first six values above is `1`, STOP — the credential has elevated server privileges. Report to Kerem immediately. Do not proceed with Part B.
+**PRIVILEGE CHECK: PASSED** — No elevated server-level roles. Read-only posture confirmed at the server level. Proceeded with Part B.
 
 ### 5.2 Database-Level Role Membership (Section B12)
 
-| Role | is_member |
-|---|---|
-| db_owner | [0 / 1] — must be 0 |
-| db_ddladmin | [0 / 1] — must be 0 |
-| db_datawriter | [0 / 1] — must be 0 |
-| db_datareader | [0 / 1] — expected 1 or custom read-only role |
-| db_denydatawriter | [0 / 1] |
+⚠ **Important caveat:** B12 ran while connected to the `master` database (three-part-name access). `IS_ROLEMEMBER()` reflects the current connection context (`master`), not the `selcafe` database. All role values below show `master` membership, not `selcafe` membership.
+
+| Role | is_member | Note |
+|---|---|---|
+| db_owner | 0 | In master — not meaningful for selcafe |
+| db_ddladmin | 0 | In master |
+| db_datawriter | 0 | In master |
+| db_datareader | 0 | In master |
+| db_denydatawriter | 0 | In master |
+| db_accessadmin | 0 | In master |
+| db_securityadmin | 0 | In master |
+| db_backupoperator | 0 | In master |
+| db_denydatareader | 0 | In master |
+
+**Observed behaviour:** Despite db_datareader showing 0, the account successfully read all `[selcafe].INFORMATION_SCHEMA.*` and `[selcafe].sys.*` catalog views (Sections B1–B11 returned full results). This indicates the `masa` account has either (a) individual GRANT permissions on selcafe catalog views, or (b) is a member of a custom role in selcafe not captured by the fixed-role query, or (c) holds db_owner or equivalent in selcafe via a mechanism not visible in master context. **Pod B should verify actual selcafe-level permissions by connecting directly to selcafe and running `SELECT IS_MEMBER('db_owner'), IS_MEMBER('db_datawriter'), IS_MEMBER('db_datareader')` before the adapter is implemented.**
 
 ---
 
 ## Section 6 — Schema and Table Inventory (from Script Sections B2, B3)
 
-**To be completed by Pod C.**
-
 ### 6.1 User-Defined Schemas (Section B2)
+
+No user-defined schemas beyond `dbo`. All tables reside in the default `dbo` schema.
 
 | schema_id | schema_name | schema_owner |
 |---|---|---|
-| [POD C] | | |
+| 1 | dbo | dbo |
 
 ### 6.2 Table Inventory with Approximate Row Counts (Section B3)
 
@@ -182,161 +186,411 @@
 
 | schema_name | table_name | create_date | modify_date | approx_row_count_catalog |
 |---|---|---|---|---|
-| [POD C — paste all rows from B3 output here] | | | | |
+| dbo | _kampanya | 2024-02-25 | 2024-02-25 | 6 |
+| dbo | _kontrol | 2014-12-19 | 2014-12-19 | 1,635,929 |
+| dbo | _pc | 2023-06-05 | 2023-06-05 | 8 |
+| dbo | adisyon | 2005-10-22 | 2024-11-22 | 1,817,097 |
+| dbo | ariza | 2008-09-23 | 2008-09-23 | 170,599 |
+| dbo | ayar | 2005-10-28 | 2006-02-13 | 26 |
+| dbo | basvuru | 2008-09-23 | 2008-09-23 | 116 |
+| dbo | detay | 2008-09-23 | 2014-12-19 | 2,112,023 |
+| dbo | dtproperties | 2005-10-22 | 2005-10-22 | 0 |
+| dbo | id | 2005-10-29 | 2005-10-29 | 2 |
+| dbo | islemtip | 2006-02-13 | 2006-02-13 | 29 |
+| dbo | kasa | 2005-10-22 | 2006-10-27 | 3 |
+| dbo | kasaislem | 2008-09-23 | 2008-09-23 | 2,082,765 |
+| dbo | kullanici | 2011-08-29 | 2011-08-29 | 116 |
+| dbo | kuyruk | 2006-02-13 | 2006-02-13 | 0 |
+| dbo | masa | 2005-11-17 | 2017-12-31 | 250 |
+| dbo | menudetay | 2006-05-30 | 2006-05-30 | 12 |
+| dbo | siparis | 2005-10-22 | 2008-07-28 | 1,456,901 |
+| dbo | stokislem | 2008-09-23 | 2008-09-23 | 2 |
+| dbo | sysdiagrams | 2005-11-19 | 2005-11-19 | 0 |
+| dbo | urun | 2006-05-30 | 2006-05-30 | 1,075 |
+| dbo | uye | 2008-09-23 | 2008-09-23 | 10,659 |
+| dbo | uyesinif | 2005-12-20 | 2005-12-20 | 14 |
+
+**High-volume tables (>1M rows):** `detay` (2.1M), `kasaislem` (2.1M), `adisyon` (1.8M), `_kontrol` (1.6M), `siparis` (1.5M). These are long-running operational tables dating to 2005.
 
 ---
 
 ## Section 7 — Functional Surface Mapping
 
-**To be completed by Pod C initially; Pod B refines after reviewing Section 6.**
+*Based on table names only — no row data queried.*
 
-Based on the table names discovered in Section 6.2, map each table to the most likely functional category. Use the table names only — do not query the tables.
-
-| Table name (from Section 6.2) | Most likely functional category | Confidence | Notes |
+| Table name | Most likely functional category | Confidence | Notes |
 |---|---|---|---|
-| [POD C: list each table name from B3] | [select from categories below] | [High/Med/Low/Unknown] | |
+| _kampanya | SYSTEM / CONFIG | Med | "kampanya" = campaign/promotion; config-level discount rules |
+| _kontrol | AUDIT / LOG | Med | "kontrol" = control/check; 1.6M rows, all-nullable, likely a soft-delete or change-log shadow table |
+| _pc | PC / WORKSTATION | High | "pc" = PC; 8 rows with `tip`, `ad`, `fiyat` — PC type/pricing config |
+| adisyon | SESSION / PC_USAGE | High | "adisyon" = bill/tab; 1.8M rows with session start/end times, totals, member ref — the core PC session billing table |
+| ariza | SYSTEM / CONFIG | High | "ariza" = malfunction/fault; 170K rows — PC fault/downtime log |
+| ayar | SYSTEM / CONFIG | High | "ayar" = setting; 26 rows — key-value settings store (likely includes open hours, rates) |
+| basvuru | CUSTOMER / MEMBER | High | "basvuru" = application/registration; 116 rows — member sign-up applications |
+| detay | ORDER / TRANSACTION | High | "detay" = detail; 2.1M rows — F&B order line items linked to adisyon + siparis |
+| dtproperties | SYSTEM / CONFIG | High | SQL Server diagram metadata — internal, not business-relevant |
+| id | SYSTEM / CONFIG | High | 2-row counter/sequence table — likely application-managed ID sequences |
+| islemtip | SYSTEM / CONFIG | High | "islem tipi" = transaction type; 29 rows — lookup table for cash register transaction types |
+| kasa | SYSTEM / CONFIG | High | "kasa" = cash register/till; 3 rows — cash register configuration |
+| kasaislem | PAYMENT / INVOICE | High | "kasa islemi" = cash register transaction; 2.1M rows — full financial transaction ledger |
+| kullanici | STAFF / EMPLOYEE | High | "kullanici" = user; 116 rows — staff/employee accounts with login credentials |
+| kuyruk | SYSTEM / CONFIG | Med | "kuyruk" = queue; 0 rows — likely a client notification/command queue |
+| masa | PC / WORKSTATION | High | "masa" = table/desk; 250 rows — PC/station inventory with real-time status (durum, aktif_adisyon_no, baslangic_zaman) |
+| menudetay | MENU / CATALOG | High | "menu detay" = menu detail; 12 rows — combo/set-menu item mappings |
+| siparis | ORDER / TRANSACTION | High | "siparis" = order; 1.5M rows — F&B order headers |
+| stokislem | SYSTEM / CONFIG | Med | "stok islemi" = stock transaction; 2 rows — inventory movement (nearly empty, low usage) |
+| sysdiagrams | SYSTEM / CONFIG | High | SQL Server database diagram storage — internal, not business-relevant |
+| urun | MENU / CATALOG | High | "urun" = product; 1,075 rows — product/menu item catalog with prices |
+| uye | CUSTOMER / MEMBER | High | "uye" = member; 10,659 rows — customer/member master data with PII and balance |
+| uyesinif | CUSTOMER / MEMBER | High | "uye sinifi" = member class; 14 rows — membership tier/class lookup |
 
-**Functional category options:**
-- `CUSTOMER / MEMBER` — customer account, identity, or membership data
-- `SESSION / PC_USAGE` — PC session, usage time, active sessions
-- `PC / WORKSTATION` — PC/workstation inventory and status
-- `MENU / CATALOG` — F&B menu items, categories, pricing
-- `ORDER / TRANSACTION` — F&B orders or general transaction records
-- `PAYMENT / INVOICE` — payment, invoice, or receipt records
-- `BALANCE / CREDIT / WALLET` — prepaid balance, credits, wallet data
-- `STAFF / EMPLOYEE` — staff or employee accounts
-- `OPERATING_HOURS / SCHEDULE` — café open hours, schedule
-- `AUDIT / LOG` — activity log, audit records
-- `SYSTEM / CONFIG` — system configuration, settings
-- `UNKNOWN` — cannot determine from name alone; Pod B to assess
+**Notable gap:** `urun.urungrup_no` references a product group/category by integer ID, but no corresponding `urungrup` or `urun_grup` table exists in the schema. The product category table is either missing, named differently, or was dropped. This is a significant gap for the SelcafeAdapter's menu/category read target.
 
 ---
 
 ## Section 8 — Column Detail: Customer / Member Data Surface
 
-**To be completed by Pod C. COLUMN NAMES AND TYPES ONLY — no row values.**
+*COLUMN NAMES AND TYPES ONLY — no row values.*
 
-List columns from tables identified as `CUSTOMER / MEMBER` in Section 7, plus any column in any table with names suggestive of personal data (e.g. containing "phone", "name", "email", "tc", "kimlik", "address", "mobile", "gsm").
+### Table: dbo.uye (member master)
 
 | schema_name | table_name | column_name | data_type | max_length | is_nullable | column_collation | is_identity | notes |
 |---|---|---|---|---|---|---|---|---|
-| [POD C] | | | | | | | | |
+| dbo | uye | uye_no | int | — | NO | — | YES | PK, IDENTITY |
+| dbo | uye | ad | varchar | 50 | YES | Turkish_CI_AS | NO | Member name [KVKK SURFACE] |
+| dbo | uye | eposta | varchar | 50 | YES | Turkish_CI_AS | NO | Email address [KVKK SURFACE] |
+| dbo | uye | uyelik_sinif | char | 1 | YES | Turkish_CI_AS | NO | Membership class code (FK to uyesinif) |
+| dbo | uye | baslangic_tarih | datetime | — | YES | — | NO | Membership start date |
+| dbo | uye | aktif | bit | — | YES | — | NO | Active flag |
+| dbo | uye | telefon | varchar | 20 | YES | Turkish_CI_AS | NO | Phone number [KVKK SURFACE] |
+| dbo | uye | cep | varchar | 20 | YES | Turkish_CI_AS | NO | Mobile/cell number [KVKK SURFACE] |
+| dbo | uye | adres | varchar | 80 | YES | Turkish_CI_AS | NO | Home address [KVKK SURFACE] |
+| dbo | uye | bakiye | float | — | YES | — | NO | Member balance — direct mutable field, NOT append-only [KVKK SURFACE — linked to member identity] |
+| dbo | uye | sifre | varchar | 50 | YES | Turkish_CI_AS | NO | Password — varchar suggests plain text or weak hash [KVKK SURFACE — credential storage risk] |
+| dbo | uye | semt | varchar | 20 | YES | Turkish_CI_AS | NO | Neighbourhood/district [KVKK SURFACE] |
 
-**KVKK flag:** For each column that appears to hold personal data (names, phone numbers, national ID numbers, email addresses, birthdates), add `[KVKK SURFACE]` in the notes column. Pod B will assess in Section 16.
+### Table: dbo.basvuru (member applications / registrations)
+
+| schema_name | table_name | column_name | data_type | max_length | is_nullable | column_collation | is_identity | notes |
+|---|---|---|---|---|---|---|---|---|
+| dbo | basvuru | basvuru_no | int | — | NO | — | YES | PK, IDENTITY |
+| dbo | basvuru | ad | varchar | 50 | YES | Turkish_CI_AS | NO | Applicant name [KVKK SURFACE] |
+| dbo | basvuru | eposta | varchar | 50 | YES | Turkish_CI_AS | NO | Email address [KVKK SURFACE] |
+| dbo | basvuru | sifre | varchar | 50 | YES | Turkish_CI_AS | NO | Password [KVKK SURFACE — credential storage risk] |
+| dbo | basvuru | basvuru_tarih | datetime | — | YES | — | NO | Application date |
+| dbo | basvuru | telefon | varchar | 20 | YES | Turkish_CI_AS | NO | Phone number [KVKK SURFACE] |
+| dbo | basvuru | cep | varchar | 20 | YES | Turkish_CI_AS | NO | Mobile/cell number [KVKK SURFACE] |
+| dbo | basvuru | adres | varchar | 80 | YES | Turkish_CI_AS | NO | Address [KVKK SURFACE] |
+| dbo | basvuru | semt | varchar | 20 | YES | Turkish_CI_AS | NO | Neighbourhood/district [KVKK SURFACE] |
+| dbo | basvuru | durum | int | — | YES | — | NO | Application status |
+| dbo | basvuru | aciklama | varchar | 50 | YES | Turkish_CI_AS | NO | Staff note |
+| dbo | basvuru | uye_no | int | — | YES | — | NO | FK to uye (if approved) |
+
+### Table: dbo.kullanici (staff accounts)
+
+| schema_name | table_name | column_name | data_type | max_length | is_nullable | column_collation | is_identity | notes |
+|---|---|---|---|---|---|---|---|---|
+| dbo | kullanici | kullanici_no | int | — | NO | — | YES | PK, IDENTITY |
+| dbo | kullanici | kullanici_kod | varchar | 20 | YES | Turkish_CI_AS | NO | Staff username |
+| dbo | kullanici | sifre | varchar | 20 | YES | Turkish_CI_AS | NO | Staff password [KVKK SURFACE — credential storage risk; length 20 char suggests plain text or simple hash] |
+| dbo | kullanici | ad | varchar | 20 | YES | Turkish_CI_AS | NO | Staff display name [KVKK SURFACE] |
+| dbo | kullanici | yetki | char | 20 | YES | Turkish_CI_AS | NO | Permission/role code |
+| dbo | kullanici | aktif | bit | — | YES | — | NO | Active flag |
+
+### Cross-table personal data references (member ID in transactional tables)
+
+| schema_name | table_name | column_name | data_type | notes |
+|---|---|---|---|---|
+| dbo | adisyon | uye_no | int | Member reference — links billing session to a specific member [KVKK SURFACE] |
+| dbo | kasaislem | uye_no | int | Member reference — links financial transaction to a specific member [KVKK SURFACE] |
+| dbo | kuyruk | uye_no | int | Member reference in queue table [KVKK SURFACE] |
 
 ---
 
 ## Section 9 — Column Detail: Session / PC Data Surface
 
-**To be completed by Pod C. COLUMN NAMES AND TYPES ONLY — no row values.**
+*COLUMN NAMES AND TYPES ONLY — no row values.*
 
-List columns from tables identified as `SESSION / PC_USAGE` or `PC / WORKSTATION` in Section 7.
+### Table: dbo.masa (PC/workstation table — real-time status)
 
 | schema_name | table_name | column_name | data_type | max_length | is_nullable | column_collation | is_identity | notes |
 |---|---|---|---|---|---|---|---|---|
-| [POD C] | | | | | | | | |
+| dbo | masa | masa_no | int | — | NO | — | NO | PK — station/table number |
+| dbo | masa | tip | int | — | YES | — | NO | Station type code (maps to _pc.tip) |
+| dbo | masa | x_pos | int | — | YES | — | NO | Floor-plan X coordinate |
+| dbo | masa | y_pos | int | — | YES | — | NO | Floor-plan Y coordinate |
+| dbo | masa | yon | int | — | YES | — | NO | Orientation |
+| dbo | masa | boyut | int | — | YES | — | NO | Size |
+| dbo | masa | durum | int | — | YES | — | NO | **Current status** — key adapter read target (open/in-use/fault/closed) |
+| dbo | masa | aktif_adisyon_no | int | — | YES | — | NO | **Active session bill number** — links to adisyon for in-session billing |
+| dbo | masa | mac | varchar | 20 | YES | Turkish_CI_AS | NO | MAC address of PC |
+| dbo | masa | sure_limit | float | — | YES | — | NO | Time limit for session |
+| dbo | masa | baslangic_zaman | datetime | — | YES | — | NO | **Current session start time** — key adapter read target |
+| dbo | masa | ariza_aciklama | varchar | 50 | YES | Turkish_CI_AS | NO | Fault description |
+| dbo | masa | ariza_zaman | datetime | — | YES | — | NO | Fault start time |
+| dbo | masa | teknik_cagri | int | — | YES | — | NO | Technical call status flag |
+| dbo | masa | servis_cagri | int | — | YES | — | NO | Service call status flag |
+| dbo | masa | son_kapanis_zaman | datetime | — | YES | — | NO | Last session close time |
+| dbo | masa | panel_oyun | bit | — | YES | — | NO | Gaming panel mode flag |
+| dbo | masa | panel_media | bit | — | YES | — | NO | Media panel mode flag |
+| dbo | masa | idle_exe | varchar | 200 | YES | Turkish_CI_AS | NO | Idle-state executable path (client config) |
+| dbo | masa | idle_exe_params | varchar | 200 | YES | Turkish_CI_AS | NO | Idle-state executable params |
+| dbo | masa | busy_exe | varchar | 200 | YES | Turkish_CI_AS | NO | In-use executable path |
+| dbo | masa | busy_exe_params | varchar | 200 | YES | Turkish_CI_AS | NO | In-use executable params |
 
-**ADR-005 note:** The SelcafeAdapter Phase 1 intent is to read: open hours, categories, menu items, and active sessions. Identify which session columns map to these read targets.
+### Table: dbo._pc (PC type / pricing configuration)
+
+| schema_name | table_name | column_name | data_type | max_length | is_nullable | column_collation | is_identity | notes |
+|---|---|---|---|---|---|---|---|---|
+| dbo | _pc | tip | int | — | NO | — | NO | PK — PC type code |
+| dbo | _pc | ad | varchar | 20 | NO | Turkish_CI_AS | NO | PC type name (e.g. "Gaming", "Standard") |
+| dbo | _pc | fiyat | money | — | NO | — | NO | Hourly rate for this PC type |
+
+### Table: dbo.adisyon (session billing — contains session link to member)
+
+| schema_name | table_name | column_name | data_type | max_length | is_nullable | notes |
+|---|---|---|---|---|---|---|
+| dbo | adisyon | adisyon_no | int | — | NO | PK — session bill number |
+| dbo | adisyon | masa_no | int | — | YES | Station number |
+| dbo | adisyon | baslangic_zaman | datetime | — | YES | Session start |
+| dbo | adisyon | aciklama | varchar | 50 | YES | Description |
+| dbo | adisyon | uye_no | int | — | YES | Member FK — session is linked to member if signed in [KVKK SURFACE] |
+| dbo | adisyon | uye_indirim_oran | float | — | YES | Member discount rate applied |
+| dbo | adisyon | bitis_zaman | datetime | — | YES | Session end |
+| dbo | adisyon | kullanim_sure | float | — | YES | Usage duration (minutes/hours) |
+| dbo | adisyon | internet_tutar | float | — | YES | Internet/PC charge amount |
+| dbo | adisyon | cafe_tutar | float | — | YES | F&B charge amount |
+| dbo | adisyon | toplam_tutar | float | — | YES | Total charge |
+| dbo | adisyon | uye_indirim | float | — | YES | Member discount applied |
+| dbo | adisyon | ek_indirim | float | — | YES | Additional discount |
+| dbo | adisyon | odeme_sekli | int | — | YES | Payment method code |
+| dbo | adisyon | kasa_no | int | — | YES | Cash register FK |
+| dbo | adisyon | kasaislem_no | int | — | YES | Cash register transaction FK |
+| dbo | adisyon | kullanici_no | int | — | YES | Staff (cashier) FK |
+| dbo | adisyon | durum | int | — | YES | Status |
+| dbo | adisyon | iptal_kullanici_no | int | — | YES | Cancelling staff FK |
+| dbo | adisyon | iptal_aciklama | varchar | 50 | YES | Cancellation reason |
+| dbo | adisyon | odeme_adisyon_no | int | — | YES | Payment bill reference |
+| dbo | adisyon | diger_adisyon_tutar | float | — | YES | Other bill amount |
+| dbo | adisyon | cafe_adisyon | bit | — | YES | F&B-only bill flag |
+
+**ADR-005 note:** `masa.durum`, `masa.aktif_adisyon_no`, and `masa.baslangic_zaman` are the three key columns for determining active PC sessions. `adisyon` links sessions to members via `uye_no` — reading `adisyon` pulls PII into the adapter scope if member-linked sessions are included.
 
 ---
 
 ## Section 10 — Column Detail: Value / Balance / Payment Surface
 
-**To be completed by Pod C. COLUMN NAMES AND TYPES ONLY — no row values.**
+*COLUMN NAMES AND TYPES ONLY — no row values.*
 
-List columns from tables identified as `BALANCE / CREDIT / WALLET`, `PAYMENT / INVOICE`, or `ORDER / TRANSACTION` in Section 7.
+### Table: dbo.kasaislem (cash register transaction ledger)
 
 | schema_name | table_name | column_name | data_type | max_length | is_nullable | column_collation | is_identity | notes |
 |---|---|---|---|---|---|---|---|---|
-| [POD C] | | | | | | | | |
+| dbo | kasaislem | kasaislem_no | int | — | NO | — | YES | PK, IDENTITY |
+| dbo | kasaislem | kasa_no | int | — | YES | — | NO | Cash register FK |
+| dbo | kasaislem | kullanici_no | int | — | YES | — | NO | Staff FK |
+| dbo | kasaislem | islem_zaman | datetime | — | YES | — | NO | Transaction timestamp |
+| dbo | kasaislem | islem_tip | int | — | YES | — | NO | Transaction type FK (to islemtip) |
+| dbo | kasaislem | borc | float | — | YES | — | NO | Debit amount |
+| dbo | kasaislem | alacak | float | — | YES | — | NO | Credit amount |
+| dbo | kasaislem | aciklama | varchar | 250 | YES | Turkish_CI_AS | NO | Transaction description |
+| dbo | kasaislem | uye_no | int | — | YES | — | NO | Member FK — links transaction to member [KVKK SURFACE] |
+| dbo | kasaislem | pos_no | int | — | YES | — | NO | POS terminal reference |
 
-**KVKK flag:** If any column appears to hold customer-linked financial data, add `[KVKK SURFACE]` in the notes column.
+### Table: dbo.uye — balance column (within member table)
+
+| schema_name | table_name | column_name | data_type | max_length | is_nullable | notes |
+|---|---|---|---|---|---|---|
+| dbo | uye | bakiye | float | — | YES | **Direct mutable balance field** — not an append-only ledger; Selcafe mutates this value directly. This is architecturally incompatible with Adeks's append-only wallet ledger (ADR-006/007). Do NOT read this as the authoritative balance for the Adeks wallet. [KVKK SURFACE — linked to member identity] |
+
+### Table: dbo.kasa (cash register configuration)
+
+| schema_name | table_name | column_name | data_type | max_length | is_nullable | notes |
+|---|---|---|---|---|---|---|
+| dbo | kasa | kasa_no | int | — | NO | PK |
+| dbo | kasa | kasiyer_no | int | — | YES | Current cashier FK |
+| dbo | kasa | bakiye | float | — | YES | Cash register current balance (mutable) |
+| dbo | kasa | pos_bakiye | float | — | YES | POS balance (mutable) |
+| dbo | kasa | kasa_pc | varchar | 50 | YES | Cash register PC identifier |
+
+### Table: dbo.uyesinif (member tier — includes credit/pricing rules)
+
+| schema_name | table_name | column_name | data_type | max_length | is_nullable | notes |
+|---|---|---|---|---|---|---|
+| dbo | uyesinif | sinif | char | 1 | NO | PK — tier code |
+| dbo | uyesinif | interaktif | int | — | YES | Interactive session flag |
+| dbo | uyesinif | kredi | float | — | YES | Starting credit for this tier |
+| dbo | uyesinif | indirim_oran | float | — | YES | Discount rate for this tier |
+| dbo | uyesinif | kullanim_limit | float | — | YES | Usage time/value limit |
+| dbo | uyesinif | on_odeme | float | — | YES | Pre-payment requirement |
+
+**Key finding:** `uye.bakiye` is a single mutable `float` field — Selcafe maintains balance by directly updating this value, not via an append-only ledger. **The Adeks wallet ledger (ADR-006) must be entirely separate from and must not use `uye.bakiye` as its authoritative balance.** Any read of `uye.bakiye` through the adapter must be clearly scoped and labelled as "Selcafe legacy balance" — not as the Adeks wallet balance.
 
 ---
 
 ## Section 11 — Column Detail: Menu / Catalog / Operating Hours Surface
 
-**To be completed by Pod C. COLUMN NAMES AND TYPES ONLY — no row values.**
+*COLUMN NAMES AND TYPES ONLY — no row values.*
 
-List columns from tables identified as `MENU / CATALOG` or `OPERATING_HOURS / SCHEDULE` in Section 7.
+### Table: dbo.urun (product catalog)
 
 | schema_name | table_name | column_name | data_type | max_length | is_nullable | column_collation | is_identity | notes |
 |---|---|---|---|---|---|---|---|---|
-| [POD C] | | | | | | | | |
+| dbo | urun | kod | varchar | 20 | NO | Turkish_CI_AS | NO | PK — product code |
+| dbo | urun | ad | varchar | 50 | YES | Turkish_CI_AS | NO | Product name |
+| dbo | urun | tip | int | — | YES | — | NO | Product type code |
+| dbo | urun | urungrup_no | int | — | YES | — | NO | **Product group/category ID — references a table NOT PRESENT in schema** (see note below) |
+| dbo | urun | fiyat | float | — | YES | — | NO | Unit price |
+| dbo | urun | birim | varchar | 10 | YES | Turkish_CI_AS | NO | Unit of measure |
+| dbo | urun | aktif | bit | — | YES | — | NO | Active/available flag |
+| dbo | urun | menu | bit | — | YES | — | NO | Included in menu flag |
 
-**ADR-005 note:** These tables are primary Phase 1 read targets for the SelcafeAdapter (categories, menu items, open hours). Completeness of this section directly informs ADR-005 completion.
+**Critical gap:** `urun.urungrup_no` is an integer FK referencing a product group/category, but the target table does not appear in the `selcafe` database schema. No `urungrup`, `urun_grup`, `kategori`, or similar table was found. **The product category/grouping structure is missing from the current schema.** Pod B must resolve whether: (a) the category table was intentionally omitted from this database copy, (b) categories are only coded in the application layer, or (c) `islemtip` partially serves this purpose.
+
+### Table: dbo.menudetay (set menu / combo item mappings)
+
+| schema_name | table_name | column_name | data_type | max_length | is_nullable | notes |
+|---|---|---|---|---|---|---|
+| dbo | menudetay | menu_urun_kod | varchar | 20 | NO | PK col 1 — parent menu item code |
+| dbo | menudetay | urun_kod | varchar | 50 | NO | PK col 2 — component product code |
+| dbo | menudetay | miktar | float | — | YES | Component quantity in the set menu |
+
+### Table: dbo.ayar (settings / configuration — likely includes open hours)
+
+| schema_name | table_name | column_name | data_type | max_length | is_nullable | notes |
+|---|---|---|---|---|---|---|
+| dbo | ayar | kod | varchar | 20 | NO | PK — setting code key |
+| dbo | ayar | deger | float | — | YES | Numeric setting value |
+| dbo | ayar | bindeger | image | — | YES | Binary/blob setting value |
+| dbo | ayar | txtdeger | varchar | 2000 | YES | Text setting value |
+
+**Note on open hours:** The `ayar` table is a key-value settings store (26 rows). Operating hours are likely stored here as setting keys (e.g. `acilis_saat`, `kapanis_saat` or similar). The actual key names are not visible without querying row data. Pod B to determine whether `ayar` reading is within Phase 1 scope, given it may include mixed settings — some of which could be sensitive system configuration.
+
+### Table: dbo._pc (PC type pricing)
+
+| schema_name | table_name | column_name | data_type | max_length | is_nullable | notes |
+|---|---|---|---|---|---|---|
+| dbo | _pc | tip | int | — | NO | PK — PC type code |
+| dbo | _pc | ad | varchar | 20 | NO | PC type name |
+| dbo | _pc | fiyat | money | — | NO | Hourly rate |
 
 ---
 
 ## Section 12 — Referential Integrity and Index Notes
 
-**To be completed by Pod C from Sections B5–B8 output.**
-
 ### 12.1 Primary Key Types Observed
 
 | PK type observed | Table count | Notes |
 |---|---|---|
-| Integer / IDENTITY (auto-increment) | [POD C] | |
-| GUID / uniqueidentifier | [POD C] | |
-| Composite PK (multi-column) | [POD C] | |
-| No PK defined | [POD C] | Tables without PKs are flagged as data quality risk |
+| Integer / IDENTITY (auto-increment) | 12 | ariza, basvuru, detay, dtproperties, kasaislem, kullanici, stokislem, sysdiagrams, uye — plus id (partial) |
+| Integer / NOT identity (manually managed) | 5 | adisyon, islemtip, kasa, masa, siparis — PK is int but is_identity = False |
+| varchar PK (natural key) | 3 | ayar (kod), urun (kod), id (ad) |
+| char PK (natural key) | 1 | uyesinif (sinif) |
+| datetime PK | 1 | kuyruk (zaman) — unusual; high collision risk if multiple queue entries created in same millisecond |
+| Composite PK (multi-column) | 2 | dtproperties (id+property), menudetay (menu_urun_kod+urun_kod) |
+| No PK defined | 3 | _kampanya, _kontrol, _pc — these tables have no PK constraint |
+
+**Notable:** `adisyon.adisyon_no`, `siparis.siparis_no`, and `masa.masa_no` are integer PKs that are NOT identity columns — they appear to be application-managed sequences. The `id` table (2 rows) likely serves as the application-layer sequence counter for these.
 
 ### 12.2 Foreign Key Observations
 
-[POD C: summarise the FK map from Section B6. Note:
-- How many FK relationships exist?
-- Are there circular references?
-- Are any FKs marked `is_not_trusted = 1` (constraints not enforced)?
-- Are any FKs disabled?]
+**Zero formal foreign key constraints exist in the entire `selcafe` database.**
+
+All inter-table relationships are implicit, enforced only at the application layer via column naming convention (e.g. `adisyon.masa_no` → `masa.masa_no`, `adisyon.uye_no` → `uye.uye_no`). This has the following implications for the SelcafeAdapter:
+
+- No referential integrity guarantee from the database — application could have orphaned rows.
+- Adapter join logic must be written defensively (LEFT JOINs rather than INNER JOINs in most cases).
+- No cascade delete/update behaviour exists at the DB level — Selcafe application handles all consistency.
+- `is_not_trusted` and `is_disabled` checks are not applicable (no FKs at all).
 
 ### 12.3 Index Observations
 
-[POD C: note any unusual patterns from Section B8 — e.g. many non-clustered indexes suggesting heavy query load; no indexes on large tables; indexes on datetime/session columns suggesting time-based queries.]
+Non-primary-key indexes of note:
 
-### 12.4 Stored Procedure / Trigger Inventory Summary (Section B11)
+| Table | Index name | Indexed columns | Notes |
+|---|---|---|---|
+| adisyon | NonClusteredIndex-20241122-183734 | baslangic_zaman, bitis_zaman | Added 2024-11-22 — recent addition; confirms time-range queries are common and expensive enough to warrant indexing |
+| detay | _dta_index_detay_* | siparis_no (key); urun_kod, urun_ad, miktar, birim, fiyat, tutar, durum, iptal_kullanici_no, iptal_aciklama (INCLUDE) | DTA (Database Tuning Advisor) auto-generated — covering index for order-detail lookups by order number |
+| siparis | _dta_index_siparis_* | siparis_zaman, siparis_no, adisyon_no, kullanici_no (key); durum (INCLUDE) | DTA auto-generated — time-based order queries; confirms high query frequency on siparis |
+| uye | IX_uye_ad | ad | UNIQUE non-clustered — member name must be unique in Selcafe |
+
+DTA indexes indicate the Selcafe application issues frequent queries against `detay` by `siparis_no` and against `siparis` by time and order number. The adapter's read-only queries should follow the same indexed patterns to avoid performance impact on the live system.
+
+### 12.4 Stored Procedure / Trigger Inventory Summary (Section B11 + post-spike correction)
+
+⚠ **Correction (2026-06-23):** The original B11 discovery script results were incomplete. The provisioned read-only account has no permissions on the business-logic objects in `selcafe`, so they were invisible to `sys.objects` and `INFORMATION_SCHEMA.ROUTINES` queries run under that account. Kerem confirmed via SSMS (admin account) that additional objects exist. This section has been updated to reflect the full picture.
+
+#### Objects visible to the provisioned read-only account (original B11 results)
 
 | object_type | count |
 |---|---|
-| Stored procedures (P) | [POD C] |
-| Scalar functions (FN) | [POD C] |
-| Table-valued functions (IF/TF) | [POD C] |
-| Triggers (TR) | [POD C] |
+| Stored procedures (P) — diagram utilities | 6 |
+| Scalar functions (FN) — diagram utility | 1 |
+| Table-valued functions (IF/TF) | 0 |
+| Triggers (TR) | 4 |
 
-[POD C: note the names of any stored procedures with names suggestive of customer data, balance operations, or session management. Names only — do not read the procedure body.]
+Objects visible to this account are SQL Server diagram-management utilities only: `sp_alterdiagram`, `sp_creatediagram`, `sp_dropdiagram`, `sp_helpdiagramdefinition`, `sp_helpdiagrams`, `sp_renamediagram`, `fn_diagramobjects`.
+
+#### Business-logic objects confirmed via SSMS (admin account) — NOT visible to read-only account
+
+| Object name | Type | Name translation | Likely purpose |
+|---|---|---|---|
+| `dbo._sp_kampanya_hesapla` | Stored Procedure | campaign-calculate | Calculate promotion/discount for a single transaction |
+| `dbo._sp_kampanya_tum_hesapla` | Stored Procedure | campaign-all-calculate | Batch recalculate all active promotions |
+| `dbo.sp_get_id` | Stored Procedure | get-id | Application-managed sequence getter (aligns with `id` table, 2 rows) |
+| `dbo.sp_ucret_hesapla` | Stored Procedure | charge-calculate | Calculate session/usage fee |
+| `dbo.fn_saat_ucret` | Scalar Function | hour-charge | Return hourly rate for a given PC type/time |
+
+**Definition text:** NULL / not retrievable — `sys.sql_modules` returns NULL definition for all objects, including diagram utilities. This is consistent with WITH ENCRYPTION on these objects OR the account lacking VIEW DEFINITION. Business SP source text was not retrieved.
+
+**Permission finding:** The provisioned read-only account has **zero permissions** on the five business-logic objects above — they are completely invisible to that login. This is correct for a read-only data adapter (the adapter should never call business SPs). However, it also means the spike could not confirm their exact logic from this account.
+
+**Revised architectural finding:** Pricing and campaign discount logic **IS present at the database layer** — not only in the Windows application layer as originally reported. `sp_ucret_hesapla` (charge calculation) and `fn_saat_ucret` (hourly rate) implement session pricing logic in T-SQL. `_sp_kampanya_hesapla` and `_sp_kampanya_tum_hesapla` implement promotion/discount logic. `sp_get_id` manages application-layer sequences via the `id` table. The SelcafeAdapter must be aware that computed totals in `adisyon` and `kasaislem` are produced by these SPs — the adapter should read the stored results, not re-implement the pricing logic.
+
+**Triggers relevant to the adapter:**
+
+| Trigger name | Object type | Notes |
+|---|---|---|
+| masa_on_update | SQL_TRIGGER | Fires on `masa` table updates — read-only adapter unaffected. |
+| siparis_on_update | SQL_TRIGGER | Fires on `siparis` table updates — read-only adapter unaffected. |
+| trgDurumDelete | SQL_TRIGGER | Fires on status-row deletes — read-only adapter unaffected. |
+| trgDurumUpdate | SQL_TRIGGER | Fires on status field updates — read-only adapter unaffected. |
 
 ---
 
 ## Section 13 — Encoding and Data Quality Observations
 
-**To be completed by Pod C from Section B9 output.**
-
 ### 13.1 Collation Summary
 
 | Level | Collation value |
 |---|---|
-| Server default (from Section 3) | [POD C] |
-| Target database collation (from Section B1) | [POD C] |
-| Number of columns with collation different from database default | [POD C] |
-| Any column-level Turkish collation observed | [Yes / No] |
-| Any column-level Latin1 collation observed | [Yes / No] |
-| Any `varchar` / `char` columns (non-Unicode) observed | [Yes / No — count: ] |
-| Any `nvarchar` / `nchar` columns (Unicode) observed | [Yes / No — count: ] |
+| Server default | `Turkish_CI_AS` |
+| Target database collation | `Turkish_CI_AS` |
+| Number of columns with collation different from database default | 0 — all character columns use `Turkish_CI_AS`; only non-character columns (int, float, datetime, bit) have null collation (expected) |
+| Any column-level Turkish collation observed | Yes — all varchar/char columns: `Turkish_CI_AS` |
+| Any column-level Latin1 collation observed | No |
+| Any `varchar` / `char` columns (non-Unicode) observed | Yes — count: 58 varchar/char columns across all user tables |
+| Any `nvarchar` / `nchar` columns (Unicode) observed | Yes — count: 2, but both are in SQL Server internal tables (`dtproperties.uvalue`, `sysdiagrams.name`). Zero nvarchar in business tables. |
+
+**Encoding risk:** All business data is stored as `varchar`/`char` under `Turkish_CI_AS`. Turkish characters (`ğ`, `ş`, `ç`, `ö`, `ü`, `ı`) are supported via the Turkish code page in `varchar` under this collation, but when read by the TypeScript/NestJS adapter (which expects UTF-8 / Unicode), pymssql or mssql driver's codec handling will be critical. If the driver returns raw bytes without converting to UTF-8, Turkish characters will be corrupted. Pod B to assess and specify the required connection charset configuration in Section 15.
 
 ### 13.2 Nullability Risk Summary
 
 | Finding | Value |
 |---|---|
-| Tables with >50% nullable columns | [POD C: list table names from B9] |
-| Tables with 0% nullable columns (strict) | [POD C: list table names] |
-| Tables with no NOT NULL columns at all | [POD C: list table names — data quality red flag] |
+| Tables with >50% nullable columns | `_kontrol` (7/7 = 100%), `adisyon` (22/23 = 96%), `detay` (11/12 = 92%), `uye` (11/12 = 92%), `basvuru` (11/12 = 92%), `siparis` (5/6 = 83%), `kasaislem` (9/10 = 90%), `masa` (21/22 = 95%), `kasa` (4/5 = 80%), `stokislem` (5/6 = 83%), `kuyruk` (3/4 = 75%), `ayar` (3/4 = 75%), `ariza` (3/5 = 60%), `uyesinif` (5/6 = 83%), `urun` (7/8 = 88%) |
+| Tables with 0% nullable columns (strict) | `_pc` (0/3 nullable), `islemtip` (0/3 nullable) |
+| Tables with no NOT NULL columns at all (beyond PK) | `_kontrol` — all 7 columns are nullable including non-PK columns; this table has no PK and all nulls — it is a shadow/log table, not a reliable data store |
+
+High nullability is pervasive. Most tables have nullable everything beyond the PK. Adapter read logic must not assume non-null values for any business columns.
 
 ### 13.3 Linked Server Findings (Section A6)
 
 | Finding | Value |
 |---|---|
-| Linked servers found? | [Yes / No] |
-| If yes — linked server names and providers | [POD C: list from A6 output] |
-| Implication for adapter scope | [POD C: note if any linked server suggests additional data sources] |
+| Linked servers found? | No |
+| If yes — linked server names and providers | N/A |
+| Implication for adapter scope | No external data integration paths visible at the SQL Server layer. Selcafe is a self-contained SQL Server instance with no database-level connections to other systems. All Selcafe integrations with external systems (if any) are handled at the Windows application layer. |
 
 ---
 
@@ -453,22 +707,47 @@ Based on the spike findings:
 
 ## Section 17 — Open Questions for ADR-005 Completion
 
-**To be completed by Pod B.**
+**Completed by Pod B during the ADR-005 full-text session (2026-06-23, HEAD 5102859e).**
 
-The following questions must be resolved before the full ADR-005 text can be finalized (ROADMAP Seq 16). This section is an input packet for the ADR-005 Opus session.
+ADR-005 full text is now drafted and Kerem-approved (`/docs/adr/ADR-005-selcafe-read-only-adapter.md`,
+Accepted 2026-06-23). This section records the question set as resolved/raised by that drafting.
+
+### 17.1 ADR-005 completion status
+
+| Item | Status |
+|---|---|
+| ADR-005 full text | Accepted 2026-06-23 (Kerem); merge gate Pod B + Kerem; does NOT authorize Pod C |
+| Pre-spike SR-003 controls (PRE-001…004) | Resolved by ADR-005 SR-003-1…4 (see 17.2) |
+| New questions from ADR-005 drafting | OQ-SC-NEW-008…010 + product-implication PI-1/PI-2 (see 17.3–17.4) |
+| `[NEEDS KEREM APPROVAL]` raised | ADR-005 §9 K-A1…K-A5 (K-A1 decided = Option A; K-A2 authorized; K-A3 open; K-A4/K-A5 gating) |
+
+### 17.2 Standing questions from K-10 and SR-003 (pre-spike) — RESOLVED
+
+| ID | Question | Resolution in ADR-005 |
+|---|---|---|
+| OQ-SC-PRE-001 | Parameterized/least-privilege read mechanism (SR-003 control 1) | **Resolved** — SR-003-1: dedicated `SELECT`-only least-privilege login, parameterized, SQL-2008-compatible, indexed, non-blocking reads. |
+| OQ-SC-PRE-002 | Boundary validation/sanitization of ingested data (SR-003 control 2) | **Resolved** — SR-003-2: null-tolerance, defensive LEFT JOINs, UTF-8 conversion, closed fail-safe status enums, no trust of SP-computed totals, vendor-neutral read models. |
+| OQ-SC-PRE-003 | Read-only credential storage/rotation (SR-001 / SR-003 control 3) | **Resolved at requirement level** — SR-003-3: credential via the SR-001 secrets approach, never in repo/source/plaintext, rotatable. Mechanism owned by SR-001 (dependency). |
+| OQ-SC-PRE-004 | Pseudonymization/exclusion for member-linked session records (SR-003 control 4) | **Resolved** — SR-003-4 + ADR-005 §4.2 hard exclusion + D-3a no-member-resolution. Phase 1 ingests no Selcafe PII. (Spike confirmed `adisyon.uye_no` / `kasaislem.uye_no` linkage; both hard-excluded.) |
+
+### 17.3 New questions raised by ADR-005 drafting
 
 | ID | Question | Owner | Priority |
 |---|---|---|---|
-| OQ-SC-001 | [Pod B: list open question] | | |
+| OQ-SC-NEW-008 | **Physical read source**: direct live SQL read (spiked, decided = Option A) vs. a downstream replica (BigQuery/Airbyte, ~10-min, assumed). Includes the **active-session staleness-tolerance** question and the **cross-border** implication (replication moves full Selcafe PII to GCP → `CROSS_BORDER_TRANSFER_ASSESSMENT.md` required regardless of adapter read surface). Resolved for Phase 1 by K-A1 = Option A; replica path deferred and gated by K-A4. | Kerem + Pod B (+ legal) | High |
+| OQ-SC-NEW-009 | **Read isolation-level / non-blocking strategy** for the live-read path so the adapter never blocks Selcafe writers; eventual consistency acceptable for status/catalog; dirty-read modes must not be used for any value-bearing read (none in Phase 1). | Pod B | Med |
+| OQ-SC-NEW-010 | **`DATA_PROCESSING_INVENTORY.md` Selcafe-surface update**: add a Selcafe-derived data surfaces section documenting the non-PII read surface and the explicitly-excluded PII surfaces with rationale. Pod A owns; Pod B reviews; Kerem approves. | Pod A + Pod B + Kerem | High |
 
-**Standing questions from K-10 and SR-003 (pre-spike):**
+### 17.4 Product-implication questions (route to Pod A)
 
-| ID | Question | Owner | Status |
+| ID | Question | Owner | Priority |
 |---|---|---|---|
-| OQ-SC-PRE-001 | What parameterized/least-privilege read access mechanism should the SelcafeAdapter use to prevent injection on the Selcafe read path? (SR-003 control 1) | Pod B | Pending ADR-005 full text |
-| OQ-SC-PRE-002 | What validation/sanitization must occur at the CafeManagementAdapter boundary for Selcafe-ingested data before it enters Adeks domain logic? (SR-003 control 2) | Pod B | Pending ADR-005 full text |
-| OQ-SC-PRE-003 | How should the Selcafe read-only credential be stored and rotated within the Adeks deployment? (SR-001 / SR-003 control 3) | Pod B | Pending secrets-management approach (SR-001) |
-| OQ-SC-PRE-004 | If Selcafe session records link to a customer identifier, what pseudonymization or exclusion approach prevents that PII from entering Adeks domain objects? (SR-003 control 4) | Pod B + Kerem | Pending spike findings |
+| PI-1 | Is real-time station/session status consumed by any Phase-1 feature, or is the `masa` read a Phase-2 prerequisite being validated early? Determines whether `masa` is a Phase-1 read target. | Pod A + Kerem | High |
+| PI-2 | Is the Phase-1 customer menu sourced from Selcafe `urun`, or Adeks-native? Determines whether `urun`/`menudetay` are Phase-1 read targets and whether the missing-category gap (OQ-SC-NEW-001) blocks Phase-1 menu categorization. | Pod A + Kerem | High |
+
+### 17.5 Carry-forward (unchanged) — high-priority spike questions still open
+
+OQ-SC-NEW-001 (missing `urungrup` category table), OQ-SC-NEW-002 (provision a dedicated scoped read-only login; ADR-005 K-A2 authorized), OQ-SC-NEW-003 (`uye.bakiye` isolation; encoded as ADR-005 §4.2a), OQ-SC-NEW-004 (`sifre` columns hard-excluded; ADR-005 §4.2), OQ-SC-NEW-005 (`ayar.kod` key-name read authorization; ADR-005 K-A3, still open), OQ-SC-NEW-006 (join/null strategy; folded into SR-003-2), OQ-SC-NEW-007 (Win10/Express availability/capacity; ADR-005 §6.2).
 
 ---
 
@@ -476,8 +755,8 @@ The following questions must be resolved before the full ADR-005 text can be fin
 
 | Role | Action |
 |---|---|
-| Pod C | Completes Sections 1–13; routes to Kerem + Pod B |
-| Kerem | Reviews execution metadata; confirms no row data captured; gates any further Selcafe access scope beyond this spike |
+| Pod C | Sections 1–13 completed 2026-06-23. Routes to Kerem + Pod B. |
+| Kerem | Reviews execution metadata; confirms no row data captured; gates any further Selcafe access scope beyond this spike (including OQ-SC-NEW-005 if `ayar` key-name read is desired) |
 | Pod B | Completes Sections 14–17; produces ADR-005 full text in a separate Opus/Extra/ON session (ROADMAP Seq 16) |
 | Pod A | No action required on this document; consumes ADR-005 completion once available |
 | Pod D | No action required at spike stage; will consume adapter monitoring design once ADR-005 is finalized |
@@ -491,3 +770,5 @@ The following questions must be resolved before the full ADR-005 text can be fin
 | Version | Date | Author | Change |
 |---|---|---|---|
 | Template v1.0 | 2026-06-22 | Pod B | Initial template. Sections 1–13 for Pod C; Sections 14–17 for Pod B. Aligned to K-10 question set, SR-003 controls, ADR-005 stub, ROADMAP Seq 14–16. HEAD SHA at template production: d76eede939514cf1051e1521415c0754a749a05e. |
+| v1.1 (Sections 1–13) | 2026-06-23 | Pod C | Sections 1–13 filled from live spike execution against `selcafe` on 192.168.1.249:1433. Script selcafe_schema_discovery_v1.0.sql executed in full (Parts A + B). No row data captured. 23 tables, 180 columns documented. 7 new open questions raised (OQ-SC-NEW-001 through 007). |
+| v1.2 (Section 17) | 2026-06-23 | Pod B | Section 17 completed during the ADR-005 full-text session. Resolved OQ-SC-PRE-001…004 (mapped to ADR-005 SR-003-1…4); raised OQ-SC-NEW-008…010 and product-implication PI-1/PI-2. Status line updated. Sections 14–16 remain pending Pod B (lightweight follow-on referencing ADR-005). No row data; schema/metadata only. |
