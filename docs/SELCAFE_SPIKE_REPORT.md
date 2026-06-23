@@ -42,7 +42,7 @@
 |---|---|
 | Document | `SELCAFE_SPIKE_REPORT.md` |
 | Project | Adeks Platform |
-| Status | **Sections 1–13 (Pod C) + Section 17 (Pod B) complete; Sections 14–16 pending Pod B** |
+| Status | **Complete — Sections 1–13 (Pod C), Sections 14–16 (Pod B), and Section 17 (Pod B) all filled** |
 | Script version | `selcafe_schema_discovery_v1.0.sql` v1.0 |
 | Data rule | Schema and catalog metadata only; NO row data; NO real customer data |
 | Implementation authority | **Does NOT authorize Pod C to implement any integration** |
@@ -596,112 +596,172 @@ High nullability is pervasive. Most tables have nullable everything beyond the P
 
 ## Section 14 — Feasibility Assessment
 
-**To be completed by Pod B after reviewing Sections 1–13.**
+> **Note (Pod B, 2026-06-23):** ADR-005 (`/docs/adr/ADR-005-selcafe-read-only-adapter.md`,
+> Accepted 2026-06-23) is the authoritative architectural assessment drawn from this spike.
+> Sections 14–16 cross-reference ADR-005 rather than re-derive its findings.
+> ADR-005 governs on any conflict.
 
 ### 14.1 K-10 Question Answers
 
-| K-10 Question | Answer |
-|---|---|
-| Is the SQL Server network-accessible? | [Pod B: based on Section 2] |
-| What authentication method is needed? | [Pod B: based on Section 2.2] |
-| What tables and columns exist? | [Pod B: see Sections 6–11; full detail in those sections] |
-| What data quality is present? | [Pod B: based on Section 13] |
-| What customer data exists? | [Pod B: based on Section 8 — field names and types only] |
-| What session/PC data exists? | [Pod B: based on Section 9] |
-| What value/balance data exists? | [Pod B: based on Section 10] |
-| Is Phase 1 read-only sync feasible? | [Pod B: **Feasible / Partially Feasible / Not Feasible** — see 14.2] |
+| K-10 Question | Answer | Source |
+|---|---|---|
+| Is the SQL Server network-accessible? | **Yes** — direct TCP/IP to 192.168.1.249:1433 established successfully. Named instance `SELCAFESERVER` listens on a fixed port; SQL Server Browser not required. | Section 2; ADR-005 §1.2 |
+| What authentication method is needed? | SQL Server Authentication (login + password). Dedicated least-privilege read-only login required; spike's `masa` account has unconfirmed effective grants and must not be reused. | Section 5.2; ADR-005 SR-003-1 |
+| What tables and columns exist? | 23 user tables in `dbo`; full schema and column detail in Sections 6–11. Phase 1 read surface narrowed to 6 candidate non-PII tables — see Section 14.3. | Sections 6–11; ADR-005 §4 |
+| What data quality is present? | Pervasive nullability (>80% nullable beyond PK in most business tables), zero FK constraints database-wide, all 58 business character columns `varchar`/`char` non-Unicode under `Turkish_CI_AS`, compat level 100 (SQL Server 2008 mode). | Section 13; ADR-005 §1.2, SR-003-2 |
+| What customer data exists? | Heavy PII in `uye` (name, email, phone, mobile, address, district, password, balance), `basvuru` (registration PII + password), `kullanici` (staff name + password); member linkage FK in `adisyon.uye_no`, `kasaislem.uye_no`, `kuyruk.uye_no`. | Section 8; ADR-005 §4.2 |
+| What session/PC data exists? | `masa` holds station status (`durum`), session start time (`baslangic_zaman`), and active-session link (`aktif_adisyon_no` — excluded from adapter propagation per D-3a). `adisyon` holds full session billing including member FK. | Section 9; ADR-005 D-3a |
+| What value/balance data exists? | `uye.bakiye` is a single mutable `float` — not a ledger, architecturally incompatible with ADR-006 (hard-excluded). `kasaislem` holds SP-computed financial transactions linked to member IDs (hard-excluded). | Section 10; ADR-005 §4.2, §4.2a |
+| Is Phase 1 read-only sync feasible? | **Yes — Feasible (bounded, PII-free surface).** See Section 14.2. | ADR-005 §2, §6.1 |
 
 ### 14.2 Phase 1 Feasibility Verdict
 
-**[Pod B to complete after reviewing all sections]**
+**Feasibility verdict: ✅ Feasible — bounded, PII-free read surface**
 
-Feasibility verdict: `[ ] Feasible` `[ ] Partially Feasible` `[ ] Not Feasible` `[ ] Requires Further Spike`
+Rationale (full reasoning in ADR-005 §§2–6; summarized here):
 
-Rationale:
+1. **Phase 1 read targets exist and are structurally readable.** The non-PII candidate tables (`masa`, `_pc`, `urun`, `menudetay`, `uyesinif`, `ayar`) are present and accessible to a scoped read-only account. Whether each is *built* in Phase 1 is a product-scope question (PI-1/PI-2, Section 17.4), not a feasibility question.
 
-[Pod B: provide structured rationale covering:
-1. Whether the Phase 1 read targets (open hours, categories, menu items, active sessions) are present as readable table structures.
-2. Whether the connection method is operationally viable (latency, reliability, no live-operation disruption).
-3. Whether the encoding/collation situation is manageable at the adapter layer.
-4. Whether PII/customer data in the read path creates KVKK scope that would require legal-advisor input before the adapter is built.
-5. Whether the schema structure is stable enough to build a reliable read adapter against.]
+2. **Connection method is operationally viable with managed risk.** Direct TCP/IP on port 1433, SQL Server authentication, non-blocking reads — viable. The Win10/Express host introduces an availability risk (OS-update restarts); addressed by mandatory circuit-breaker / graceful degradation in the adapter (ADR-005 §6.2).
+
+3. **Encoding is manageable at the adapter boundary.** The `Turkish_CI_AS` / `varchar` situation requires explicit driver-charset configuration and UTF-8 conversion at the adapter boundary (ADR-005 SR-003-2.3). Not a feasibility blocker; a mandatory implementation requirement.
+
+4. **PII does not block the non-PII read surface.** The §4.2 hard-exclusion list and D-3a no-member-resolution rule keep the Phase 1 read path PII-free. The absent KVKK legal artifacts gate the PII/cross-border tracks only, not the non-PII catalog/status read from Source A (ADR-005 §8.4).
+
+5. **Schema stability is adequate.** Tables dated 2005–2024 with no structural volatility visible in spike metadata. Zero-FK structure requires defensive LEFT JOINs (mandatory, not a blocker) (ADR-005 SR-003-2).
 
 ### 14.3 Recommended Phase 1 Read Targets
 
-**[Pod B to complete]**
+Per ADR-005 §4.1 (authoritative). Column-level projections and neutral read-model shapes are stated in ADR-005 §4.1; this table gives the summary.
 
-Based on the spike findings, the following Selcafe tables/views are recommended as Phase 1 read targets for the SelcafeAdapter (subject to ADR-005 full text and Kerem confirmation):
-
-| Read target (table/view name) | Functional purpose | Personal data present? | Recommended adapter read? |
+| Selcafe table | Functional purpose | PII? | Recommended for Phase 1? |
 |---|---|---|---|
-| [Pod B] | | | |
+| `dbo.masa` | Station occupancy status and session start time → neutral `StationStatus` | No — `aktif_adisyon_no` not propagated; no member resolution (D-3a) | **Yes** — subject to PI-1 (is station status a Phase-1 consumer?) |
+| `dbo._pc` | PC type name and hourly rate → neutral `StationType` | No | **Yes** |
+| `dbo.urun` | Product/menu catalog → neutral `CatalogItem` | No | **Yes** — subject to PI-2 (Selcafe-sourced vs Adeks-native menu?) |
+| `dbo.menudetay` | Combo/set-menu component mappings → neutral `CatalogComboComponent` | No | **Yes** — subject to PI-2 |
+| `dbo.uyesinif` | Membership tier rules (tier definitions only, no member rows) → neutral `MembershipTierDefinition` | No | **Yes** |
+| `dbo.ayar` | Operating hours (key-value store) → neutral `OperatingHours` | No — if scoped to confirmed non-sensitive open-hours keys | **Conditional** — requires K-A3 authorization (controlled `ayar.kod` key-name read; currently open, ADR-005 §9). Until authorized, `ayar` / open-hours stays out of Phase 1. |
 
 ### 14.4 Surfaces Recommended Out of Phase 1 Scope
 
-**[Pod B to complete]**
+Per ADR-005 §4.2 (hard-EXCLUDED surfaces — authoritative) and D-3a.
 
-The following discovered surfaces are recommended as out of Phase 1 SelcafeAdapter scope, with rationale:
-
-| Table/view name | Reason to exclude from Phase 1 |
+| Selcafe table / column | Reason to exclude from Phase 1 |
 |---|---|
-| [Pod B] | |
+| `dbo.uye` (entire table) | Heavy PII — name, email, phone, mobile, address, district, password, balance. Hard-excluded ADR-005 §4.2. |
+| `dbo.basvuru` (entire table) | Heavy PII (same field set) + password. Hard-excluded ADR-005 §4.2. |
+| `dbo.kullanici` (entire table) | Staff PII + `sifre` credential column. Hard-excluded ADR-005 §4.2. |
+| Any `sifre` column | Credential-storage risk (varchar, likely weak hash or plaintext). Never read under any circumstance. ADR-005 §4.2, OQ-SC-NEW-004. |
+| `uye.bakiye` | Mutable `float` — architecturally incompatible with ADR-006 append-only wallet. Hard-excluded + isolation rule. ADR-005 §4.2a. |
+| `adisyon.uye_no`, `kasaislem.uye_no`, `kuyruk.uye_no` | Member-linkage FKs — PII by linkage. Hard-excluded ADR-005 §4.2. |
+| `dbo.adisyon` (as a member-linked table) | Member FK + SP-computed financials; not required for Phase 1 non-PII surface. Hard-excluded ADR-005 §4.2. |
+| `dbo.kasaislem` (as a member-linked table) | Member FK + SP-computed financials. Hard-excluded ADR-005 §4.2. |
+| `masa.aktif_adisyon_no` (as a usable FK) | D-3a rule: must not be propagated into Adeks as a usable foreign key; occupancy boolean + session-start time derived instead. ADR-005 D-3a. |
+| `masa.mac`, `masa.idle_exe*`, `masa.busy_exe*` | Device/client-config data; unnecessary; data minimization. ADR-005 §4.1. |
+| `dbo.adisyon`, `dbo.siparis`, `dbo.detay`, `dbo.kasaislem` (high-volume tables) | SP-computed, member-linked financials; no Phase 1 consumer identified; >1M-row scale. All hard-excluded. |
+| `dbo._kontrol` | All-nullable shadow/log table; no PK; structurally unreliable. No Phase 1 consumer. |
+| `dbo.ariza` | PC fault log; no Phase 1 consumer identified. |
+| `dbo.kuyruk` | Client notification queue (0 rows); contains `uye_no` PII reference; no Phase 1 consumer. |
 
 ---
 
 ## Section 15 — Encoding and Connectivity Risk Assessment
 
-**To be completed by Pod B.**
+> **Note (Pod B, 2026-06-23):** Risks identified in this section are formally mitigated in
+> ADR-005 SR-003-1 and SR-003-2. No new findings are raised here; this section translates
+> the spike's raw observations (Section 13) into risk-level verdicts and pointers to the
+> controlling ADR-005 controls.
 
 ### 15.1 Turkish Character Encoding Risk
 
-[Pod B: assess whether the observed collation(s) and column types create a risk of Turkish character corruption when data is ingested into the NestJS/TypeScript adapter layer. Note any tables or columns where encoding conversion will be required.]
+**Risk level: ⚠ Medium** (present and mandatory to address; not a feasibility blocker)
 
-**Risk level:** `[ ] Low` `[ ] Medium` `[ ] High`
+All 58 business character columns are `varchar`/`char` under `Turkish_CI_AS` (Section 13.1). Turkish characters (`ç`, `ş`, `ı`, `ğ`, `ö`, `ü`) are stored via the Turkish code page (Windows-1254). If the SQL Server driver returns raw bytes without Unicode conversion, these characters will be corrupted at the adapter boundary.
 
-**Mitigation recommendation:** [Pod B]
+**Mitigation — ADR-005 SR-003-2, item 3:** The `SelcafeAdapter` must explicitly configure the driver connection charset to the Turkish code page and convert output to UTF-8 at the adapter boundary. This is a mandatory implementation requirement; it must be validated with Turkish-character round-trip test cases before any Phase 1 data surfaces to consumers. The specific driver parameter is a Pod C implementation-issue decision.
 
 ### 15.2 Operational Risk to Live Selcafe Operation
 
-[Pod B: based on connection method, table sizes (from Section 6.2 row counts), and schema structure, assess whether a periodic read-only polling adapter poses any risk to live Selcafe performance or data integrity.]
+**Risk level: ✓ Low** (read-only, indexed-access, small included tables)
 
-**Risk level:** `[ ] Low` `[ ] Medium` `[ ] High`
+The Phase 1 included tables are operationally small: `masa` (~250 rows), `_pc` (8 rows), `urun` (1,075 rows), `menudetay` (12 rows), `uyesinif` (14 rows), `ayar` (26 rows). None of the high-volume operational tables (`detay`, `kasaislem`, `adisyon`, `siparis` — each >1M rows) appear in the Phase 1 included set; all are hard-excluded (Section 14.4).
 
-**Mitigation recommendation:** [Pod B]
+**Mitigation — ADR-005 SR-003-1:** Parameterized, SQL Server 2008-compatible (compat level 100), indexed-access, non-blocking reads. The specific isolation level is an implementation-phase decision (OQ-SC-NEW-009); dirty-read modes must not be used for any value-bearing read — and none of the Phase 1 included targets are value-bearing. Polling frequency should match the rate of change of the target data: catalog and open hours are slow-changing; station status is faster but still polled, not event-driven.
 
 ### 15.3 Connection Stability and Retry Risk
 
-[Pod B: assess the operational reliability of the read path — VPN dependency, TCP/IP stability, SQL Server instance restarts on updates, etc. Note whether the adapter will require circuit-breaker or fallback behaviour.]
+**Risk level: ⚠ Medium** (inherent to Win10/Express host; must be handled in adapter design)
+
+The Selcafe SQL Server runs as named instance `SELCAFESERVER` on a Windows 10 Pro consumer-OS host under a hypervisor (Section 2.3). OS-level updates may restart the SQL Server service without notice, breaking open connections and suspending polling until reconnect. The 10 GB Express Edition size ceiling is a longer-term capacity constraint but does not affect Phase 1 (Section 3).
+
+**Mitigation — ADR-005 §6.2:** The `SelcafeAdapter` **must** implement circuit-breaker, retry-with-backoff, and graceful degradation. A failed Selcafe read must not block, crash, or degrade Adeks features — the system must surface a neutral "status unavailable" or cached-last-known value rather than propagating errors downstream. This is a mandatory implementation requirement to be specified in the Pod C issue.
 
 ---
 
 ## Section 16 — KVKK / Personal Data Scope Notes
 
-**To be completed by Pod B. ASSUMPTION markers used where data evidence is insufficient.**
+> **Note (Pod B, 2026-06-23):** The KVKK scope position is formalized in ADR-005 §§4–5,
+> D-5. This section summarizes that position for the report reader; it is not an independent
+> assessment. ADR-005 governs on any conflict.
 
 ### 16.1 Personal Data Surfaces Identified
 
-[Pod B: based on the `[KVKK SURFACE]` flags in Sections 8–10, list the discovered personal-data-bearing columns and their KVKK implications for the SelcafeAdapter.]
+The following surfaces were flagged `[KVKK SURFACE]` in Sections 8–10. All are formally assessed and hard-excluded in ADR-005 §4.2. The `SelcafeAdapter` must not read any of them in Phase 1.
 
-| Column surface (schema.table.column) | Personal data type | KVKK implication |
+| Column surface (schema.table.column) | Personal data type | ADR-005 disposition |
 |---|---|---|
-| [Pod B: derived from Section 8 flags] | | |
+| `dbo.uye.ad` | Member name | Hard-excluded — ADR-005 §4.2 |
+| `dbo.uye.eposta` | Email address | Hard-excluded — ADR-005 §4.2 |
+| `dbo.uye.telefon` | Phone number | Hard-excluded — ADR-005 §4.2 |
+| `dbo.uye.cep` | Mobile number | Hard-excluded — ADR-005 §4.2 |
+| `dbo.uye.adres` | Home address | Hard-excluded — ADR-005 §4.2 |
+| `dbo.uye.semt` | District / neighbourhood | Hard-excluded — ADR-005 §4.2 |
+| `dbo.uye.sifre` | Password (varchar — likely weak hash or plaintext) | Hard-excluded — ADR-005 §4.2, OQ-SC-NEW-004 |
+| `dbo.uye.bakiye` | Member balance (mutable float) | Hard-excluded + isolation rule — ADR-005 §4.2a |
+| `dbo.basvuru.ad` / `.eposta` / `.telefon` / `.cep` / `.adres` / `.semt` | Registration PII (name, email, phone, mobile, address, district) | Hard-excluded — ADR-005 §4.2 |
+| `dbo.basvuru.sifre` | Password | Hard-excluded — ADR-005 §4.2 |
+| `dbo.kullanici.ad` | Staff name | Hard-excluded — ADR-005 §4.2 |
+| `dbo.kullanici.sifre` | Staff password | Hard-excluded — ADR-005 §4.2 |
+| `dbo.adisyon.uye_no` | Member linkage FK — PII by linkage | Hard-excluded; D-3a no-member-resolution rule — ADR-005 §4.2, D-3a |
+| `dbo.kasaislem.uye_no` | Member linkage FK — PII by linkage | Hard-excluded — ADR-005 §4.2 |
+| `dbo.kuyruk.uye_no` | Member linkage FK — PII by linkage | Hard-excluded — ADR-005 §4.2 |
 
 ### 16.2 Personal Data Scope Position
 
-Based on the spike findings:
+Per ADR-005 D-5 (KVKK scope position — authoritative).
 
-| Question | Position |
-|---|---|
-| Does the Phase 1 SelcafeAdapter read path touch customer personal data? | [Yes / No / Conditional on read target selection] |
-| Does Phase 1 read path require legal-advisor KVKK review before implementation? | [Yes / No / Partial] |
-| Is `DATA_PROCESSING_INVENTORY.md` update required before adapter implementation? | [Yes — new data surfaces identified / No — existing inventory covers the scope] |
-| Is `CROSS_BORDER_TRANSFER_ASSESSMENT.md` affected? | [Note if Selcafe DB hosting introduces any cross-border dimension] |
+| Question | Position | ADR-005 reference |
+|---|---|---|
+| Does the Phase 1 `SelcafeAdapter` read path touch customer personal data? | **No** — provided the §4.2 hard exclusions and D-3a no-member-resolution rule hold throughout implementation. | ADR-005 D-5, §4.2, D-3a |
+| Does the Phase 1 non-PII read path require the legal-advisor KVKK gate before implementation? | **No** — for the bounded non-PII surface (Source A, direct live SQL). Three explicit carve-outs apply (see below). | ADR-005 D-5, §8.4 |
+| Is `DATA_PROCESSING_INVENTORY.md` update required? | **Yes — recommended** before or alongside Phase 1 implementation: add a Selcafe-derived surfaces section documenting the Phase 1 non-PII read surface and the explicitly excluded PII surfaces with exclusion rationale. Pod A owns; Pod B reviews; Kerem approves. | ADR-005 D-5; OQ-SC-NEW-010 |
+| Is `CROSS_BORDER_TRANSFER_ASSESSMENT.md` affected? | **Open** — if the Selcafe→GCP replication is confirmed to exist, it creates a cross-border obligation independently of the adapter read surface. ADR-005 K-A1 selects Source A (direct live SQL) for Phase 1; however, the replication's existence must be declared in `CROSS_BORDER_TRANSFER_ASSESSMENT.md` regardless. | ADR-005 D-6, K-A4 |
+
+**Carve-outs that flip the KVKK gate ON (per ADR-005 D-5):**
+
+1. **`ayar` open-hours read** — requires K-A3 authorization (controlled `ayar.kod` key-name read; currently open, ADR-005 §9). Until authorized, `ayar` / open-hours stays out of Phase 1.
+2. **Any member-linked read** — requires `[NEEDS KEREM APPROVAL]` + legal-advisor gate + `DATA_PROCESSING_INVENTORY.md` update. Not authorized by ADR-005.
+3. **Cross-border processing** — if the Selcafe→GCP replication is confirmed, `CROSS_BORDER_TRANSFER_ASSESSMENT.md` is required before any cross-border source is used (K-A4 gating item).
 
 ### 16.3 Legal Gate Position for ADR-005 Implementation
 
-[Pod B: state whether the SelcafeAdapter implementation gate is:
-- (a) clear of KVKK dependencies if the Phase 1 read targets are non-PII only (open hours, categories, menu items), OR
-- (b) KVKK-gated if the read path will include any customer-identity-linked data (session records with customer references, balance data, etc.)]
+Per ADR-005 §8.4 (implementation gating — authoritative).
+
+**The non-PII direct-read surface is not gated by the three absent legal artifacts.** For the strictly non-PII Source-A read surface (catalog + station status, per K-A1), the binding pre-implementation items are:
+
+- Dedicated least-privilege read-only login provisioned — SR-003-1 (K-A2 authorized by Kerem 2026-06-23).
+- SR-001 secrets-management approach in place for the Selcafe credential — SR-003-3 (SR-001 is a Pod B design item; a dependency, not yet designed).
+- Kerem confirmation on PI-1 and PI-2 (which targets are built in Phase 1) — Section 17.4.
+- K-A3 authorized if `ayar` / open-hours is included — ADR-005 §9.
+
+The three absent legal artifacts (`KVKK_LEGAL_BASIS.md`, `DATA_RETENTION_POLICY.md`, `CROSS_BORDER_TRANSFER_ASSESSMENT.md`) gate the **PII and cross-border tracks specifically**:
+
+- Any read of a §4.2 excluded PII surface → legal-artifact gate + Kerem + legal advisor.
+- Any use of Source B (replica / BigQuery) → `CROSS_BORDER_TRANSFER_ASSESSMENT.md` + legal advisor (K-A4).
+- Proceeding with Phase 1 non-PII catalog/status reads from Source A does **not** require these artifacts first.
+
+**Implementation is not authorized by this spike report.** The `SelcafeAdapter` becomes Pod C work only via a separately Pod B + Kerem-approved issue meeting the Definition of Ready. See ADR-005 §8.4 and Section 18.
 
 ---
 
@@ -772,3 +832,4 @@ OQ-SC-NEW-001 (missing `urungrup` category table), OQ-SC-NEW-002 (provision a de
 | Template v1.0 | 2026-06-22 | Pod B | Initial template. Sections 1–13 for Pod C; Sections 14–17 for Pod B. Aligned to K-10 question set, SR-003 controls, ADR-005 stub, ROADMAP Seq 14–16. HEAD SHA at template production: d76eede939514cf1051e1521415c0754a749a05e. |
 | v1.1 (Sections 1–13) | 2026-06-23 | Pod C | Sections 1–13 filled from live spike execution against `selcafe` on 192.168.1.249:1433. Script selcafe_schema_discovery_v1.0.sql executed in full (Parts A + B). No row data captured. 23 tables, 180 columns documented. 7 new open questions raised (OQ-SC-NEW-001 through 007). |
 | v1.2 (Section 17) | 2026-06-23 | Pod B | Section 17 completed during the ADR-005 full-text session. Resolved OQ-SC-PRE-001…004 (mapped to ADR-005 SR-003-1…4); raised OQ-SC-NEW-008…010 and product-implication PI-1/PI-2. Status line updated. Sections 14–16 remain pending Pod B (lightweight follow-on referencing ADR-005). No row data; schema/metadata only. |
+| v1.3 (Sections 14–16) | 2026-06-23 | Pod B | Sections 14–16 completed as ADR-005 cross-references (no new findings). Feasibility verdict ✅ Feasible (bounded, PII-free surface). Recommended/excluded read targets per ADR-005 §4.1/§4.2. Encoding risk Medium, operational-disruption risk Low, connection-stability risk Medium — all mitigated by ADR-005 SR-003-1/SR-003-2/§6.2. KVKK scope position per ADR-005 D-5: non-PII Phase-1 surface not gated by absent legal artifacts. Document complete. |
