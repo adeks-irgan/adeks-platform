@@ -5,7 +5,7 @@
 **Approver:** Kerem (any status transition **into or out of "Locked"** on a product/business-impacting decision)
 **Canonical methodology:** `/docs/PROJECT_METHODOLOGY.md`
 **Intended repo path:** `/docs/PROJECT_DECISION_INDEX.md`
-**Last updated:** 2026-06-16 (B-2 reconciliation: `DATA_PROCESSING_INVENTORY.md` and `SECURITY_REVIEW.md` now present; removed stale "absent" references from ADR-007, K-18, K-19 rows)
+**Last updated:** 2026-06-23 (ADR-005 Accepted — Selcafe read-only adapter full text; §3 ADR-005 row and §1 integration-pattern/current-adapter rows updated; K-A1/K-A2 recorded)
 
 > **This file mirrors ADRs, methodology, and recorded Kerem decisions. It does not *establish* decisions.** The authoritative record of any decision is its ADR (in `/docs/adr/`) plus Kerem's approval. If this index and an ADR ever disagree, the ADR wins and this index is stale until corrected. If an external platform-instruction file says a decision is locked but this index and the ADRs do not, **treat the instruction file as stale** until reconciled.
 
@@ -34,8 +34,8 @@
 | Architecture | Locked (ADR pending) | ADR-001 | B, C | Modular monolith — not microservices |
 | Customer app | Locked | PROJECT_METHODOLOGY.md / PROJECT_BRIEF.md | A, C, D | PWA first |
 | Database family | Locked (ADR pending) | ADR-003 | B, C | PostgreSQL |
-| Integration pattern | Locked (ADR pending) | ADR-005 | B, C | `CafeManagementAdapter` |
-| Current adapter | Locked (ADR pending) | ADR-005 | B, C | `SelcafeAdapter` — temporary legacy bridge, not the core domain |
+| Integration pattern | Locked | ADR-005 — Accepted 2026-06-23 | B, C | `CafeManagementAdapter` |
+| Current adapter | Locked | ADR-005 — Accepted 2026-06-23 | B, C | `SelcafeAdapter` — temporary legacy bridge, not the core domain |
 | Future native engine | Locked (direction) | PROJECT_METHODOLOGY.md | B, C | `AdeksNativeCafeEngine` (Phase 2–3) |
 | Phase 2 PC client | Locked as Phase 2 candidate | PROJECT_METHODOLOGY.md | B, C, D | Electron + TypeScript |
 | Local gateway | Locked as Phase 2 candidate | PROJECT_METHODOLOGY.md | B, C | TypeScript/Node.js inside Adeks local network |
@@ -69,7 +69,7 @@
 | ADR-002 | TypeScript / NestJS / Next.js stack | High | Backlog — decision locked, ADR to write |
 | ADR-003 | PostgreSQL database family | High | Backlog — decision locked, ADR to write |
 | ADR-004 | ORM selection — Prisma              | Done | **Accepted** — 2026-06-08 (Kerem approval). Prisma selected. Implementation blocked pending separate Pod B + Kerem approved issues. |
-| ADR-005 | Selcafe read-only Phase 1 adapter | High | Backlog — decision locked, ADR to write |
+| ADR-005 | Selcafe read-only Phase 1 adapter | Done | **Accepted** — 2026-06-23 (Kerem approval). Full ADR text: read-only Selcafe Phase 1 via `CafeManagementAdapter`/`SelcafeAdapter`; bounded PII-free read surface + hard-exclusion list; SR-003-1—4 read-path controls. K-A1 decided (direct live SQL; replica/BigQuery deferred); K-A2 authorized (dedicated least-privilege read-only login); K-A4/K-A5 gate any future PII/cross-border expansion. Does NOT authorize Pod C; implementation blocked pending separately approved issues + (for PII/cross-border) `KVKK_LEGAL_BASIS.md` / `DATA_RETENTION_POLICY.md` / `CROSS_BORDER_TRANSFER_ASSESSMENT.md`. |
 | ADR-006 | Wallet append-only ledger | Done | **Accepted** — 2026-06-14 (Kerem approval). Append-only wallet ledger, correction entry discipline, and reason-code enum locked in ADR-006. Implementation blocked pending separate Pod B + Kerem approved issues. |
 | ADR-007 | Loyalty append-only ledger | Done | **Accepted** — 2026-06-14 (Kerem approval; PR #65). Append-only loyalty ledger, loyalty formula (`floor(settled_kuruş / 1000)`, 10% round-down), reversal/recompute design, and abuse controls locked in ADR-007. KVKK section provisional (pending legal advisor). Implementation blocked pending: OQ-LEGAL-005 + `DATA_RETENTION_POLICY.md` / `KVKK_LEGAL_BASIS.md`; separate Pod B + Kerem approved implementation issues. (`DATA_PROCESSING_INVENTORY.md` present, Kerem-approved 2026-06-15; `SECURITY_REVIEW.md` present at review level, Kerem-approved.) (OQ-AUDIT-001 resolved at design level by `/docs/architecture/AUDIT_EVENT_SCHEMA.md`, Kerem-accepted 2026-06-15, PR #66; KD-D retention remains open under OQ-LEGAL-005.) |
 | ADR-008 | Tenancy strategy — shared schema + `tenant_id` (long-term) | Done | **Accepted** — 2026-06-08 (Kerem approval). Shared schema + non-null `tenant_id`, long-term. Filename kept for link stability. Implementation blocked pending separate approved issues. |
