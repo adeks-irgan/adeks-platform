@@ -18,7 +18,7 @@
 ## Document Purpose
 
 This document defines the operating methodology for the Adeks Platform project. It
-governs how all pods, roles, and processes interact throughout the full software
+governing how all pods, roles, and processes interact throughout the full software
 development lifecycle — from initial discovery through to post-launch learning.
 
 This document is not a product brief, a roadmap, or an architecture document.
@@ -1810,6 +1810,7 @@ Current ADR backlog to be resolved by Pod B in priority order:
 | ADR-013 | Repository-Controlled Pod Context   | **Accepted** — 2026-06-05             | Done                         |
 | ADR-014 | PWA-first customer application      | Proposed (stub) — direction locked    | High                         |
 | ADR-015 | Authentication strategy | **Accepted** — 2026-06-09 (Kerem approval). Authentication threat model (`AUTH_THREAT_MODEL.md` v0.4) is accepted. | Done — implementation blocked pending SMS provider selection (OQ-SMS-001), legal/KVKK closure (OQ-LEGAL-001 through OQ-LEGAL-006), and separate Pod B + Kerem-approved implementation issues |
+| ADR-016 | Secrets management strategy | **Accepted** — 2026-06-23 (Kerem approval). Homes SR-001; locks SM-1…SM-10 + SecretsProvider abstraction (K-S1); concrete backend deferred to hosting decision (K-S2); rotation events in infra logs only (K-S3). | Done — implementation blocked pending §4.3 backend selection + separately approved issues |
 
 ---
 

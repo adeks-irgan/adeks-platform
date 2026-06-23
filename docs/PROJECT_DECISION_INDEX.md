@@ -5,7 +5,7 @@
 **Approver:** Kerem (any status transition **into or out of "Locked"** on a product/business-impacting decision)
 **Canonical methodology:** `/docs/PROJECT_METHODOLOGY.md`
 **Intended repo path:** `/docs/PROJECT_DECISION_INDEX.md`
-**Last updated:** 2026-06-23 (ADR-005 Accepted — Selcafe read-only adapter full text; §3 ADR-005 row and §1 integration-pattern/current-adapter rows updated; K-A1/K-A2 recorded)
+**Last updated:** 2026-06-23 (ADR-016 Accepted — Secrets Management Strategy; §3 ADR-016 row added; K-S1/K-S2/K-S3 recorded. Also: ADR-005 Accepted — Selcafe read-only adapter full text; §3 ADR-005 row and §1 integration-pattern/current-adapter rows updated; K-A1/K-A2 recorded)
 
 > **This file mirrors ADRs, methodology, and recorded Kerem decisions. It does not *establish* decisions.** The authoritative record of any decision is its ADR (in `/docs/adr/`) plus Kerem's approval. If this index and an ADR ever disagree, the ADR wins and this index is stale until corrected. If an external platform-instruction file says a decision is locked but this index and the ADRs do not, **treat the instruction file as stale** until reconciled.
 
@@ -14,7 +14,8 @@
 ## Status Vocabulary
 
 | Status | Meaning |
-|---|---|
+|---|
+---|
 | **Locked** | Decision is firm and authoritative. Do not reopen without a flagged business/security/legal/implementation conflict. |
 | **Locked (ADR pending)** | The decision is firm (made by Kerem / locked in instructions), but the durable ADR record is still in the §19 backlog and has not been written/`Accepted` yet. |
 | **Not locked** | Open. Candidates exist; no decision made. |
@@ -80,6 +81,7 @@
 | ADR-013 | Repository-Controlled Pod Context (methodology consolidation) | High | **Accepted** — 2026-06-05 (Kerem approval). Supersedes `POD_TRAFFIC_WORKFLOW.md` as an active methodology source. |
 | ADR-014 | PWA-first customer application | High | Backlog — decision locked, ADR to write |
 | ADR-015 | Authentication strategy | Done | **Accepted** — 2026-06-09 (Kerem approval). Phase 1 auth: Phone OTP customer (JWT + refresh, `httpOnly`); individual staff credentials, server-side session, 40-min timeout; required admin TOTP MFA, 15-min timeout. Decisions locked via K-13 (KD-A…KD-H). Implementation blocked pending Pod B authentication threat model + separate Pod B + Kerem approved issues. |
+| ADR-016 | Secrets management strategy | Done | **Accepted** — 2026-06-23 (Kerem approval). Homes SECURITY_REVIEW.md SR-001; supplies the secrets mechanism ADR-005 SR-003-3/§8.4 defers to SR-001 (Selcafe credential) and governs the JWT key (IR-04), TOTP KEK (IR-14), and audit anchor key (AUDIT §7). Locks SM-1…SM-10 + a vendor-neutral SecretsProvider abstraction (K-S1); concrete backend deferred to the hosting decision (K-S2, Not locked / K-05 / K-08); secret-rotation events in infra logs only, not audit_event, reopenable (K-S3). Does NOT authorize Pod C; implementation gated on the §4.3 backend selection + separately approved issues. |
 
 ---
 
