@@ -51,5 +51,4 @@ It is a context-routing index only. It does not define methodology, governance, 
 
 - Files marked `planned` are intentionally allowed to be absent until their owning pod produces them.
 - This manifest should be updated when new task types, canonical files, or ADRs are added.
-- `docs/adr/ADR-016-secrets-management-strategy.md` registered as `exists` (added 2026-06-23, pod-b/adr-016-secrets-management PR); referenced in the `Auth` task row as a required context file for secrets-governing the JWT key (S-1/IR-04), TOTP KEK (S-2/IR-14), and audit anchor key (S-3). Pod B review required before use in implementation task routing.
 - A future CI check may validate that paths marked `exists` are present and that paths marked `planned` are allowed to be absent.

@@ -5,7 +5,7 @@
 **Approver:** Kerem (any status transition **into or out of "Locked"** on a product/business-impacting decision)
 **Canonical methodology:** `/docs/PROJECT_METHODOLOGY.md`
 **Intended repo path:** `/docs/PROJECT_DECISION_INDEX.md`
-**Last updated:** 2026-06-23 (ADR-016 Accepted — Secrets Management Strategy; §3 ADR-016 row added; K-S1/K-S2/K-S3 recorded. Also: ADR-005 Accepted — Selcafe read-only adapter full text; §3 ADR-005 row and §1 integration-pattern/current-adapter rows updated; K-A1/K-A2 recorded)
+**Last updated:** 2026-06-23 (ADR-016 Accepted — Secrets Management Strategy; §3 ADR-016 row added; K-S1/K-S2/K-S3 recorded. Prior same-day entry: ADR-005 Accepted — Selcafe read-only adapter full text; §3 ADR-005 row and §1 integration-pattern/current-adapter rows updated; K-A1/K-A2 recorded)
 
 > **This file mirrors ADRs, methodology, and recorded Kerem decisions. It does not *establish* decisions.** The authoritative record of any decision is its ADR (in `/docs/adr/`) plus Kerem's approval. If this index and an ADR ever disagree, the ADR wins and this index is stale until corrected. If an external platform-instruction file says a decision is locked but this index and the ADRs do not, **treat the instruction file as stale** until reconciled.
 
@@ -14,8 +14,7 @@
 ## Status Vocabulary
 
 | Status | Meaning |
-|---|
----|
+|---|---|
 | **Locked** | Decision is firm and authoritative. Do not reopen without a flagged business/security/legal/implementation conflict. |
 | **Locked (ADR pending)** | The decision is firm (made by Kerem / locked in instructions), but the durable ADR record is still in the §19 backlog and has not been written/`Accepted` yet. |
 | **Not locked** | Open. Candidates exist; no decision made. |
@@ -103,6 +102,9 @@
 | Mandatory rollback triggers | `/docs/ROLLBACK_POLICY.md` | (1) wallet/loyalty integrity failure; (2) customer personal-data exposure → immediate non-discretionary rollback. Authoritative home: `/docs/ROLLBACK_POLICY.md` (K-03). |
 | Kerem methodology decisions **MD-2 … MD-6** | `/docs/PROJECT_METHODOLOGY.md` §28.4 | Approved 2026-06-04. MD-2: methodology-consolidation direction. MD-3: ADR-013 + §28 revision. MD-4: decision-index ownership = Pod B sole owner, Pod A reviewer on product/business-impacting rows. MD-5: workflow stub + archive at `/docs/archive/POD_TRAFFIC_WORKFLOW_v1.1.md`. MD-6: conditional Pod Impact Matrix gate. |
 | **Command Keyword Gate (pod output-mode gate) — MD-7** | `PROJECT_METHODOLOGY.md` §16.2 + `/docs/POD_EDIT_WORKFLOW.md`; routed via `/docs/AGENT_CONTEXT_MANIFEST.md` | **Locked — Kerem-approved 2026-06-17 (PR #81).** Pods must obtain a valid command keyword from Kerem before producing executable repo-edit/write material; otherwise stop and ask. No keyword overrides ADR-009, DoR, DoD, Kerem approval, required Pod B review, legal/KVKK blockers, synthetic-data-only, merge-is-Kerem-only, or no-direct-`main`. No keyword authorizes Pod C feature implementation. Snapshot-pointer follow-up tracked (separate behavior-changing PR). |
+| **K-S1 — Secrets-management requirements + SecretsProvider abstraction** | `docs/adr/ADR-016-secrets-management-strategy.md` | **Locked — Kerem-approved 2026-06-23.** SM-1…SM-10 binding requirements + vendor-neutral `SecretsProvider` port abstraction locked. Concrete backend deferred to hosting decision (K-S2). |
+| **K-S2 — Concrete secrets backend** | `docs/adr/ADR-016-secrets-management-strategy.md` §4.3 | **Not locked** — dependent on hosting decision (K-05/K-08). Options O-1…O-3 documented; O-4 rejected. Pod B recommendation: O-1 or O-3 for self-hosted Phase 1, O-2 attractive if cloud-hosted with Turkey-region posture. |
+| **K-S3 — Secret rotation events in audit_event vs infra logs** | `docs/adr/ADR-016-secrets-management-strategy.md` §9 | **Kerem decision recorded 2026-06-23:** infra/secrets-backend log only (not `audit_event`); reopenable if Pod D wants a domain signal. |
 
 ---
 
