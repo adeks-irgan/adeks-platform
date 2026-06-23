@@ -263,7 +263,7 @@ No new processor is approved by this inventory.
 | Area | Legal basis status | Retention status |
 |---|---|---|
 | Selcafe-derived bounded non-PII read models | Not treated as customer personal data if ADR-005 hard exclusions and no-member-resolution rule hold; Pod B review required | Retention/cache policy for non-authoritative read models remains a Pod B implementation design topic |
-| Selcafe PII/sensitive surfaces explicitly excluded from Phase 1 | Not processed in Phase 1; any future processing requires Kerem + legal/privacy advisor + Pod B review | Not applicable while excluded; future retention must be defined before any processing |
+| Selcafe PII/sensitive surfaces explicitly excluded from Phase 1 | Not processed in Phase 1 by Adeks; however, any pre-existing Selcafe→GCP replication pipeline creates a cross-border transfer obligation independent of Adeks adapter reads — see `CROSS_BORDER_TRANSFER_ASSESSMENT.md` (absent; required). Any future Adeks processing requires Kerem + legal/privacy advisor + Pod B review. | Not applicable while excluded from Adeks processing; future retention must be defined before any Adeks processing. Cross-border assessment is required if the pre-existing replication exists, independent of this adapter's Phase 1 read scope. |
 | Customer phone / OTP identity | [OPEN QUESTION] `/docs/KVKK_LEGAL_BASIS.md` absent | [OPEN QUESTION] `/docs/DATA_RETENTION_POLICY.md` absent; OQ-LEGAL-005 |
 | Auth/security event metadata | [OPEN QUESTION] Legal basis pending | [OPEN QUESTION] Retention pending; `source_ip` may require separate treatment |
 | Staff/admin accounts and activity | [OPEN QUESTION] Legal basis pending | [OPEN QUESTION] Retention pending |
@@ -289,7 +289,7 @@ No new processor is approved by this inventory.
 | DPI-GATE-006 | Third-party SMS/provider processing remains blocked by provider selection, KVKK processor assessment, and cross-border assessment where applicable. |
 | DPI-GATE-007 | Pod C is not authorized by this inventory. Pod C work requires separate approved GitHub issues that meet Definition of Ready and the ADR-009 / methodology review gates. |
 | DPI-GATE-008 | This v0.2 Selcafe inventory update does **not** authorize SelcafeAdapter implementation, SQL credentials, polling, caching, schema, API contracts, or infrastructure. |
-| DPI-GATE-009 | Any future Selcafe PII/member-linked read flips the Kerem + legal/privacy advisor + Pod B gate and requires inventory/legal-basis/retention/cross-border updates before implementation. |
+| DPI-GATE-009 | Any future Selcafe PII/member-linked read flips the Kerem + legal/privacy advisor + Pod B gate and requires inventory/legal-basis/retention/cross-border updates before implementation. Separately, the cross-border transfer obligation is independent of Adeks adapter read scope and applies now if the pre-existing Selcafe→GCP replication pipeline exists. |
 | DPI-GATE-010 | PI-1/PI-2 are product-position proposals until Kerem approval/merge. They narrow product scope only; they do not change ADR-005 hard exclusions and do not authorize Pod C. |
 
 ---

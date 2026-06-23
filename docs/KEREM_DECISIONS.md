@@ -1,7 +1,7 @@
 # KEREM_DECISIONS.md
 
 <!--
-  STATUS: COMPLETE — K-01 through K-19 recorded; K-20 proposed for Kerem approval via PR
+  STATUS: v1.7-draft — K-01 through K-19 recorded (complete); K-20 proposed — locks only on Kerem approval/merge
   SOURCE: Kerem interview session, Pod B facilitation; K-11 from Kerem chat approval 2026-06-07;
           K-13 from Kerem session decisions 2026-06-09 (OQ-001 auth resolution);
           K-14/15/16 from Kerem session decisions 2026-06-10 (CORE_USER_FLOWS OQ-CUF-AUTH-002/003/004);
