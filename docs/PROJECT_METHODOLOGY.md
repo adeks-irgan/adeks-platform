@@ -1810,6 +1810,7 @@ Current ADR backlog to be resolved by Pod B in priority order:
 | ADR-013 | Repository-Controlled Pod Context   | **Accepted** — 2026-06-05             | Done                         |
 | ADR-014 | PWA-first customer application      | Proposed (stub) — direction locked    | High                         |
 | ADR-015 | Authentication strategy | **Accepted** — 2026-06-09 (Kerem approval). Authentication threat model (`AUTH_THREAT_MODEL.md` v0.4) is accepted. | Done — implementation blocked pending SMS provider selection (OQ-SMS-001), legal/KVKK closure (OQ-LEGAL-001 through OQ-LEGAL-006), and separate Pod B + Kerem-approved implementation issues |
+| ADR-016 | Secrets management strategy | **Accepted** — 2026-06-23 (Kerem approval). | Done — implementation blocked pending §4.3 backend selection (K-S2, deferred to hosting decision) + separately approved issues. Does NOT authorize Pod C. |
 
 ---
 
