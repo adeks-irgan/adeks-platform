@@ -18,7 +18,7 @@
 ## Document Purpose
 
 This document defines the operating methodology for the Adeks Platform project. It
-gov­erns how all pods, roles, and processes interact throughout the full software
+governs how all pods, roles, and processes interact throughout the full software
 development lifecycle — from initial discovery through to post-launch learning.
 
 This document is not a product brief, a roadmap, or an architecture document.

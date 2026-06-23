@@ -1,9 +1,7 @@
 # ADR-016: Secrets Management Strategy
 
 <!--
-  STATUS: Draft for Pod B + Kerem review. NOT Accepted. Proposes a decision direction
-          (SM-1…SM-10 requirements + a vendor-neutral SecretsProvider abstraction);
-          the concrete backend is deferred to the hosting decision and flagged.
+  STATUS: Accepted — 2026-06-23 (Kerem approval).
   AUTHOR: Pod B — Architecture, Logic & Risk
   CREATED: 2026-06-23
   CANONICAL REPO PATH: /docs/adr/ADR-016-secrets-management-strategy.md
@@ -32,7 +30,7 @@
 
 ## Status
 
-**Draft for Pod B + Kerem review.** Not Accepted.
+**Accepted** — 2026-06-23 (Kerem approval).
 
 This ADR homes **`SECURITY_REVIEW.md` SR-001** (secrets management implied but not consolidated) and supplies the secrets-management mechanism that **ADR-005 SR-003-3 / §8.4** explicitly defers to SR-001 for the Selcafe read-only credential. It also governs the JWT signing key (ADR-015 IR-04), the TOTP secret-encryption key (ADR-015 IR-14), and the audit hash-chain anchoring signing material (AUDIT_EVENT_SCHEMA §7 / KD-C).
 
@@ -208,7 +206,7 @@ No `[PRODUCT IMPLICATION — POD A ALIGNMENT NEEDED]` items: secrets management 
 
 - **Author:** Pod B — Architecture, Logic & Risk
 - **Reviewer / Approver:** Kerem (merge gate Pod B + Kerem; Kerem sole merge authority)
-- **Status:** **Draft for Pod B + Kerem review** — not Accepted
+- **Status:** **Accepted** — 2026-06-23 (Kerem approval)
 
 ---
 
