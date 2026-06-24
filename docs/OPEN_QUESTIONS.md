@@ -63,8 +63,7 @@
 | OQ-RES-003 | What cancellation rules apply for customer and staff? | Kerem | blocks Pod C | Kerem, then Pod B | State-machine review required. |
 | OQ-RES-004 | What no-show grace period and consequence apply? | Kerem | blocks Pod C | Kerem, then Pod B | Future reservation restriction has customer-communication and possible KVKK implications. |
 | OQ-RES-005 | What criteria should staff use when approving/rejecting reservation requests without reliable automated PC/session status? | Kerem + Pod B | blocks Pod C | Kerem after Selcafe spike, then Pod B | Do not lock status-based approval criteria before Selcafe spike results. Phase 1 stays manual staff judgment by design unless spike supports more. |
-| OQ-SEL-001 | What customer data should be imported or mapped from Selcafe if read-only sync is feasible? | Kerem + Pod B | blocks Pod C for sync | Kerem, then Pod B | Intent only before spike. No final field mapping until Selcafe spike + KVKK/legal review. |
-| OQ-SEL-002 | What is the result of the Selcafe feasibility spike, and is Phase 1 read-only sync feasible, partial, or not feasible? | Pod C + Pod B + Kerem | blocks Pod C for sync | Pod C, then Pod B | Spike must use read-only access and no real customer data in docs/AI sessions. |
+| OQ-SEL-001 | Which remaining Selcafe product-alignment items must be resolved before a separately approved implementation issue can be prepared? | Kerem + Pod A + Pod B | blocks Selcafe implementation issue prep | Kerem + Pod A, then Pod B for gate/integration implications | PR #101 reconciled ROADMAP.md after the completed Selcafe spike/report and accepted ADR-005. Phase 1 remains read-only. Do not authorize Pod C. Any future implementation requires a separate approved Definition-of-Ready issue, planned integration-view readiness, Pod B + Kerem approval, and legal/KVKK/cross-border clearance where PII or cross-border is in scope. |
 | OQ-MVP-001 | Are campaign/subscription/ARPU features explicitly excluded from Phase 1 MVP and tracked only in feature discovery? | Kerem + Pod A | not blocking yet | Kerem | Can be answered while SMS/legal replies are pending. |
 | OQ-UX-001 | Does the Phase 1 PWA order/reservation/onboarding UX need Pod D prototype review before Pod C issues are drafted? | Pod A + Kerem | not blocking yet | Pod A, then Pod D | Can be answered while SMS/legal replies are pending. |
 | OQ-LAUNCH-001 | What launch gate checklist must be satisfied after SMS and legal advisor feedback arrive? | Kerem + Pod A + Pod B | blocks launch | Kerem + Pod A + Pod B | Should be finalized after provider/legal inputs land. |
@@ -81,6 +80,7 @@
 | F&B lifecycle/state-model formalization | Resolved by accepted `/docs/architecture/FB_ORDER_LIFECYCLE_STATE_MODEL_v1.0.md`. | Do not reopen the accepted state model. F&B implementation still requires API/schema/security/KVKK/ledger/DoR issue packets. Does not authorize Pod C. |
 | ADR-006 wallet append-only ledger design | Resolved at design level by accepted `/docs/adr/ADR-006-wallet-append-only-ledger.md`. | Implementation remains blocked by legal/KVKK artifacts, wallet top-up methods, top-up correction/report fields, security/DoR issue packets, and separate Pod B + Kerem-approved implementation issues. |
 | ADR-007 loyalty append-only ledger design | Resolved at design level by accepted `/docs/adr/ADR-007-loyalty-append-only-ledger.md`. | F&B accrual formula is locked. Redemption, expiry, broader exclusions, override rules, non-F&B earning if included, legal/KVKK artifacts, security/DoR issue packets, and separate Pod B + Kerem-approved implementation issues remain open. |
+| OQ-SEL-002 — Selcafe feasibility spike result | Resolved by completed `SELCAFE_SPIKE_REPORT.md` and accepted `docs/adr/ADR-005-selcafe-read-only-adapter.md`; ROADMAP.md was reconciled in PR #101. | Discovery/report/ADR status is no longer open. Remaining open work is product alignment and implementation-readiness gating under OQ-SEL-001. Does not authorize Pod C, change ADR-005, or change the Phase 1 read-only posture. |
 
 ### Kerem product-decision resolutions
 
@@ -111,7 +111,7 @@ Use this list to prepare decisions on:
 2. Wallet top-up methods, top-up correction policy, and ADMIN daily report fields.
 3. Loyalty redemption, expiry, broader exclusion, and cashier/admin override rules.
 4. Reservation slots, limits, cancellation, no-show, and manual approval rules.
-5. Selcafe customer-mapping intent after the read-only spike and legal/KVKK review.
+5. Selcafe product-alignment items required before any separately approved implementation issue can be prepared, while preserving ADR-005, read-only posture, and legal/KVKK/cross-border gates where applicable.
 6. MVP boundary for any non-Phase-1 feature discovery, if Kerem wants that clarified separately.
 
 Do not use this list to:
@@ -150,7 +150,7 @@ Reasons:
 - Wallet top-up methods, top-up correction policy, and ADMIN daily report fields remain unresolved.
 - Loyalty redemption, expiry, broader exclusions, and cashier/admin override rules remain unresolved.
 - Reservation product rules and reservation state machine remain unresolved.
-- Selcafe read-only sync/integration depends on the Selcafe spike result, `/docs/SELCAFE_SPIKE_REPORT.md`, and Pod B adapter/integration review.
+- Selcafe read-only sync/integration remains blocked by unresolved product alignment, planned integration-view readiness, dedicated read-only login/secrets prerequisites, a separately approved Definition-of-Ready issue, Pod B + Kerem approval, and legal/KVKK/cross-border gates where PII or cross-border is in scope.
 - F&B implementation still requires API/schema/security/KVKK/ledger/DoR issue packets even though the lifecycle state model, ADR-006, ADR-007, K-17, K-18, and K-19 are accepted.
 - No Pod B + Kerem-approved implementation issue packet exists for the affected areas.
 - This document is documentation-only and not implementation-ready.
@@ -168,7 +168,7 @@ Reasons:
 9. Decide broader loyalty exclusion rules not already fixed by accepted F&B settlement/correction design.
 10. Decide reservation slots, advance window, active limits, cancellation cutoff, no-show grace, and no-show consequence.
 11. Decide manual reservation approval policy, while avoiding automated Selcafe-status criteria until the spike result supports them.
-12. Decide Selcafe customer-mapping intent only after the read-only spike result and legal/KVKK review.
+12. Decide remaining Selcafe product-alignment items required before any separately approved implementation issue can be prepared; do not authorize broader access, direct writes, or implementation from this decision alone.
 13. Approve sequencing for API/schema/security/DoR issue packets only after the relevant legal, business, architecture, and security gates are closed.
 
 ### Documentation-only status
