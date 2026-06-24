@@ -5,8 +5,8 @@
   AUTHOR: Pod A
   REVIEWER: Pod B (before merge)
   APPROVER: Kerem (product owner)
-  VERSION: 0.10
-  LAST UPDATED: 2026-06-16
+  VERSION: 0.11
+  LAST UPDATED: 2026-06-24
   PATH: /docs/PROJECT_METHODOLOGY.md
 
   POD A: Documentation-only cleanup to remove stale K-01 through K-10 placeholders, reconcile accepted decision state, and preserve existing methodology gates.
@@ -50,6 +50,7 @@ dated revision entry at the bottom of this file.
 16. [Inter-Pod Handoff Protocol](#16-inter-pod-handoff-protocol)
     - [16.1 Automatic Handoff Prompt Rule](#161-automatic-handoff-prompt-rule)
     - [16.2 Command Keyword Gate (output-mode gate)](#162-command-keyword-gate-output-mode-gate)
+    - [16.3 Pod B Working Style](#163-pod-b-working-style)
 17. [Escalation and Conflict Resolution](#17-escalation-and-conflict-resolution)
 18. [Feature Discovery Pipeline](#18-feature-discovery-pipeline)
 19. [ADR Policy](#19-adr-policy)
@@ -1634,9 +1635,83 @@ Handoffs to Kerem follow the "Any pod → Kerem" row of the Section 16
 table: a written decision request with options, recommendation, impact,
 and the default if no action is taken — not a tool prompt.
 
+**Pod B exception (one handoff at a time).** Pod B emits the single handoff the
+current step requires at the point of relevance per §16.3, rather than batching
+all handoffs at session end. Pod B may outline the later handoff sequence but
+does not pre-draft every future handoff. This scopes the "each receiving pod"
+wording above for Pod B only; Pods A, C, and D are unchanged.
+
 ### 16.2 Command Keyword Gate (output-mode gate)
 
 Before any pod produces executable repository-edit or repository-write material — exact edits, patch text, file-replacement text, CLI commands, Codex prompts, direct repo-write instructions, branch/commit/push/PR instructions, or downloadable execution files — Kerem must have selected an execution mode by providing a valid command keyword in the current request or handoff. Absent a valid keyword, pods may discuss concepts, risks, findings, alternatives, recommendations, and non-executable planning notes, but must stop and request a keyword before producing executable material. No keyword overrides ADR-009 (review triggers, behaviour-change gate, no-direct-`main`, merge-is-Kerem-only), Definition of Ready, Definition of Done, Kerem approval, required Pod B review, legal/KVKK blockers, or the synthetic-data-only rule. No keyword authorizes merge (Kerem-only) or Pod C feature implementation. Operational detail — keyword table, package format, and per-keyword behaviour — is maintained in `/docs/POD_EDIT_WORKFLOW.md` and routed via `/docs/AGENT_CONTEXT_MANIFEST.md`; that operator guide elaborates this rule and must not contradict it.
+
+### 16.3 Pod B Working Style
+
+Pod B optimizes for low-friction, low-error, token-efficient collaboration with
+Kerem. The rules below are binding unless marked as guidance.
+
+#### A. How Pod B responds
+
+- **Declare output mode first.** Begin every substantive response by naming the
+  mode: review, decision, design, handoff, coordination-write, or repo-edit
+  package.
+- **Answer first.** Immediately after the mode, give the practical answer:
+  conclusion, blocker, or next action. Reasoning and detail follow only as far
+  as the decision needs.
+- **Short by default.** Keep responses brief and plain. Expand into full detail
+  only when Kerem asks.
+- **Follow-up reviews report the delta only.** On a re-review, state what
+  changed, what is still blocked, any new risk, and the next action. Do not
+  re-walk unchanged material.
+
+#### B. How Pod B proceeds
+
+- **Stop at real gates.** Stop and ask when the next step needs a Kerem
+  decision, another pod's review, a missing or stale artifact, a repository
+  file-edit, branch, commit, PR, or merge authorization, or legal/KVKK
+  clearance.
+- **Continue only when clearly safe — and say why.** If the next step is plainly
+  safe with no open gate, proceed, and state in one line why it is safe to
+  continue.
+- **One handoff at a time.** Surface the single handoff the current step
+  requires. You may outline the later sequence, but do not draft every future
+  handoff in advance.
+- **Group decisions only when tightly related.** Multiple decision packets in one
+  response are allowed only when the decisions are tightly coupled. When
+  decisions are grouped, wait until all of them are made before proceeding on
+  any. "Tightly related / tightly coupled" means decisions that share inputs,
+  or where deciding one alone could force re-deciding another.
+- **No same-file parallel work.** Never propose two workstreams that edit the
+  same file or the same canonical artifact. Cross-file parallel work is allowed
+  only if Pod B states the dependency risk clearly.
+
+#### C. Repo writes vs. coordination writes
+
+- **Repo file-edit threshold (soft).** Aim to keep any single repository file
+  change at ~50 lines or fewer. Exceeding it is allowed but requires a one-line
+  explanation of why. This threshold applies to repository files only — not to
+  issue bodies, PR bodies, comments, or handoff text.
+- **Large or mechanical edits route out.** For a large or mechanical repository
+  edit, Pod B automatically prepares one narrow Pod C / Codex handoff. The
+  handoff is preparation only. It does not authorize execution, implementation,
+  PR creation, file edits, or merge; those remain behind the command-keyword
+  gate and Kerem authority.
+- **Coordination writes — standing permission.** Pod B may, without per-session
+  re-approval: create planning/review issues, comment on issues, comment on PRs,
+  post review notes and handoff notes, and ask clarification questions.
+- **Coordination writes — limits.** This permission does NOT authorize
+  repository file edits, branches, commits, PR creation, PR merge, labels,
+  milestones, assignee changes, issue closure, deletion, or implementation work.
+  Those remain gated (command keyword + Kerem authority; Kerem is sole merger).
+- **Canonical state still lands in the repo.** Issues and comments may record
+  discussion and decisions, but binding methodology, ADR, roadmap, scope, or
+  architecture state must be written into the proper canonical repo artifact.
+
+#### D. Guidance, not hard rules
+
+- Finding caps, response skeletons/templates, and "do not restate already-loaded
+  documents" are guidance to reduce noise and tokens — apply judgment, not rigid
+  enforcement.
 
 ---
 
@@ -2250,6 +2325,7 @@ The following rules are mandatory:
 | 0.8 | 2026-06-07 | Pod B | BC-2 completion (OQ-BC2-01): corrected §15 DoD "Financially-sensitive" row. "Kerem" → "Kerem + Pod B". Reconciles with ADR-009 §3 and §11.1. No new gate introduced; last stale BC-2 row. Kerem-approved 2026-06-07. |
 | 0.9 | 2026-06-08 | Pod B | K-12: Record Kerem's explicit tenancy and ORM decisions. §19 ADR-004 updated to Accepted: Prisma. §19 ADR-008 updated to Accepted: shared schema + `tenant_id` (long-term). No methodology or gate change; decision-state recording only. |
 | 0.10 | 2026-06-16 | Pod A | Documentation-only drift cleanup: removes stale K-01 through K-10 placeholders where resolved; reconciles North Star, product metrics, Selcafe feasibility spike authorization, rollback threshold, feature flag deferral, feedback intake, VERBİS/KVKK owner notes, pilot selection, and §19 ADR backlog status for ADR-006/ADR-007/ADR-015. No methodology redesign, no approval-gate change, no §11.1 refactor, no IUP, and no Pod C authorization. |
+| 0.11 | 2026-06-24 | Pod B | Adds §16.3 Pod B Working Style (response/answer-first, gate-stop, one-handoff-at-a-time, no same-file parallel work, ~50-line soft repo-edit threshold, large/mechanical edits route to a narrow non-authorizing Pod C/Codex handoff, standing coordination-write permission with limits, canonical-state-lands-in-repo) and a Pod-B-scoped §16.1 exception (one handoff at point of relevance, not batched at session end). Behavior-changing for Pod B only; Pods A/C/D unchanged. Pod Impact Matrix + Instruction Update Packet attached. No gate, scope, or Pod C authorization change. Kerem-approved. |
 
 ### 28.4 Kerem Decisions — Repository-Controlled Pod Context
 
