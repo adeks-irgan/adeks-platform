@@ -53,7 +53,7 @@ This roadmap is based on the current repository context listed below.
 | `/docs/USER_ROLES_AND_PERMISSIONS.md` | Roles, access, data minimization, audit expectations |
 | `/docs/CORE_USER_FLOWS.md` | Customer OTP/privacy-notice flow and open legal/SMS questions |
 | `/docs/architecture/FB_ORDER_LIFECYCLE_STATE_MODEL_v1.0.md` | Accepted F&B lifecycle design, still not Pod C-ready |
-| `/docs/adr/ADR-005-selcafe-read-only-adapter.md` | Locked read-only Selcafe direction; full ADR pending |
+| `/docs/adr/ADR-005-selcafe-read-only-adapter.md` | Accepted 2026-06-23; Phase 1 Selcafe remains read-only and implementation remains blocked pending separate readiness gates |
 | `/docs/adr/ADR-006-wallet-append-only-ledger.md` | Accepted wallet ledger design; implementation still blocked |
 | `/docs/adr/ADR-007-loyalty-append-only-ledger.md` | Accepted loyalty ledger design and F&B accrual formula; implementation still blocked |
 | `/docs/adr/ADR-015-authentication-strategy.md` | Accepted Phase 1 authentication strategy; implementation still blocked |
@@ -79,6 +79,10 @@ PR #75 reconciled `/docs/OPEN_QUESTIONS.md` with the landed roadmap state and
 confirmed that the reconciliation is documentation-only, does not reopen accepted
 ADR-006, ADR-007, K-17, K-18, K-19, or the accepted F&B lifecycle state model,
 does not create Pod C issues, and does not authorize implementation.
+
+This PR reconciles Pod D audit finding F-01 / issue #100 by updating stale
+Selcafe spike, report, and ADR-005 status references. It is documentation-only
+and does not authorize Pod C implementation.
 
 No structural roadmap sequence change is made by this note. The roadmap remains
 milestone-based, planning-only, and non-implementation-authorizing.
@@ -119,9 +123,9 @@ milestone-based, planning-only, and non-implementation-authorizing.
 | 11 | Decide SMS provider after commercial replies and KVKK processor/cross-border review | Kerem + Pod A + Pod B + legal advisor | Provider prices/commercial terms; legal processor/cross-border assessment | Pod B | Kerem | No | Decision-only |
 | 12 | Decide SMS provider outage / availability response path | Kerem + Pod B | SMS provider selection (BL-1); spend-volume ceiling values and `ADMIN` response-path owner decided at design level (`AUTH_THREAT_MODEL.md` v0.5 §15); outage/availability path depends on provider selection | Pod B | Kerem | Yes | Decision-only |
 | 13 | Define initial ADMIN bootstrap procedure | Kerem + Pod B | Security-sensitive one-time admin setup | Pod B | Kerem | Yes, if no customer data is processed | Design-only / decision-only |
-| 14 | Execute read-only Selcafe feasibility spike | Pod C executes; Pod B supplies script; Kerem supplies credentials securely | Pod B spike script; secure read-only credentials; no row data copied | Pod B | Kerem already authorized K-10; further access requires Kerem | Yes, with no real data copied into docs/AI | Spike-only |
-| 15 | Produce `/docs/SELCAFE_SPIKE_REPORT.md` | Pod C drafts report from schema-only spike; Pod B reviews | Completed read-only spike | Pod B | Kerem for further operational impact | Yes, if schema-only / no real data | Spike-only / documentation-only |
-| 16 | Complete ADR-005 full Selcafe read-only adapter ADR and integration view | Pod B | Selcafe spike report; read-path security controls; KVKK scope | Pod B | Kerem if data/integration risk | Partial; legal needed if personal data mapping is included | Design-only |
+| 14 | Read-only Selcafe feasibility spike — completed 2026-06-23; status reconciled | Pod C executed; Pod B supplied script; Kerem supplied credentials securely | Completed under K-10; schema/metadata-only evidence; no row data copied | Pod B | Further Selcafe access or implementation still requires applicable Kerem approval | Completed with no real data copied into docs/AI | Spike-only |
+| 15 | `/docs/SELCAFE_SPIKE_REPORT.md` — produced from the completed schema-only spike | Pod C produced execution findings; Pod B review/follow-on assessment remains separately routed | Completed read-only spike; schema/metadata only; no real data; report does not authorize implementation | Pod B | Kerem for further operational impact | Completed as documentation; no implementation authority | Spike-only / documentation-only |
+| 16 | ADR-005 full Selcafe read-only adapter ADR — accepted 2026-06-23; integration view remains planned | Pod B | Accepted ADR-005; future adapter/integration work still requires product alignment, read-only credential/secrets prerequisites, `architecture/INTEGRATION_VIEW.md`, and a separately approved DoR issue | Pod B | Kerem required where ADR-009 or product/data/integration gates apply | Partial; legal/KVKK/cross-border gates apply where PII or cross-border is in scope | Design-only |
 | 17 | Confirm Phase 1 remains read-only toward Selcafe | Kerem + Pod B | Any proposed change to Selcafe write posture | Pod B | Kerem explicit approval required for any change | Yes | Decision-only |
 | 18 | Reconfirm Phase 1 MVP boundary: campaigns/subscriptions/ARPU outside Phase 1 | Pod A + Kerem | OQ-MVP-001 | Pod B only if architecture/data impact | Kerem | Yes | Decision-only |
 | 19 | Finalize remaining wallet top-up business rules | Kerem + Pod A | Wallet top-up methods; top-up correction policy; daily report fields | Pod B | Kerem | Partial; implementation waits for legal/KVKK | Decision-only |
@@ -152,7 +156,7 @@ milestone-based, planning-only, and non-implementation-authorizing.
 | M0 — Roadmap Control | Requested repo context loaded; roadmap draft prepared | `ROADMAP.md` approved as planning sequence; Pod B review recorded | Pod A | Pod B | Kerem | Yes |
 | M1 — Legal/KVKK Closure Packet | Legal advisor questions known; data inventory exists; open legal blockers listed | Privacy notice text, legal basis, retention, VERBİS/exemption, cross-border, K-15/K-16 sufficiency resolved or explicitly deferred with launch impact recorded | Kerem + legal advisor + Pod A | Pod B | Kerem | No |
 | M2 — SMS/Auth Readiness | ADR-015 accepted; Core user flow exists; provider report exists | Provider selected; processor/cross-border assessment completed; outage/spend ceiling response path approved; admin bootstrap decided | Kerem + Pod B | Pod B | Kerem | Partial |
-| M3 — Selcafe Read-Only Discovery | K-10 read-only spike authorized; Pod B script available; credentials supplied securely | `SELCAFE_SPIKE_REPORT.md` produced; Pod B determines feasible / partial / not feasible; ADR-005 full text/integration view updated | Pod B + Pod C + Kerem | Pod B | Kerem for next access | Yes, schema-only |
+| M3 — Selcafe Read-Only Discovery — partially complete / status reconciled | Read-only spike completed 2026-06-23; `SELCAFE_SPIKE_REPORT.md` exists; ADR-005 accepted | Discovery evidence, report, and ADR-005 full text are complete. Implementation remains blocked pending product alignment, dedicated read-only login/secrets prerequisites, planned `architecture/INTEGRATION_VIEW.md`, a separately approved Definition-of-Ready issue, Pod B + Kerem approval, and legal/KVKK/cross-border clearance where PII or cross-border is in scope. | Pod B + Pod C + Kerem | Pod B | Kerem for implementation or further access | Partial; discovery is complete, implementation is not authorized |
 | M4 — Financial Ledger Readiness | ADR-006 and ADR-007 accepted; F&B settlement decisions locked | Legal/KVKK gates reconciled; top-up/redemption/report business rules resolved; no direct overwrite; issue-readiness checklist possible | Pod B + Pod A + Kerem | Pod B | Kerem | Partial; no implementation |
 | M5 — F&B Order Readiness | F&B lifecycle state model accepted; price source/loyalty formula/correction policy locked | API/schema/audit trigger dependencies defined; wallet/loyalty settlement dependencies cleared; no Pod C ambiguity remains | Pod B | Pod B | Kerem for sensitive issue handoff | Partial; no implementation |
 | M6 — Reservation Readiness | Reservation in MVP; open product rules listed | Kerem approves reservation rules; Pod B state machine completed; manual-only Phase 1 criteria preserved unless spike supports more | Pod A + Pod B + Kerem | Pod B | Kerem | Yes for decisions |
@@ -178,7 +182,7 @@ milestone-based, planning-only, and non-implementation-authorizing.
 | Loyalty ledger | ADR-007 accepted; implementation blocked | Legal/KVKK + Pod B/Kerem-approved issue required |
 | F&B order lifecycle/state/audit points | State model accepted; not Pod C-ready | API/schema/audit/ledger/legal gates still needed |
 | Reservation state machine | Missing/planned | Pod B design after Kerem reservation rules |
-| Selcafe read-only spike and adapter boundary | Spike authorized; ADR-005 full text pending | Read-only only; no writes; Pod B + Kerem for integration |
+| Selcafe read-only spike and adapter boundary | Spike/report complete; ADR-005 accepted 2026-06-23; Phase 1 remains read-only; no Pod C authorization | No direct writes; implementation requires a separate approved DoR issue, remaining prerequisites, and Pod B + Kerem approval |
 | Monitoring and 99.9% SLO readiness | Required, not complete | Pod D monitoring spec + Pod B operational/deployment review |
 | Pod D pre-go-live consistency audit | Required before go-live | Pod D audit report; findings routed |
 | Definition of Ready before Pod C | Not satisfied for implementation areas | Every issue must link product docs, ADRs, schemas/API contracts, security/KVKK review, tests, risk class, approvals, synthetic examples |
@@ -212,8 +216,7 @@ milestone-based, planning-only, and non-implementation-authorizing.
 | Open-question cleanup and blocker register maintenance | Pod A | No legal answers invented |
 | SMS provider outage/availability operational decision (spend-volume ceiling values and `ADMIN` response-path owner decided at design level — `AUTH_THREAT_MODEL.md` v0.5 §15; outage/availability path remains open) | Kerem + Pod B | Does not select provider |
 | Initial ADMIN bootstrap policy | Kerem + Pod B | Security-sensitive; no implementation |
-| Read-only Selcafe spike preparation/execution | Pod B + Pod C + Kerem | Schema/column names only; no row data; no real customer data copied |
-| Selcafe adapter full ADR drafting | Pod B | Keep read-only posture |
+| Selcafe documentation/product-alignment follow-up after completed spike/report and accepted ADR-005 | Pod A + Pod B + Kerem | Read-only posture remains; reconcile product scope and planned integration view only; no implementation issue or direct Selcafe writes |
 | Reservation product-rule decisions | Kerem + Pod A | No implementation; no automated Selcafe-dependent criteria before spike |
 | Pod D UX prototype for onboarding/F&B/reservation | Pod D | Synthetic data only |
 | Pod D monitoring/audit planning | Pod D + Pod B | Final hosting/provider details may remain pending |
@@ -238,7 +241,7 @@ The following must not be converted into Pod C implementation issues until the l
 | F&B settlement / correction implementation | Cross-domain legal/ledger/API/schema/audit gates remain |
 | F&B order lifecycle implementation | State model accepted, but issue-level API/schema/audit/ledger readiness not complete |
 | Reservation implementation | Product rules and Pod B state machine not complete |
-| Selcafe sync/integration implementation | Spike/report/full ADR/integration view and KVKK scoping not complete |
+| Selcafe sync/integration implementation | No approved Definition-of-Ready feature issue; Pod B + Kerem approval is required; dedicated read-only login, secrets handling, product alignment, and planned integration-view prerequisites remain; legal/KVKK/cross-border gates apply where PII or cross-border is in scope |
 | Audit store implementation | Retention, legal basis, hash-chain implementation details, pseudonymization interaction, and approved issue gates pending |
 | Hosting/deployment implementation | Hosting model, monitoring/SLO, cross-border assessment pending |
 | Monitoring vendor/tool implementation | Vendor/data-processing/cross-border impact pending where applicable |
@@ -256,7 +259,7 @@ The following must not be converted into Pod C implementation issues until the l
 
 [ASSUMPTION] Accepted ADR-006 and ADR-007 settle ledger design direction but still require legal/KVKK closure and separately approved implementation issues before Pod C.
 
-[ASSUMPTION] Selcafe spike output remains schema/metadata only unless Kerem and Pod B explicitly approve a broader scope later.
+[ASSUMPTION] `SELCAFE_SPIKE_REPORT.md` records the completed 2026-06-23 schema/metadata-only spike; it does not authorize broader access or implementation, which still requires separate Pod B + Kerem-approved readiness gates.
 
 ---
 
@@ -284,7 +287,7 @@ The following must not be converted into Pod C implementation issues until the l
 
 [OPEN QUESTION] What are Phase 1 reservation slots, limits, cancellation, no-show, and approval criteria?
 
-[OPEN QUESTION] What is the Selcafe spike result: feasible, partially feasible, not feasible, or requires further spike?
+[OPEN QUESTION] Which remaining Selcafe product-alignment items must be resolved before a separately approved implementation issue can be prepared?
 
 [OPEN QUESTION] Should campaigns/subscriptions/ARPU models remain outside Phase 1 and move to feature discovery?
 
@@ -292,11 +295,11 @@ The following must not be converted into Pod C implementation issues until the l
 
 ## Review Routing
 
-- Ready for commit: Yes — this status/routing metadata reconciliation is documentation-only and does not change the Phase 1 sequence, gates, owners, legal/KVKK posture, or implementation-readiness state.
-- Requires Kerem approval: Yes — for merging this documentation-only status reconciliation; no new product/business decision is introduced.
-- Requires Pod B review: No — not for this metadata-only reconciliation. Route to Pod B only if a future edit changes any gate, owner, sequence, architecture/security/KVKK implication, Selcafe boundary, wallet/loyalty/auth/F&B/reservation readiness language, or implementation-readiness language.
+- Ready for commit: Yes — documentation-only roadmap status reconciliation.
+- Requires Kerem approval: Yes.
+- Requires Pod B review: Yes, narrowly, because Selcafe implementation-readiness wording is updated.
 - Requires Pod C implementation: No — this roadmap explicitly does not authorize Pod C, does not create implementation issues, and remains planning-only.
-- Requires Pod D prototype/audit/monitoring review: No for this metadata-only reconciliation. Future roadmap items still route to Pod D where PWA prototype/review, monitoring/SLO specification, or pre-go-live consistency audit work is required.
+- Requires Pod D prototype/audit/monitoring review: No for this correction.
 
 ---
 
@@ -316,7 +319,7 @@ The following remain open and are not resolved by this metadata reconciliation:
 
 - legal/KVKK advisor closure;
 - SMS provider selection; provider outage/availability response path (spend-volume ceiling values and ADMIN response-path owner decided at design level — AUTH_THREAT_MODEL.md v0.5 §15);
-- Selcafe read-only feasibility spike and ADR-005 completion;
+- Selcafe implementation readiness: product alignment, dedicated read-only login/secrets handling, planned `architecture/INTEGRATION_VIEW.md`, a separately approved Definition-of-Ready issue, and Pod B + Kerem approval; legal/KVKK/cross-border gates apply where PII or cross-border is in scope;
 - reservation product rules and state-machine readiness;
 - monitoring/SLO readiness;
 - implementation issue Definition of Ready.
