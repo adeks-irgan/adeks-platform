@@ -73,6 +73,21 @@ This document is a planning/control artifact only. It does not create implementa
 | Wallet/loyalty balances | Append-only ledger logic; no direct balance overwrite |
 | Legal/KVKK gate | Legal advisor inputs, Pod B risk review, and Kerem approval required before personal-data implementation or production customer-data use |
 
+---
+
+## Pod Impact Matrix
+
+| Pod | Impact | Required Follow-Up |
+|---|---|---|
+| Pod A | None beyond authoring this document. Phase gate criteria apply to Pod A's product/planning outputs. | None. |
+| Pod B | Phase 8 entry criteria formalize when Pod B review is required before Pod C implementation begins. No new review obligation beyond existing ADR-009 §3 and methodology gates. | None beyond acknowledging this document routes architecture/security/KVKK areas to Pod B. |
+| Pod C | Phase 8 entry criteria define the DoR threshold Pod C must satisfy before implementation begins. No behavioral change to Pod C implementation process; DoR gate already existed. | None. Pod C must not implement from this planning document. |
+| Pod D | Phase 9 entry/exit criteria route pre-go-live audit and consistency audit gates to Pod D. No behavioral change beyond formalizing existing Pod D scope. | None. |
+
+**Instruction Update Required:** No. This document does not change Pod A, B, C, or D external platform instructions. No external pod instruction update or re-paste is required.
+
+---
+
 ### Gate Evidence Rule
 
 A phase is not considered complete because a chat session says it is complete. Gate evidence must be recorded in the repository as one or more of:
@@ -95,7 +110,7 @@ This document uses two meanings of “phase”:
 1. **Lifecycle phases** — the ten methodology phases: Strategic Discovery through Learn and Iterate.
 2. **Product Phase 1** — the current Adeks release scope: customer PWA plus web cashier/admin foundation.
 
-The section “Current Phase 1 Gate Status” refers to **Product Phase 1**, not lifecycle Phase 1 only.
+The section “Current Phase 1 Gate Status” refers to **Product Phase 1**, not lifecycle Phase 1 only. Product Phase 1 spans multiple lifecycle phases and does not map 1:1 to lifecycle Phase 1.
 
 ---
 
@@ -141,7 +156,8 @@ This section covers the current **Product Phase 1** release scope: customer PWA 
 |---|---|---|
 | Roadmap control | `ROADMAP.md` exists as a planning-only Phase 1 sequence. | Keep milestone sequence unchanged unless Kerem approves a documented change. |
 | Implementation authorization | Not authorized. | Separate GitHub issues must satisfy Definition of Ready before Pod C starts. |
-| Legal/KVKK | Blocking. `DATA_RETENTION_POLICY.md`, `KVKK_LEGAL_BASIS.md`, and `CROSS_BORDER_TRANSFER_ASSESSMENT.md` remain required before personal-data implementation/launch claims. | Legal advisor input, Pod B review, and Kerem approval. |
+| Legal/KVKK | Blocking. `DATA_PROCESSING_INVENTORY.md`, `KVKK_LEGAL_BASIS.md`, and `CROSS_BORDER_TRANSFER_ASSESSMENT.md` remain required KVKK control artifacts before personal-data implementation/launch claims. | Legal advisor input, Pod B review, and Kerem approval. |
+| Retention policy | Open. `DATA_RETENTION_POLICY.md` remains needed for retention periods where current repo context requires retention closure. | Legal advisor input, Pod B review, and Kerem approval. |
 | Privacy notice | K-14/K-15/K-16 mechanics are locked, but legal text and legal sufficiency confirmation remain open. | Final Turkish `PRIVACY_NOTICE_TR.md`; confirmation of K-15/K-16 sufficiency; Kerem approval. |
 | VERBİS / exemption | Open. | Legal advisor determination and Kerem action. |
 | SMS provider | Not selected. | Provider selection after commercial and legal/KVKK processor/cross-border review; outage/availability path approved. |
@@ -178,7 +194,8 @@ The following blockers must be closed before any Product Phase 1 implementation 
 |---|---|---|
 | Legal/KVKK closure | Customer authentication, wallet, loyalty, F&B, reservations, audit, logs, retention, and provider processing involve personal data or compliance exposure. | Legal advisor + Kerem; Pod B review |
 | `KVKK_LEGAL_BASIS.md` | Legal basis per data class is not yet recorded. | Kerem/legal advisor; Pod B review |
-| `DATA_RETENTION_POLICY.md` | Retention periods for personal-data-bearing records are not yet recorded. | Kerem/legal advisor; Pod B review |
+| `DATA_PROCESSING_INVENTORY.md` | Data-processing inventory must remain the KVKK control artifact for personal-data classes, purposes, and processing surfaces; inventory status does not by itself authorize implementation. | Kerem/legal advisor; Pod B review |
+| `DATA_RETENTION_POLICY.md` | Retention periods for personal-data-bearing records remain needed where current repo context requires retention closure. | Kerem/legal advisor; Pod B review |
 | `CROSS_BORDER_TRANSFER_ASSESSMENT.md` | Hosting, SMS, monitoring, logging, and support vendors may create cross-border transfer exposure. | Kerem/legal advisor; Pod B review |
 | SMS provider selection | Customer OTP depends on provider choice, processor terms, cost, deliverability, and outage handling. | Kerem + Pod B |
 | SMS outage/availability path | OTP failure handling affects customer login and staff support. | Kerem + Pod B |
@@ -199,13 +216,12 @@ The following blockers must be closed before any Product Phase 1 implementation 
 
 | Review Area | Required? | Owner |
 |---|---:|---|
-| Ready for commit | Yes, as v0.1 planning draft after review routing is preserved. |
-| Requires Kerem approval | Yes. Phase gates and phase movement authority are product/process-sensitive. |
-| Requires Pod B review | Yes. Gate criteria touch architecture, security, KVKK, Selcafe, wallet, loyalty, auth, hosting, deployment, monitoring, rollback, ADR, API/schema, and implementation-readiness boundaries. |
-| Requires Pod C implementation | No. This document explicitly does not authorize Pod C and must not be converted into implementation work. |
-| Requires Pod D prototype/audit/monitoring review | Not for this document’s creation alone. Pod D is required where PWA prototype, UX review, monitoring specification, pre-go-live audit, or broad consistency audit gates are triggered. |
-| Requires legal advisor review | Not for this document as a planning/control artifact, but legal/KVKK gate criteria remain dependent on legal advisor answers. |
-| Requires ADR update | No, unless Pod B identifies that this document changes or conflicts with an accepted ADR or methodology gate. |
+| Pod B review for architecture/security/KVKK/Selcafe/wallet/loyalty/auth/hosting/release gates | Yes | Pod B |
+| Kerem approval for phase gates and phase movement | Yes | Kerem |
+| Pod C implementation | No | Not authorized by this document |
+| Pod D prototype/audit/monitoring review | Conditional | Pod D where PWA prototype, UX review, monitoring specification, pre-go-live audit, or broad consistency audit gates are triggered |
+| Legal advisor review | Conditional | Kerem/legal advisor where legal/KVKK gate criteria require legal input; Pod B reviews technical/security implications |
+| ADR update | No by default | Pod B only if this document is found to change or conflict with an accepted ADR or methodology gate |
 
 ---
 
@@ -219,7 +235,7 @@ The following blockers must be closed before any Product Phase 1 implementation 
 | PG-OQ-004 | What exact evidence threshold is sufficient for Phase 1 discovery remediation artifacts such as `VISION.md`, `PROBLEM_STATEMENT.md`, `STAKEHOLDER_MAP.md`, and user-research documents? | Kerem + Pod A | `[NEEDS KEREM APPROVAL]` |
 | PG-OQ-005 | Which legal/KVKK closure outputs must be treated as implementation blockers versus launch blockers after legal advisor feedback arrives? | Kerem + legal advisor + Pod B | `[NEEDS KEREM APPROVAL]` / `[NEEDS POD B REVIEW]` |
 | PG-OQ-006 | Should Pod D’s pre-go-live audit criteria be expanded into a separate checklist document before release planning? | Pod D + Kerem | `[NEEDS KEREM APPROVAL]` |
-| PG-OQ-007 | Does the creation of this companion phase-gate document require a Pod Impact Matrix in the PR because it defines gate criteria? | Pod B + Kerem | `[NEEDS POD B REVIEW]` / `[NEEDS KEREM APPROVAL]` |
+| PG-OQ-007 | [RESOLVED] Pod B confirmed a Pod Impact Matrix is required for this PR because the document defines phase-gate criteria. The matrix is included in this document. | Pod B + Kerem | Resolved for v0.1; no external pod instruction update required |
 
 ---
 
