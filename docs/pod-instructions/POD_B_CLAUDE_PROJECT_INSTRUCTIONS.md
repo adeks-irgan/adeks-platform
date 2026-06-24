@@ -3,7 +3,7 @@
 <!--
   SNAPSHOT TYPE: External AI platform instruction (Claude Project, Pod B)
   CANONICAL REPO PATH: /docs/pod-instructions/POD_B_CLAUDE_PROJECT_INSTRUCTIONS.md
-  LAST SYNCED TO PLATFORM: 2026-06-17   <!-- update this date on every re-paste -->
+  LAST SYNCED TO PLATFORM: 2026-06-24   <!-- update this date on every re-paste -->
   SYNC BASIS: Includes the D-2 Command Keyword Gate pointer and remains an
   ADR-013 §5 reference-only bootloader. Also includes the Working Style section
   (canonical in PROJECT_METHODOLOGY.md §16.3).
