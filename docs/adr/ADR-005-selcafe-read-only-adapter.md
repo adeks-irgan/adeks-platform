@@ -1,7 +1,7 @@
 # ADR-005: Selcafe Read-Only Phase 1 Adapter
 
 <!--
-  STATUS: Accepted — Kerem-approved 2026-06-23 (full ADR text)
+  STATUS: Accepted — Kerem-approved 2026-06-23 (full ADR text). v1.1 Spike v2 reconciliation 2026-06-24 (HEAD 33a55a9); §4.1 narrowed, §4.2 classification notes added, K-A3 closed, OQ-SC-NEW-001 resolved.
   AUTHOR: Pod B — Architecture, Logic & Risk
   CREATED: 2026-06-07 (stub) — FULL TEXT: 2026-06-23
   CANONICAL REPO PATH: /docs/adr/ADR-005-selcafe-read-only-adapter.md
@@ -115,10 +115,8 @@ The Phase-1 `SelcafeAdapter` read surface is **bounded to non-PII operational an
 |---|---|---|---|
 | `dbo.masa` | `masa_no`, `tip`, `durum`, `baslangic_zaman`, `sure_limit` (status/occupancy/session-start **only**) | `StationStatus` (available / in-use / fault; occupied-since) | **No** — `masa` carries no `uye_no`; see D-3a |
 | `dbo._pc` | `tip`, `ad`, `fiyat` | `StationType` (type label + hourly rate) | No |
-| `dbo.urun` | `kod`, `ad`, `fiyat`, `birim`, `aktif`, `menu` | `CatalogItem` | No |
+| `dbo.urun` | `kod`, `ad`, `tip`, `fiyat`, `birim`, `aktif` | `CatalogItem` | No — F&B customer filter: `tip=1 AND aktif=1`; service items (`tip=2`) and staff-only items (e.g. `kod` prefix `PP`) excluded. `menu` column is live-valued but NOT operationally used by the Selcafe cashier workflow — do not read or filter on it. Category is not DB-derivable (only a `kod`-prefix naming convention exists at the application layer); category label must not cross the adapter boundary (D-2 rule 1). |
 | `dbo.menudetay` | `menu_urun_kod`, `urun_kod`, `miktar` | `CatalogComboComponent` | No |
-| `dbo.uyesinif` | `sinif`, `indirim_oran`, `kullanim_limit`, `on_odeme` (**tier definitions only**) | `MembershipTierDefinition` (rules, **not** member rows) | No |
-| `dbo.ayar` | **scoped** to confirmed non-sensitive open-hours keys only (pending OQ-SC-NEW-005) | `OperatingHours` | No (if scoped to open-hours keys) |
 
 #### 4.2 Hard-EXCLUDED surfaces (architectural constraint, independent of product confirmation)
 
@@ -134,9 +132,19 @@ The following are **excluded from the Phase-1 read surface** and **must not** ap
 | `adisyon.uye_no`, `kasaislem.uye_no`, `kuyruk.uye_no` | Member-linkage columns → **PII by linkage** (OQ-SC-PRE-004, confirmed by spike §8). |
 | `dbo.adisyon`, `dbo.kasaislem` (as member-linked transaction tables) | Contain member linkage and SP-computed financial values; not required for the Phase-1 non-PII surface. |
 
+**Spike v2 — stub and deprecated column classification:** The following columns belong to already-excluded tables. They are classification records only; the hard-exclusion status of their parent tables is unchanged.
+
+| Column | Classification | Detail |
+|---|---|---|
+| `adisyon.uye_indirim_oran` | **STUB** | Stores the member-discount rate at session start but is overridden by `sp_ucret_hesapla` before the row is finalised. `adisyon.uye_indirim` holds the SP-computed live discount amount. Never treat `uye_indirim_oran` as the authoritative rate. |
+| `adisyon.ek_indirim` | **STUB** | Additional-discount field; overridden by `_sp_kampanya_hesapla` at settlement. Not a reliable discount value. |
+| `uyesinif.indirim_oran` | **DEPRECATED** | Superseded by `dbo._kampanya` campaign-discount logic. `uyesinif.sinif` is retained for backward-compatibility joins only; `indirim_oran` is no longer the live tier-discount source. |
+
 #### 4.2a — `uye.bakiye` isolation rule
 
 Even though `uye.bakiye` is hard-excluded above, the ADR records an explicit isolation rule because the spike flagged a future-drift risk (OQ-SC-NEW-003): **no Adeks code path may read `uye.bakiye` as a wallet balance.** If a *future* phase ever needs to display a Selcafe legacy balance, it must be (a) separately approved, (b) labelled "Selcafe legacy balance — not the Adeks wallet," and (c) structurally prevented from being treated as authoritative. This is **out of Phase-1 scope**.
+
+**Spike v2 classification reinforcement:** `uye.bakiye` together with `uyesinif.kredi`, `uyesinif.on_odeme`, and `uyesinif.kullanim_limit` constitute a dormant "usable-but-unused" credit/balance mechanism — structurally present in Selcafe but not actively used in the live cashier workflow. This is the data-minimization basis for removing `uyesinif` from the §4.1 Phase-1 read surface (no live Phase-1-consumed column; same data-minimization pattern applied as PI-1 for `masa`/`_pc` deferral). Hard-exclusion of `uye.bakiye` is unchanged; this classification extends and reinforces it to the `uyesinif` credit/balance columns.
 
 #### D-3a — "Active sessions" read = station status WITHOUT member resolution
 
@@ -296,7 +304,7 @@ A future `SelcafeAdapter` implementation issue is acceptable only if it: provisi
 |---|---|---|---|
 | K-A1 | **Physical read source** (Source A direct vs Source B replica), with the **active-session staleness-tolerance** question | Architecture + legal | **DECIDED — Option A** (direct, scoped, read-only); replica/BigQuery deferred. |
 | K-A2 | **Provision a dedicated least-privilege read-only login** scoped to the §4.1 tables (resolving OQ-SC-NEW-002) | Security / ops | **AUTHORIZED.** Adapter implementation still gated on separately approved Pod C issue. |
-| K-A3 | **Authorize a controlled `ayar.kod` key-name read** to confirm open-hours keys (OQ-SC-NEW-005) | Data access | **OPEN.** Until authorized, `ayar`/open-hours stays out of the Phase-1 read surface. |
+| K-A3 | Authorize a controlled `ayar.kod` key-name read to confirm open-hours keys (OQ-SC-NEW-005) | Data access | **CLOSED — not needed.** Spike v2 confirmed that open hours are NOT stored in `ayar`; no open-hours setting keys are present. Operating-hours configuration is Adeks-native (routed to Pod A as a K-20 product item). `ayar` removed from §4.1 read surface; OQ-SC-NEW-005 closed. Ratified by Kerem's merge of the Spike v2 reconciliation PR. |
 | K-A4 | **Commission `CROSS_BORDER_TRANSFER_ASSESSMENT.md`** for the Selcafe→GCP replication **if it exists / if Source B is used** | Legal | **GATING ITEM** for any future cross-border/replica use. Source B not usable until cleared. |
 | K-A5 | **Engage legal advisor** before any member-linked (PII) read is ever added | Legal | **GATING ITEM.** PII surfaces remain hard-excluded (Phase-1 default). |
 
@@ -307,6 +315,8 @@ A future `SelcafeAdapter` implementation issue is acceptable only if it: provisi
 ## 10. Open Questions feeding `SELCAFE_SPIKE_REPORT.md` Section 17
 
 New questions surfaced while drafting this ADR (delivered as the Section 17 update in the same Pod B session): **OQ-SC-NEW-008** (physical source + staleness + cross-border), **OQ-SC-NEW-009** (read isolation-level / non-blocking strategy), **OQ-SC-NEW-010** (`DATA_PROCESSING_INVENTORY.md` Selcafe-surface update), plus the product-implication questions **PI-1**/**PI-2**. The pre-spike controls **OQ-SC-PRE-001…004** are **resolved** by SR-003-1…4 (PRE-003 at requirement level, mechanism via SR-001). See Section 17.
+
+**Spike v2 reconciliation (2026-06-24): OQ-SC-NEW-001 → RESOLVED.** Category source confirmed as the `urun.kod` prefix naming convention (SP-defined at the Selcafe application layer, not a relational table); `urun.tip` discriminates F&B items (`1`) from service/session items (`2`). No missing DB category table — the `urungrup` FK reference is legacy/unused; the gap is by Selcafe design. Category must not be DB-derived across the adapter boundary (D-2 rule 1). See updated §4.1 and SELCAFE_SPIKE_REPORT.md §17.6.
 
 ---
 
@@ -326,3 +336,4 @@ New questions surfaced while drafting this ADR (delivered as the Section 17 upda
 | stub | 2026-06-07 | Pod B | ADR-005 stub created during BC-3 ADR-stub cleanup; decision direction Locked (read-only Selcafe Phase 1 via `CafeManagementAdapter`); full text deferred. |
 | v1.0 (full text) | 2026-06-23 | Pod B | Full ADR authored from `SELCAFE_SPIKE_REPORT.md` v1.1 (PR #91). Adds: integration architecture (D-1/D-2/D-7); bounded PII-free Phase-1 read surface + hard-exclusion list + no-member-resolution rule (D-3/D-3a); SR-003-1…4 read-path controls; KVKK scope position (D-5); flagged physical-source sub-decision incl. cross-border (D-6); consequences + residual risks; alternatives A1–A8; acceptance criteria + Pod B+Kerem merge gate + preserved Pod C gating. Raises `[NEEDS KEREM APPROVAL]` K-A1…K-A5 and `[PRODUCT IMPLICATION]` PI-1/PI-2. Resolves OQ-SC-PRE-001…004. Synthetic/schema-name-only data. |
 | v1.0 — Accepted | 2026-06-23 | Pod B / Kerem | **Kerem approval recorded.** Status → Accepted. Decisions: K-A1 = Option A (direct live SQL; replica deferred); K-A2 authorized (dedicated least-privilege read-only login); K-A4/K-A5 carried as gating items for any future PII/cross-border expansion. `PROJECT_DECISION_INDEX.md` ADR-005 row Backlog → Accepted and `AGENT_CONTEXT_MANIFEST.md` Selcafe row updated in the same PR. Does NOT authorize Pod C. |
+| v1.1 — Spike v2 reconciliation | 2026-06-24 | Pod B | §4.1 narrowed: `ayar` row removed (open hours Adeks-native; OQ-SC-NEW-005 closed; K-A3 closed); `uyesinif` row removed (data minimization — no live Phase-1-consumed column; dormant credit/balance mechanism); `urun` projection tightened (`tip` added, `menu` removed; `tip=1 AND aktif=1` F&B filter; category = `kod`-prefix convention only; D-2 rule 1 reaffirmed). §4.2 stub/deprecated classification notes added (`adisyon.uye_indirim_oran` STUB; `adisyon.ek_indirim` STUB; `uyesinif.indirim_oran` DEPRECATED). §4.2a reinforced (`uyesinif` credit/balance cols = dormant, same hard-exclusion basis). §9 K-A3 OPEN → CLOSED. §10 OQ-SC-NEW-001 → RESOLVED. Governance: Pod Impact Matrix + INSTRUCTION_UPDATE_PACKET attached to PR. |

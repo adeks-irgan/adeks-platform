@@ -42,7 +42,7 @@
 |---|---|
 | Document | `SELCAFE_SPIKE_REPORT.md` |
 | Project | Adeks Platform |
-| Status | **Sections 1–13 (Pod C) + Section 17 (Pod B) complete; Sections 14–16 pending Pod B** |
+| Status | **Sections 1–13 (Pod C) + Sections 17.1–17.6 (Pod B) complete; Sections 14–16 pending Pod B** |
 | Script version | `selcafe_schema_discovery_v1.0.sql` v1.0 |
 | Data rule | Schema and catalog metadata only; NO row data; NO real customer data |
 | Implementation authority | **Does NOT authorize Pod C to implement any integration** |
@@ -745,9 +745,41 @@ Accepted 2026-06-23). This section records the question set as resolved/raised b
 | PI-1 | Is real-time station/session status consumed by any Phase-1 feature, or is the `masa` read a Phase-2 prerequisite being validated early? Determines whether `masa` is a Phase-1 read target. | Pod A + Kerem | High |
 | PI-2 | Is the Phase-1 customer menu sourced from Selcafe `urun`, or Adeks-native? Determines whether `urun`/`menudetay` are Phase-1 read targets and whether the missing-category gap (OQ-SC-NEW-001) blocks Phase-1 menu categorization. | Pod A + Kerem | High |
 
-### 17.5 Carry-forward (unchanged) — high-priority spike questions still open
+### 17.5 Carry-forward — spike question status
 
-OQ-SC-NEW-001 (missing `urungrup` category table), OQ-SC-NEW-002 (provision a dedicated scoped read-only login; ADR-005 K-A2 authorized), OQ-SC-NEW-003 (`uye.bakiye` isolation; encoded as ADR-005 §4.2a), OQ-SC-NEW-004 (`sifre` columns hard-excluded; ADR-005 §4.2), OQ-SC-NEW-005 (`ayar.kod` key-name read authorization; ADR-005 K-A3, still open), OQ-SC-NEW-006 (join/null strategy; folded into SR-003-2), OQ-SC-NEW-007 (Win10/Express availability/capacity; ADR-005 §6.2).
+**OQ-SC-NEW-001 → RESOLVED (Spike v2, 2026-06-24):** category source = `urun.kod` prefix naming convention; `urun.tip` = 1 (F&B) / 2 (service); no missing DB category table. See ADR-005 §10 and §17.6 below. | **OQ-SC-NEW-002 → DEFERRED to login provisioning:** dedicated scoped login K-A2 authorized; account-grant verification (connecting directly to `selcafe` DB context to confirm actual role membership) deferred to the login provisioning phase. | OQ-SC-NEW-003 (`uye.bakiye` isolation; ADR-005 §4.2a — reinforced in v1.1 for `uyesinif` credit/balance cols). | OQ-SC-NEW-004 (`sifre` columns hard-excluded; ADR-005 §4.2). | **OQ-SC-NEW-005 → CLOSED (Spike v2, 2026-06-24; K-A3 closed):** open hours NOT in `ayar`; operating hours are Adeks-native (Pod A). | OQ-SC-NEW-006 (join/null strategy; SR-003-2). | OQ-SC-NEW-007 (Win10/Express availability/capacity; ADR-005 §6.2).
+
+---
+
+### 17.6 — Spike v2 knowledge-elicitation outcomes (2026-06-24)
+
+Schema/metadata-only findings elicited from Kerem, supplementing the v1.1 schema-metadata spike. No row values.
+
+**`urun.tip` product-type discrimination (resolves OQ-SC-NEW-001)**
+
+| `urun.tip` value | Category | Adapter filter |
+|---|---|---|
+| `1` | F&B / consumable | **Include** — customer-facing catalog: `tip=1 AND aktif=1` |
+| `2` | Service / session charge | **Exclude** from customer catalog |
+| — | Staff-only items (e.g. `kod` prefix `PP`) | **Exclude** from customer catalog |
+
+`menu` column: live-valued (reflects actual Selcafe menu config) but NOT operationally used by the cashier workflow for filtering — do not read or filter on it. Product category = `kod`-prefix naming convention only (Selcafe application layer); no DB category table. The `urungrup` FK reference in `urun` is legacy/unused. Category label must not cross the adapter boundary (ADR-005 D-2 rule 1).
+
+**Discount stub/deprecated classification**
+
+| Column | Classification | Confirmed behaviour |
+|---|---|---|
+| `adisyon.uye_indirim_oran` | **STUB** | Rate intended at session start; overridden by `sp_ucret_hesapla` before row finalisation. `adisyon.uye_indirim` is the SP-computed live discount amount. |
+| `adisyon.ek_indirim` | **STUB** | Additional-discount field; overridden by `_sp_kampanya_hesapla` at settlement. |
+| `uyesinif.indirim_oran` | **DEPRECATED** | Superseded by `dbo._kampanya`; `uyesinif.sinif` retained for backward-compatibility joins only. |
+
+**Open hours / `ayar` (closes K-A3 + OQ-SC-NEW-005)**
+
+`ayar` does NOT contain open-hours setting keys. Operating hours are not Selcafe-sourced at all; they are Adeks-native configuration. K-A3 closed as not-needed; OQ-SC-NEW-005 closed. Routed to Pod A as a K-20 product item.
+
+**Dormant credit/balance mechanism (`uyesinif` + `uye.bakiye`)**
+
+`uyesinif.kredi`, `uyesinif.on_odeme`, and `uyesinif.kullanim_limit`, together with `uye.bakiye`, constitute a dormant "usable-but-unused" credit/balance mechanism — structurally present in Selcafe, not active in the live cashier workflow. Data-minimization basis for removing `uyesinif` from the §4.1 read surface (ADR-005 §4.2a v1.1); hard-exclusion of `uye.bakiye` unchanged.
 
 ---
 
@@ -772,3 +804,4 @@ OQ-SC-NEW-001 (missing `urungrup` category table), OQ-SC-NEW-002 (provision a de
 | Template v1.0 | 2026-06-22 | Pod B | Initial template. Sections 1–13 for Pod C; Sections 14–17 for Pod B. Aligned to K-10 question set, SR-003 controls, ADR-005 stub, ROADMAP Seq 14–16. HEAD SHA at template production: d76eede939514cf1051e1521415c0754a749a05e. |
 | v1.1 (Sections 1–13) | 2026-06-23 | Pod C | Sections 1–13 filled from live spike execution against `selcafe` on 192.168.1.249:1433. Script selcafe_schema_discovery_v1.0.sql executed in full (Parts A + B). No row data captured. 23 tables, 180 columns documented. 7 new open questions raised (OQ-SC-NEW-001 through 007). |
 | v1.2 (Section 17) | 2026-06-23 | Pod B | Section 17 completed during the ADR-005 full-text session. Resolved OQ-SC-PRE-001…004 (mapped to ADR-005 SR-003-1…4); raised OQ-SC-NEW-008…010 and product-implication PI-1/PI-2. Status line updated. Sections 14–16 remain pending Pod B (lightweight follow-on referencing ADR-005). No row data; schema/metadata only. |
+| v1.3 (§17 reconciliation) | 2026-06-24 | Pod B | §17.6 added: Spike v2 knowledge-elicitation outcomes (tip discrimination, stub/deprecated classification, ayar/open-hours confirmation, dormant credit/balance mechanism). §17.5 updated: OQ-SC-NEW-001 → RESOLVED; OQ-SC-NEW-002 → DEFERRED to provisioning; OQ-SC-NEW-005 → CLOSED (K-A3 closed). Document Status updated. No row data; schema/metadata only. |
