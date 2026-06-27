@@ -1,14 +1,15 @@
 # KEREM_DECISIONS.md
 
 <!--
-  STATUS: v1.7-draft — K-01 through K-19 recorded (complete); K-20 proposed — locks only on Kerem approval/merge
+  STATUS: v1.8-draft — K-01 through K-19 recorded (complete); K-20 proposed — locks only on Kerem approval/merge; K-21 recorded
   SOURCE: Kerem interview session, Pod B facilitation; K-11 from Kerem chat approval 2026-06-07;
           K-13 from Kerem session decisions 2026-06-09 (OQ-001 auth resolution);
           K-14/15/16 from Kerem session decisions 2026-06-10 (CORE_USER_FLOWS OQ-CUF-AUTH-002/003/004);
           K-17/18/19 from Kerem session decisions 2026-06-14 (F&B settlement: price source, loyalty formula, correction policy)
           K-20 proposed by Pod A on 2026-06-23 from ADR-005 PI-1/PI-2; locks only on Kerem approval/merge
+          K-21 from Kerem approval on 2026-06-28 (Product Phase 1 operating-spine scope reconciliation)
   AUTHOR: Pod B (Architecture, Logic & Risk)
-  VERSION: 1.7-draft
+  VERSION: 1.8-draft
   PATH: /docs/KEREM_DECISIONS.md
 
   PURPOSE:
@@ -49,6 +50,7 @@
 | K-18 | F&B loyalty accrual formula | Loyalty accrues on settled F&B amount (post-payment); formula = floor(0.10 × settled_amount_TRY) = floor(settled_kuruş / 1000); 10% of settled F&B amount, rounded down to whole points; cashier payment recording is the trigger | ✅ Recorded |
 | K-19 | F&B post-settlement correction policy | Cashier same-shift correction permitted (own settlements only); executor = cashier; customer-visible history = minimized (neutral label + value delta); follow-up decisions resolved 2026-06-14 | ✅ Recorded |
 | K-20 | Selcafe Phase 1 product implications (PI-1/PI-2) | Proposed: PI-1 real-time station/session status is deferred to Phase 2 as an active product consumer; PI-2 Phase-1 customer menu is sourced from Selcafe `urun` / `menudetay` through vendor-neutral Adeks read models | 🟡 Proposed — locks only on Kerem approval/merge |
+| K-21 | Product Phase 1 operating-spine scope reconciliation | See Section 21 | ✅ Recorded |
 
 ---
 
@@ -657,6 +659,60 @@ Records the correction policy. Does NOT authorize Pod C. ADR-006 and ADR-007 rem
 ### What this does NOT unlock
 
 This records a proposed product-scope position for ADR-005 PI-1/PI-2 only. It does **not** authorize Pod C, SQL credentials, SelcafeAdapter implementation, schema, API contracts, polling, caching, infrastructure, or any read of Selcafe PII/member-linked surfaces.
+
+---
+
+## 21. K-21 — Product Phase 1 Operating-Spine Scope Reconciliation
+
+**Date:** 2026-06-28
+**Source:** Kerem approval in Pod A ChatGPT session after `OPERATING_SLICE_DISCOVERY_v0.1.md` was approved as the provisional Product Phase 1 operating-model spine
+**Scope:** Scope and business-rule reconciliation around the approved spine: Selcafe-linked customer visibility and ordering
+**Related:** `docs/planning/OPERATING_SLICE_DISCOVERY_v0.1.md`; `docs/planning/SCOPE_RECONCILIATION_OPERATING_SPINE_ALIGNMENT_v0.1.md`; `docs/MVP_SCOPE.md`; `docs/BUSINESS_RULES.md`; `docs/CORE_USER_FLOWS.md`; `docs/USER_ROLES_AND_PERMISSIONS.md`; `docs/OPEN_QUESTIONS.md`
+
+### Decision
+
+Kerem approved the Product Phase 1 operating-spine reconciliation plan and the following K-OS decisions.
+
+| ID | Decision |
+|---|---|
+| K-OS-001 | Addition-only guest may order. Coupon, loyalty, and settled visit history require Adeks account binding before final settlement. |
+| K-OS-002 | Include customer-visible PC start/stop/duration/cost estimates if Selcafe read quality is reliable. Hide financial estimates if unreliable. |
+| K-OS-003 | Keep broader F&B lifecycle as internal/later expansion, but simplify first-slice customer-facing status. |
+| K-OS-004 | Include one simple combined PC + F&B coupon/discount. Exclude campaign engine, complex campaigns, tiers, and subscriptions from this operating spine. |
+| K-OS-005 | Loyalty product target is F&B + PC/session earning after settlement. F&B formula remains locked by K-18; PC/session earning requires later Pod B review and falls back to F&B only if data is unreliable. |
+| K-OS-006 | Exclude wallet payment/spending from this operating spine only. Wallet visibility/top-up may remain separate Phase 1 scope behind existing gates. |
+| K-OS-007 | Approve 2% pre-settlement mismatch threshold, pilot pause triggers, and first-week admin/back-office checks. |
+
+### Product Implications
+
+- The Phase 1 operating spine is **Selcafe-linked customer visibility and ordering**.
+- `fiş / fiş numarası` is the main customer-facing visit link.
+- Customer must confirm table before ordering.
+- Addition-only guest ordering is permitted, but coupon, loyalty, and settled visit history require account binding before final settlement.
+- Customer-visible PC estimates may be included only when Selcafe read quality is reliable.
+- Pre-payment financial values are estimates; final settled amount comes from Selcafe.
+- Phase 1 remains read-only toward Selcafe; Selcafe remains the settlement source of truth for this operating spine.
+- One simple combined PC + F&B coupon is included as the first habit-driver coupon.
+- Broader campaign engine, tiers, subscriptions, wallet payment/spending, kitchen-facing PWA workflow, delivery tracking, reservation automation, and direct Selcafe writes remain outside this operating spine.
+
+### Required Later Review
+
+[REQUIRES POD B REVIEW] Later Pod B review is required before architecture/design or implementation-readiness work for:
+
+- Selcafe read feasibility and required fields;
+- `fiş` / table matching risk;
+- estimate and final-settlement trust boundary;
+- coupon audit/correction implications;
+- loyalty ledger/correction implications;
+- KVKK/customer-data implications;
+- cashier manual bridge auditability;
+- mismatch threshold and pilot pause mechanics.
+
+### What this does NOT unlock
+
+This decision does **not** authorize Pod C implementation, schema/API work, ADR drafting, direct Selcafe writes, wallet/payment implementation, or real data use.
+
+This document does not authorize Pod C implementation.
 
 ## Open Actions Summary
 

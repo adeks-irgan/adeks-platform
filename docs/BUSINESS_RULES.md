@@ -5,12 +5,12 @@
 | Field | Value |
 |---|---|
 | Document | BUSINESS_RULES.md |
-| Version | v0.2 decision-prep draft |
+| Version | v0.3 operating-spine reconciliation |
 | Owner | Pod A — Product & Planning |
 | Reviewer | Pod B — Architecture, Logic & Risk |
 | Approver | Kerem |
-| Current status | Confirmed v0.2 decision-prep documentation for Kerem approval; not implementation-ready |
-| Scope of this version | Applies Pod B B-1/B-2/B-3 and N-1…N-5 corrections to v0.1. Establishes no new locked decision. |
+| Current status | Reconciled with Kerem-approved Product Phase 1 operating spine and K-21/K-OS decisions; not implementation-ready |
+| Scope of this version | Documentation-only business-rule reconciliation. Establishes no implementation authority. |
 | Target repo path | `/docs/BUSINESS_RULES.md` |
 
 ## Freshness Baseline
@@ -30,7 +30,9 @@
 
 This document separates confirmed Phase 1 business rules from unresolved questions requiring Kerem decision and Pod B review.
 
-This document is **decision-prep only**. It does not select an SMS provider, does not resolve legal/KVKK questions, does not create Pod C implementation issues, and does not approve implementation.
+This document is **decision-prep only**. This document does not authorize Pod C implementation. It does not select an SMS provider, does not resolve legal/KVKK questions, does not create Pod C implementation issues, and does not approve implementation.
+
+Phase 1 remains read-only toward Selcafe; Selcafe remains the settlement source of truth for this operating spine.
 
 ## Known Business Rules Already Confirmed
 
@@ -83,11 +85,38 @@ This document is **decision-prep only**. It does not select an SMS provider, doe
 | BR-PRIVACY-004 | Same-session resend reuse | Same-session acknowledgment reuse is valid for OTP resend; re-acknowledgment required on session break or phone-number change. | Locked by K-16; legal-advisor sufficiency confirmation pending before Pod C propagation. |
 | BR-SELCAFE-001 | Selcafe posture | Phase 1 Selcafe integration is read-only discovery/sync if feasible; no Selcafe writes. | Confirmed; [REQUIRES POD B REVIEW]. |
 
+## Operating Spine Business Rules — K-21
+
+Kerem approved the Product Phase 1 operating spine as **Selcafe-linked customer visibility and ordering**.
+
+The following business rules reconcile Phase 1 around that spine.
+
+| ID | Area | Rule | Status / Routing |
+|---|---|---|---|
+| BR-OS-001 | Main visit link | `fiş / fiş numarası` is the main customer-facing visit link. “Addition” should not be the primary customer-facing word. | Confirmed by K-21. [REQUIRES POD B REVIEW] for Selcafe read mapping. |
+| BR-OS-002 | Table confirmation | Customer must confirm the displayed table before ordering. Wrong or unknown table blocks ordering and routes customer to cashier. | Confirmed by K-21. [REQUIRES POD B REVIEW] for matching and audit implications. |
+| BR-OS-003 | Addition-only guest order | Addition-only guest may order after `fiş` link and table confirmation. Coupon, loyalty, and settled visit history require Adeks account binding before final settlement. | Confirmed by K-21/K-OS-001. [REQUIRES POD B REVIEW] for auth, KVKK, audit, abuse boundary. |
+| BR-OS-004 | Selcafe-linked visibility | Customer-visible PC start/stop/duration/cost estimates are included only if Selcafe read quality is reliable. Hide financial estimates if unreliable. | Confirmed by K-21/K-OS-002. [REQUIRES POD B REVIEW]. |
+| BR-OS-005 | Pre-payment estimate wording | Pre-payment financial values must be labeled estimated. Recommended placeholder: “Estimated. Final amount confirmed at cashier.” | Confirmed direction. Final Turkish copy needs Kerem/UX review. |
+| BR-OS-006 | Final amount source | Selcafe final settled amount is the source of truth. Adeks does not own final bill calculation in this spine. | Confirmed by K-21. [REQUIRES POD B REVIEW] for read/inference feasibility. |
+| BR-OS-007 | Manual Selcafe bridge | Cashier manually enters accepted PWA orders into Selcafe. Adeks does not directly write PWA orders into Selcafe. | Confirmed by K-21. [REQUIRES POD B REVIEW] for auditability and comparison. |
+| BR-OS-008 | First-slice F&B status | First-slice customer-facing status is simplified. “Accepted + Preparing” means cashier successfully entered the order into Selcafe. No delivered tracking in first-slice UX. | Confirmed by K-21/K-OS-003. [REQUIRES POD B REVIEW] to reconcile with accepted lifecycle model. |
+| BR-OS-009 | Kitchen/service workflow | Kitchen/service continue from Selcafe printed receipts only in the first operating slice. No kitchen-facing PWA workflow. | Confirmed by K-21. |
+| BR-OS-010 | Simple coupon | One simple combined PC + F&B coupon/discount is included as the first operating-spine habit driver. Broad campaign engine, tiers, and subscriptions are excluded. | Confirmed by K-21/K-OS-004. [REQUIRES POD B REVIEW] for audit/settlement implications. |
+| BR-OS-011 | Coupon status | Coupon may be shown as applied, rejected, or corrected. Exact rejection/correction reasons remain unresolved. | [NEEDS KEREM APPROVAL] reason taxonomy. [REQUIRES POD B REVIEW]. |
+| BR-OS-012 | Loyalty earning basis | Product target is F&B + PC/session earning after settlement. F&B formula remains locked by K-18. PC/session earning requires later Pod B review and falls back to F&B-only if unreliable. | Confirmed by K-21/K-OS-005. [REQUIRES POD B REVIEW]. |
+| BR-OS-013 | Wallet payment/spending | Wallet payment/spending is excluded from this operating spine only. Wallet visibility/top-up may remain separate Phase 1 scope behind existing gates. | Confirmed by K-21/K-OS-006. |
+| BR-OS-014 | Settlement comparison | Product target: compare PWA orders, Selcafe F&B items, selected coupon, and Selcafe final settled amount where feasible. | Confirmed by K-21. [REQUIRES POD B REVIEW]. |
+| BR-OS-015 | Mismatch threshold | 2% is approved as pre-settlement estimate warning threshold. Final settled amount must still come from Selcafe. | Confirmed by K-21/K-OS-007. [REQUIRES POD B REVIEW] for monitoring/mechanics. |
+| BR-OS-016 | Pilot pause triggers | Kerem may pause pilot for wrong `fiş`/table match, wrong final settled amount, repeated failed linking, missed PWA orders, coupon misapplication, customer complaints, or staff overload. | Confirmed by K-21/K-OS-007. |
+| BR-OS-017 | Pause tolerance | One serious confirmed software-related case may be enough to pause. Human-related issues have tolerance depending on cause/frequency. | Confirmed by K-21/K-OS-007. |
+| BR-OS-018 | First-week admin check | During first week, admin/back-office checks all disputed orders plus ten random orders; check coupon application and final settled amount; summarize for Kerem. | Confirmed by K-21/K-OS-007. [REQUIRES POD B REVIEW] for audit/report mechanics. |
+
 ## Business Rules Requiring Kerem Decision
 
 | ID | Area | Decision question | Guardrail | Blocker |
 |---|---|---|---|---|
-| BRD-LOY-001 | Loyalty earning eligibility | Which Phase 1 purchase types earn loyalty: F&B only, PC/session usage, wallet top-up, or selected combinations? | "Wallet top-up earns" requires Pod B ledger review first; PC/session earning is gated on Selcafe spike. | Blocks Pod C |
+| BRD-LOY-001 | Loyalty earning eligibility | What PC/session loyalty formula applies if Pod B confirms reliable PC/session settlement data? | K-21 approves F&B + PC/session as product target; F&B formula remains locked by K-18. Wallet top-up earning is not part of this operating spine. | Blocks Pod C for PC/session earning |
 | BRD-LOY-002 | Loyalty earning formula | F&B formula resolved by K-18: `floor(0.10 × settled_amount_TRY)`. What is the Phase 1 earning formula for non-F&B purchase types? | Must be representable as discrete immutable earn events. Pod B defines precision/rounding. | Blocks Pod C for non-F&B earning |
 | BRD-LOY-003 | Loyalty earning exclusions | Are discounts, campaigns, refunded/cancelled purchases, wallet top-ups, or manual adjustments excluded from earning? | Prevent double earning and ensure reversal paths are ledger-based. | Blocks Pod C |
 | BRD-LOY-004 | Loyalty redemption unit | Is redemption denominated as points, ₺ discount equivalent, item discount, or another unit? | Ledger semantics and customer-facing value require Pod B review. | Blocks Pod C |
@@ -104,20 +133,24 @@ This document is **decision-prep only**. It does not select an SMS provider, doe
 | BRD-RES-002 | Reservation limits | How many active/future reservations can one customer hold? | Customer-facing restriction policy may require notification/fairness framing. | Blocks Pod C |
 | BRD-RES-003 | Reservation cancellation | Can customer cancel? Can staff cancel? What cutoff applies? | State-machine review required. | Blocks Pod C |
 | BRD-RES-004 | No-show rule | What happens if customer does not arrive? | Future restrictions may carry customer communication/KVKK implications. | Blocks Pod C |
-| BRD-RES-005 | Reservation approval criteria | What criteria should staff use to approve/reject a request when PC/session status is not reliable? | Do not lock status-based approval criteria before Selcafe spike results. | Blocks Pod C |
+| BRD-RES-005 | Reservation approval criteria | What criteria should staff use to approve/reject a request when PC/session status is not reliable? | Do not lock status-based approval criteria before Pod B review confirms reliable Selcafe status support. | Blocks Pod C |
 | BRD-AUDIT-001 | Audit detail level | Are current minimum audit fields enough, or must reason/comment, IP/device, before/after derived values, and workflow source also be captured? | Build on Accepted auth threat model baseline; schema/storage/tamper/retention are Pod B/legal. | Blocks Pod C / Pod B |
-| BRD-SEL-001 | Selcafe customer mapping | What customer data, if any, should be imported or mapped from Selcafe if read-only sync is feasible? | Intent only before spike; PII mapping requires KVKK review. | Blocks Pod C for sync |
+| BRD-SEL-001 | Selcafe customer mapping | What customer data, if any, should be imported or mapped from Selcafe if read-only sync is feasible? | Intent only before Pod B/legal review; PII mapping requires KVKK review. | Blocks Pod C for sync |
 | BRD-PRIVACY-001 | Turkish privacy notice legal text | What exact Turkish Aydınlatma Metni text appears in the PWA? | K-14 locks location/delivery; only legal wording remains open. | Blocks legal / launch |
 | BRD-SMS-001 | SMS provider | Which SMS provider is selected after price/commercial replies and KVKK assessment? | Provider report exists; selection remains Kerem-owned and does not authorize Pod C. | Blocks Pod C |
 | BRD-SMS-002 | SMS operational response | Who owns provider-outage response, and what spend/volume ceiling triggers circuit breaker/escalation? | Provider-outage operations only; customer-facing failure UX is already resolved by CUF §3.5.3. | Blocks Pod C auth issue prep |
 
 F&B order lifecycle product decisions are resolved by Kerem's completed F&B Order Lifecycle Decision Packet and the 2026-06-12 follow-up decisions recorded in this document. Remaining F&B work is Pod B review/formalization of state transitions, actors, audit points, cancellation boundaries, combined payment/fulfillment representation, wallet debit ledger entry design, loyalty accrual append-event design, and any reversal logic. This does not authorize Pod C.
 
+K-21 resolves the operating-spine campaign boundary: one simple combined PC + F&B coupon/discount is included; complex campaign engine, tiers, subscriptions, and broad ARPU campaign modeling remain excluded from this operating spine.
+
 ## Decision Prep Notes by Focus Area
 
 ### Loyalty earning eligibility
 
 [OPEN QUESTION] Which purchase types earn points in Phase 1?
+
+K-21 approves **F&B + PC/session** as the product target for this operating spine. This does not reopen K-18. F&B formula remains locked. PC/session earning remains blocked until Pod B validates Selcafe settlement data, ledger implications, correction behavior, and KVKK scope. If PC/session data is unreliable, the approved fallback is F&B-only earning.
 
 | Option | Meaning | Guardrail |
 |---|---|---|
@@ -264,7 +297,7 @@ K-13/KD-F confirms **no top-up threshold in Phase 1** and a daily top-up report 
 | Cancellation cutoff | When customer/staff can cancel. | State-machine review required. |
 | No-show grace period | How long after slot start before no-show. | Operational policy decision. |
 | No-show consequence | Warning, temporary reservation restriction, or no consequence. | Customer communication/fairness and possible KVKK implications. |
-| Staff approval criteria | How staff decides without reliable automated PC/session status. | Do not lock status-based approval criteria before Selcafe spike results. Phase 1 stays manual staff judgment unless spike supports more. |
+| Staff approval criteria | How staff decides without reliable automated PC/session status. | Do not lock status-based approval criteria before Pod B review confirms reliable Selcafe status support. Phase 1 stays manual staff judgment unless Pod B review supports more. |
 
 ### Audit detail level
 
@@ -286,7 +319,7 @@ This question is **not greenfield**. It must build on the Accepted auth threat-m
 
 | Kerem can decide now | Must not lock yet |
 |---|---|
-| Product intent: prefer minimal mapping, avoid historical spend unless needed, treat Selcafe as legacy adapter. | Exact fields, identifiers, sync frequency, data quality assumptions, customer PII mapping, and any legal basis before spike + Pod B/legal review. |
+| Product intent: prefer minimal mapping, avoid historical spend unless needed, treat Selcafe as legacy adapter. | Exact fields, identifiers, sync frequency, data quality assumptions, customer PII mapping, and any legal basis before Pod B/legal review. |
 
 [GUARDRAIL] Selcafe is a legacy adapter, not the core domain model. No direct writes to Selcafe SQL Server in Phase 1 unless Kerem explicitly approves later.
 

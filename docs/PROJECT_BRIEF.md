@@ -127,6 +127,24 @@ It should provide:
 
 Phase 1 should coexist with Selcafe. It should not attempt to replace Selcafe's core PC/session control.
 
+### Operating-Spine Alignment Note
+
+Kerem approved the Product Phase 1 operating spine as **Selcafe-linked customer visibility and ordering**.
+
+For this spine:
+
+- `fiş / fiş numarası` is the main customer-facing visit link.
+- Customer confirms table before ordering.
+- Addition-only guest ordering is permitted, but coupon, loyalty, and settled visit history require Adeks account binding before final settlement.
+- Cashier manually enters accepted PWA orders into Selcafe.
+- Kitchen/service continue from Selcafe printed receipts.
+- Selcafe remains read-only to Adeks and remains the final settlement source of truth.
+- Wallet payment/spending, kitchen-facing PWA workflow, delivery tracking, reservation automation, complex campaigns, tiers, and subscriptions are excluded from this operating spine.
+
+This document does not authorize Pod C implementation.
+
+Phase 1 remains read-only toward Selcafe; Selcafe remains the settlement source of truth for this operating spine.
+
 ---
 
 ## 5.2 Phase 2 — Adeks PC Client and More Reliable Automation

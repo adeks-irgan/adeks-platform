@@ -131,7 +131,29 @@ Legend:
 
 [Pod B confirmed — 2026-06-09] This matrix applies the confirmed decision that `FB_STAFF` manages orders only and does not handle payment, wallet, or loyalty. This supersedes any older repo wording that implies payment can be handled at F&B cashier/order points by F&B staff.
 
+K-21 narrows the first operating-slice customer UX: kitchen/service continue from Selcafe printed receipts and first-slice UX does not include customer-facing delivered tracking. Any broader `FB_STAFF` order-status capability remains internal/later expansion until reconciled by Pod B and Kerem.
+
 Open question for `BUSINESS_RULES.md`: should `CASHIER` have a “view my own recent transactions” interface limited to their own processed actions? Not addressed in this document — flag for `BUSINESS_RULES.md`.
+
+---
+
+## Operating Spine Role Notes — K-21
+
+K-21 approves the Product Phase 1 operating spine: **Selcafe-linked customer visibility and ordering**.
+
+This section reconciles role expectations for that spine only. This document does not authorize Pod C implementation.
+
+Phase 1 remains read-only toward Selcafe; Selcafe remains the settlement source of truth for this operating spine.
+
+| Role / Actor | Operating-spine responsibility | Boundary |
+|---|---|---|
+| `CUSTOMER` with Adeks account | May link `fiş`, confirm table, order F&B, use eligible coupon, earn loyalty after settlement, and view settled history where supported. | Coupon, loyalty, and settled visit history require account binding before final settlement. |
+| Addition-only guest | May link `fiş`, confirm table, and submit F&B order under K-21/K-OS-001. | No coupon, loyalty, or settled visit history unless account is bound before final settlement. |
+| `CASHIER` | Primary first-slice operational receiver for PWA F&B orders; manually enters accepted orders into Selcafe; handles final payment; resolves wrong `fiş`/table/coupon/order exceptions. | No direct Selcafe write by Adeks is implied; cashier uses Selcafe manually. Cashier actions affecting order/coupon/settlement require later audit review. |
+| `FB_STAFF` | Kitchen/service continue from Selcafe printed receipts in the first operating slice. | No kitchen-facing PWA workflow or customer-facing delivery tracking is included in the first operating slice. Existing broader order-status work may remain internal/later expansion but should not define first-slice UX. |
+| `ADMIN` | Reviews first-week disputed orders and ten random orders; receives summary/check outputs where later defined. | Exact report fields, access scope, masking, retention, and audit mechanics require Pod B/legal review. |
+
+[REQUIRES POD B REVIEW] Addition-only guest ordering, cashier exception handling, admin check reports, and Selcafe-derived visibility affect authentication, authorization, audit, KVKK, and data minimization boundaries.
 
 ---
 
