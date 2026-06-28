@@ -9,7 +9,7 @@
 | Confirmation | Kerem confirms on gate movement. |
 | Authority | Mirror-only. Establishes no decisions. Authorizes no implementation. Creates no phase or gate. If this file conflicts with a canonical source, the canonical source governs. |
 | Last confirmed | 2026-06-28 |
-| Source pin | HEAD `4766a8a` |
+| Source pin | HEAD `99e0c36` |
 | Data rule | Synthetic examples only; no real customer/staff/transaction/Selcafe data. |
 
 ## 1. Current gate
