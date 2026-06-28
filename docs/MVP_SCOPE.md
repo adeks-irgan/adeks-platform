@@ -82,6 +82,16 @@ For scope purposes, this means:
 
 This operating spine does not authorize direct Selcafe writes, wallet/payment implementation, schema/API work, ADR drafting, Pod C implementation, or real data use.
 
+### Post-Review Gate — KD-1 / KD-2
+
+K-21 locks the Product Phase 1 operating-spine direction, not implementation authority.
+
+KD-1 records constrained Option B: the product direction includes a Selcafe-sourced active visit/bill/order-line view for the active `fiş` / visit, including cashier/staff-entered F&B items not submitted through Adeks PWA. Selcafe member identity/profile data must not be read or displayed as part of this Phase 1 operating spine.
+
+This does not authorize implementation and does not override ADR-005 by wording alone. ADR-005 read-surface expansion, KVKK/legal review, auditability, retention, and data-minimization review remain required before any implementation issue can exist.
+
+KD-2 records that K-OS-002 supersedes/subsumes K-20 PI-1 only for customer-visible PC/session estimates inside this approved operating spine. Broader real-time station/session status, PC availability exposure, automatic reservation confirmation, and PC-status-dependent reservation automation remain deferred unless separately approved.
+
 ## Phase 1 Included Scope
 
 | Area | Included in Phase 1 | Status |
@@ -155,6 +165,8 @@ This operating spine does not authorize direct Selcafe writes, wallet/payment im
 | Promotions/campaigns | Excluded from Phase 1 MVP unless separately scoped through feature discovery. |
 
 The accepted F&B lifecycle model remains a broader/internal-or-later design reference. K-21 narrows the first operating-slice customer UX so it does not promise delivery tracking at launch.
+
+First-slice statuses are customer-facing simplified projections for the operating spine. They do not redefine the accepted F&B lifecycle state model. Later Pod B review must decide whether the first-slice projection is implemented as a distinct customer-facing projection or a true subset of the accepted model.
 
 ### Coupon / Discount Scope for Operating Spine
 
@@ -232,7 +244,9 @@ K-21/K-OS-006 excludes wallet payment/spending from the Selcafe-linked customer 
 | Selcafe read-only discovery/sync | Included only if feasible. |
 | `fiş / fiş numarası` linking | Included as operating-spine target; exact Selcafe field/read feasibility requires Pod B review. |
 | Table confirmation | Included before ordering. Wrong or unknown table blocks ordering and routes customer to cashier. |
-| PC start/stop/duration/cost estimates | Included only when Selcafe read quality is reliable. Hide financial estimates if unreliable. |
+| Active visit/bill/order-line view | Product direction under K-21/KD-1: desired for the active `fiş` / visit so the customer can see F&B items entered directly into Selcafe by cashier/staff, even if not submitted through Adeks PWA. Not implementation-authorized; requires ADR-005 read-surface expansion, KVKK/legal review, auditability, retention, and data-minimization review. |
+| Selcafe member identity/profile data | Excluded from this operating spine. Must not be read or displayed. This exclusion does not fully resolve the ADR-005 read-surface conflict for active bill/order-line data. |
+| PC start/stop/duration/cost estimates | Included in the Product Phase 1 modeling spine if reliable. KD-2 clarifies this supersedes/subsumes K-20 PI-1 only for customer-visible PC/session estimates inside the approved operating spine. |
 | Final settled amount | Selcafe is source of truth. Adeks reads final settled amount where feasible; normal-flow manual final-total entry into Adeks is not acceptable. |
 | Settlement comparison | Product target: compare PWA orders, Selcafe items, selected coupon, and final settled amount where feasible. |
 | Selcafe write access | Excluded unless Kerem explicitly approves later. |
@@ -241,6 +255,8 @@ K-21/K-OS-006 excludes wallet payment/spending from the Selcafe-linked customer 
 | Adapter boundary | [REQUIRES POD B REVIEW]. |
 | Feasibility spike | Authorized separately, read-only, with no real data copied into docs or AI sessions. |
 | Customer mapping | Intent can be discussed, but no final mapping should be locked before Pod B review and KVKK review. |
+
+The 2% mismatch rule, pilot pause triggers, and first-week admin/back-office checks require later Pod B review for risk/audit mechanics and later Pod D review where UX, monitoring, or operational visibility is affected.
 
 ### Authentication and Legal Dependencies
 
@@ -306,7 +322,7 @@ K-21/K-OS-006 excludes wallet payment/spending from the Selcafe-linked customer 
 | Loyalty earning | PC/session earning formula if Pod B confirms reliable Selcafe settlement data | F&B formula remains locked by K-18; PC/session earning falls back to F&B-only if unreliable. |
 | Loyalty redemption | Business intent for min/max limits, eligible targets, 100% redemption, cashier/admin override policy | Mechanism, reversal, precision, and ledger entries remain Pod B-owned. |
 | Wallet | Preferred cashier top-up methods, correction policy intent, daily report field needs | Method-specific ledger typing, correction mechanics, masking, and retention remain Pod B/legal-owned. |
-| Reservations | Slot length/window, limits, cancellation/no-show rules, manual staff approval policy | Do not lock automated PC/status-based approval criteria before Selcafe spike. |
+| Reservations | Slot length/window, limits, cancellation/no-show rules, manual staff approval policy | Do not lock automated PC/status-based approval criteria before Pod B review confirms reliable Selcafe status/read support. |
 | Audit | Business need for reasons/comments on discretionary financial actions and override visibility | Schema/storage/tamper/retention remain Pod B/legal-owned. |
 | Selcafe mapping | Remaining operating-spine product-alignment items before implementation issue prep | No broader access, direct writes, or implementation authorization from this decision alone. |
 | SMS operations | IR-25 global spend/volume ceiling value and operational response-path owner | Does not select provider or authorize Pod C. |

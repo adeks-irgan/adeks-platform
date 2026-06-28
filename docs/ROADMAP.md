@@ -86,15 +86,13 @@ This PR reconciles Pod D audit finding F-01 / issue #100 by updating stale
 Selcafe spike, report, and ADR-005 status references. It is documentation-only
 and does not authorize Pod C implementation.
 
-K-21 / operating-spine reconciliation note: Kerem approved the Product Phase 1
-operating-spine reconciliation on 2026-06-28. The spine is Selcafe-linked
-customer visibility and ordering. This roadmap remains planning-only and does
-not authorize Pod C implementation. Phase 1 remains read-only toward Selcafe;
-Selcafe remains the settlement source of truth for this operating spine.
-Product scope/business-rule docs must be reconciled before later Pod B
-architecture/design review proceeds for Selcafe read feasibility, coupon/audit,
-loyalty/correction, KVKK/customer-data, cashier manual bridge, mismatch
-threshold, and pilot pause mechanics.
+K-21 / operating-spine reconciliation note: Kerem approved the Product Phase 1 operating-spine direction on 2026-06-28. The spine is Selcafe-linked customer visibility and ordering. After Pod B review, KD-1 clarified that active Selcafe visit/bill/order-line visibility is desired for the active `fiş` / visit, including cashier/staff-entered F&B items not submitted through Adeks PWA, but Selcafe member identity/profile reads remain excluded. This does not authorize implementation and does not override ADR-005 by wording alone. ADR-005 read-surface expansion, KVKK/legal review, auditability, retention, and data-minimization review remain required before any implementation issue can exist.
+
+KD-2 clarifies that K-OS-002 supersedes/subsumes K-20 PI-1 only for customer-visible PC/session estimates inside the approved operating spine. Broader real-time station/session status and reservation automation remain deferred unless separately approved.
+
+The operating model remains provisional for feasibility/risk review even though the product spine direction is approved.
+
+2% mismatch, pilot pause triggers, and first-week admin checks require later Pod B review and later Pod D review where UX, monitoring, or operational visibility is affected.
 
 This document does not authorize Pod C implementation.
 

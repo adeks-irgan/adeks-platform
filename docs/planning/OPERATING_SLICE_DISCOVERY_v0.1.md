@@ -15,6 +15,18 @@
 
 ---
 
+## Post-Review Clarification — KD-1 / KD-2
+
+Kerem approved this document as the provisional Product Phase 1 operating-model spine, but it remains provisional for feasibility, risk, legal/KVKK, auditability, retention, and data-minimization review.
+
+KD-1 records constrained Option B: Product Phase 1 should target Selcafe-sourced active visit/bill/order-line visibility for the active `fiş` / visit, including cashier/staff-entered F&B items that were not submitted through Adeks PWA. This product direction does not authorize implementation and does not override ADR-005 by wording alone.
+
+Selcafe member identity/profile data must not be read or displayed as part of this Phase 1 operating spine. This exclusion does not fully resolve the ADR-005 read-surface conflict because active bill/order-line data may still be sensitive or PII-by-linkage.
+
+KD-2 records that K-OS-002 supersedes/subsumes K-20 PI-1 only for customer-visible PC/session estimates inside the approved operating spine. This does not authorize broader implementation, wallet/payment behavior, or direct Selcafe writes.
+
+---
+
 ## 1. Situation
 
 Adeks has strong governance: pods, gates, ADRs, review routing, handoffs, source-of-truth rules, and implementation-readiness controls.
@@ -90,7 +102,7 @@ Recommended candidate: **D**.
 
 The confirmed first operating slice is:
 
-> Customer registers or uses a permitted guest/addition flow, links the current Selcafe visit through `fiş / fiş numarası`, confirms the table, sees Selcafe-linked visit information, orders F&B from the PWA, cashier manually enters accepted orders into Selcafe, kitchen/service continue from Selcafe printed receipts, customer sees estimated PC + F&B totals and coupon/points information, final payment happens at cashier, Adeks reads final settled amount from Selcafe, and Adeks updates settled amount, coupon status, and loyalty history after payment.
+> Customer registers or uses a permitted guest/addition flow, links the current Selcafe visit through `fiş / fiş numarası`, confirms the table, sees Selcafe-linked visit information as desired product direction, pending ADR-005 read-surface reconciliation and KVKK/legal review, orders F&B from the PWA, cashier manually enters accepted orders into Selcafe, kitchen/service continue from Selcafe printed receipts, customer sees estimated PC + F&B totals and coupon/points information, final payment happens at cashier, Adeks reads final settled amount from Selcafe as desired product direction, pending ADR-005 read-surface reconciliation and KVKK/legal review, and Adeks updates settled amount, coupon status, and loyalty history after payment where later approved.
 
 This slice must not be interpreted as direct Adeks settlement ownership.
 
@@ -184,16 +196,16 @@ It is useful enough because it includes:
 |    9 | Adeks                    | Reads Selcafe in read-only mode to find addition data.                      | No Selcafe write is implied.                                                            |
 |   10 | PWA                      | Shows table confirmation.                                                   | Customer confirms: “Yes, this is my table.”                                             |
 |   11 | Customer                 | Confirms table.                                                             | Ordering is blocked until confirmation.                                                 |
-|   12 | PWA                      | Shows addition-linked visit view.                                           | Includes launch-blocking Selcafe-derived details where reliable.                        |
+|   12 | PWA                      | Shows addition-linked visit view.                                           | Desired product direction, pending ADR-005 read-surface reconciliation and KVKK/legal review; includes Selcafe-derived details where reliable and later approved. |
 |   13 | Customer                 | Places F&B order from seat.                                                 | Customer avoids waiting for staff to take order verbally.                               |
 |   14 | Cashier                  | Sees PWA order queue with alert.                                            | Main cashier is first operational receiver.                                             |
 |   15 | Cashier                  | Checks order and manually enters it into Selcafe.                           | This is mandatory Phase 1 manual bridge.                                                |
-|   16 | Adeks                    | Infers accepted/preparing by reading matching Selcafe order if possible.    | Status is tied to Selcafe entry, not just a button click.                               |
+|   16 | Adeks                    | Infers accepted/preparing by reading matching Selcafe order if possible.    | Desired product direction, pending ADR-005 read-surface reconciliation and KVKK/legal review; status is tied to Selcafe entry, not just a button click. |
 |   17 | Selcafe                  | Prints normal order receipt.                                                | Kitchen/service workflow remains Selcafe-based.                                         |
 |   18 | Kitchen/service          | Prepares and delivers using Selcafe printed receipt.                        | No kitchen PWA workflow in first slice.                                                 |
 |   19 | Customer                 | Sees estimated totals, coupon/discount, and points estimate where reliable. | All pre-settlement financial values are estimated.                                      |
 |   20 | Cashier                  | Settles final amount in Selcafe.                                            | Selcafe is source of truth.                                                             |
-|   21 | Adeks                    | Reads settled final amount from Selcafe.                                    | Cashier does not manually enter final total into Adeks.                                 |
+|   21 | Adeks                    | Reads settled final amount from Selcafe.                                    | Desired product direction, pending ADR-005 read-surface reconciliation and KVKK/legal review; cashier does not manually enter final total into Adeks. |
 |   22 | PWA                      | Shows settled amount, points/coupon result, and history.                    | Habit loop completes after payment.                                                     |
 |   23 | Customer                 | Returns later for coupons/discounts/points.                                 | Business goal is repeat PWA usage.                                                      |
 
@@ -294,7 +306,7 @@ The first slice is not launchable if Adeks cannot reliably read enough Selcafe d
 | Table number          | Confirm correct receipt/addition/table link.                         |
 | PC usage start time   | Derive active status and duration.                                   |
 | PC usage stop time    | Derive stopped/closed status.                                        |
-| F&B item names        | Show all addition F&B items, including verbal/Selcafe-entered items. |
+| F&B item names        | Desired product direction, pending ADR-005 read-surface reconciliation and KVKK/legal review: show all addition F&B items, including verbal/Selcafe-entered items, without reading or displaying Selcafe member identity/profile data. |
 | F&B item prices       | Calculate/verify F&B subtotal.                                       |
 | F&B item quantities   | Calculate/verify F&B subtotal.                                       |
 | Settled final amount  | Show final amount and calculate post-payment loyalty.                |
@@ -426,9 +438,9 @@ Instead:
 4. Cashier manually enters the corresponding order into Selcafe.
 5. Selcafe prints the normal order receipt.
 6. Kitchen/service staff work from Selcafe printed receipt.
-7. Adeks reads Selcafe in read-only mode.
-8. Adeks tries to match PWA order to Selcafe items.
-9. Adeks infers accepted/preparing if the Selcafe match is reliable.
+7. Adeks reads Selcafe in read-only mode as desired product direction, pending ADR-005 read-surface reconciliation and KVKK/legal review.
+8. Adeks tries to match PWA order to Selcafe items where later approved.
+9. Adeks infers accepted/preparing if the Selcafe match is reliable and later approved.
 10. Cashier settlement in Selcafe remains final source of truth.
 
 This loop is part of the slice because it explains how Adeks can improve ordering without violating the Phase 1 no-Selcafe-write boundary.
@@ -582,10 +594,10 @@ Most habit-forming display:
 | PWA estimates                       | Estimated until cashier settlement.                       |
 | Customer notice                     | Final amount confirmed at cashier.                        |
 | Staff correction priority           | If PWA and Selcafe disagree, correct/check Selcafe first. |
-| Final settled amount visibility     | Customer eventually sees settled amount in Adeks PWA.     |
-| Settlement read method              | Adeks reads settled amount from Selcafe if possible.      |
+| Final settled amount visibility     | Desired product direction, pending ADR-005 read-surface reconciliation and KVKK/legal review: customer eventually sees settled amount in Adeks PWA. |
+| Settlement read method              | Desired product direction, pending ADR-005 read-surface reconciliation and KVKK/legal review: Adeks reads settled amount from Selcafe if possible. |
 | Manual final total entry into Adeks | Not acceptable as normal flow.                            |
-| Settlement completion               | Adeks should infer settlement from Selcafe read data.     |
+| Settlement completion               | Desired product direction, pending ADR-005 read-surface reconciliation and KVKK/legal review: Adeks should infer settlement from Selcafe read data. |
 
 ### 18.2 Missing-Order Handling
 
@@ -607,7 +619,7 @@ Minimum P1 support to prevent missed orders:
 
 > Adeks / Selcafe settlement comparison.
 
-Settlement check screen should compare:
+Settlement check screen is desired product direction, pending ADR-005 read-surface reconciliation and KVKK/legal review, and should compare:
 
 * Adeks PWA orders;
 * Selcafe F&B items;

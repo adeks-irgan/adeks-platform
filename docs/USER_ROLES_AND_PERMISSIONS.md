@@ -133,6 +133,8 @@ Legend:
 
 K-21 narrows the first operating-slice customer UX: kitchen/service continue from Selcafe printed receipts and first-slice UX does not include customer-facing delivered tracking. Any broader `FB_STAFF` order-status capability remains internal/later expansion until reconciled by Pod B and Kerem.
 
+First-slice customer-facing statuses are simplified projections for the operating spine and do not redefine the accepted F&B lifecycle state model.
+
 Open question for `BUSINESS_RULES.md`: should `CASHIER` have a “view my own recent transactions” interface limited to their own processed actions? Not addressed in this document — flag for `BUSINESS_RULES.md`.
 
 ---
@@ -152,6 +154,8 @@ Phase 1 remains read-only toward Selcafe; Selcafe remains the settlement source 
 | `CASHIER` | Primary first-slice operational receiver for PWA F&B orders; manually enters accepted orders into Selcafe; handles final payment; resolves wrong `fiş`/table/coupon/order exceptions. | No direct Selcafe write by Adeks is implied; cashier uses Selcafe manually. Cashier actions affecting order/coupon/settlement require later audit review. |
 | `FB_STAFF` | Kitchen/service continue from Selcafe printed receipts in the first operating slice. | No kitchen-facing PWA workflow or customer-facing delivery tracking is included in the first operating slice. Existing broader order-status work may remain internal/later expansion but should not define first-slice UX. |
 | `ADMIN` | Reviews first-week disputed orders and ten random orders; receives summary/check outputs where later defined. | Exact report fields, access scope, masking, retention, and audit mechanics require Pod B/legal review. |
+| Selcafe active bill/order-line visibility | Product direction under KD-1 may allow the customer to see active visit/bill/order-line information for the active `fiş` / visit, including cashier/staff-entered F&B items not submitted through Adeks PWA. | Not implementation-authorized. Requires ADR-005 read-surface expansion, KVKK/legal review, auditability, retention, and data-minimization review. |
+| Selcafe member identity/profile data | No Phase 1 operating-spine actor should read or display Selcafe member identity/profile data. | Exclusion confirmed by KD-1. This does not fully resolve the active bill/order-line read-surface conflict. |
 
 [REQUIRES POD B REVIEW] Addition-only guest ordering, cashier exception handling, admin check reports, and Selcafe-derived visibility affect authentication, authorization, audit, KVKK, and data minimization boundaries.
 

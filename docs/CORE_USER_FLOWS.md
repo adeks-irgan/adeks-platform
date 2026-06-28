@@ -308,6 +308,8 @@ It starts from the real café visit and uses `fiş / fiş numarası` as the main
 
 This flow does not authorize direct Selcafe writes, schema/API work, ADR drafting, Pod C implementation, wallet/payment implementation, or real data use.
 
+Post-review constraint: K-21 locks the product direction only. It does not authorize implementation and does not override ADR-005 by wording alone.
+
 This document does not authorize Pod C implementation.
 
 Phase 1 remains read-only toward Selcafe; Selcafe remains the settlement source of truth for this operating spine.
@@ -331,6 +333,8 @@ Phase 1 remains read-only toward Selcafe; Selcafe remains the settlement source 
 | Selcafe visit | Cashier has started the customer visit/session in Selcafe. |
 | Receipt | Customer has receipt or `fiş numarası`. |
 | Selcafe read | Adeks can read enough Selcafe data to identify visit/table and display supported information. |
+| Active bill/order-line read gate | Selcafe-sourced active visit/bill/order-line visibility is desired under KD-1, but remains blocked on ADR-005 read-surface expansion, KVKK/legal review, auditability, retention, and data-minimization review before implementation. |
+| Member identity/profile exclusion | Selcafe member identity/profile data must not be read or displayed as part of this operating spine. |
 | Customer account | Required for coupon, loyalty, and settled visit history before final settlement; not required for addition-only guest order under K-21/K-OS-001. |
 | Real data | No real customer/staff/transaction/Selcafe data may be used in non-production docs, examples, tests, or AI sessions. |
 
@@ -345,14 +349,14 @@ Phase 1 remains read-only toward Selcafe; Selcafe remains the settlement source 
 | 5 | Adeks | Reads Selcafe in read-only mode to find linked visit data. | No Selcafe write is implied. |
 | 6 | PWA | Shows table for confirmation. | Customer must confirm table before ordering. |
 | 7 | Customer | Confirms “Yes, this is my table.” | Ordering remains blocked until confirmation. |
-| 8 | PWA | Shows Selcafe-linked visit information where reliable. | May include PC start/stop/duration/cost estimates, F&B items, coupon/points estimates, and last-updated timestamp. Hide financial estimates if unreliable. |
+| 8 | PWA | Shows Selcafe-linked visit information where reliable. | May include PC start/stop/duration/cost estimates where reliable. KD-1 product direction also targets active visit/bill/order-line visibility, including cashier/staff-entered F&B items not submitted through Adeks PWA, but that part remains gated by ADR-005 read-surface expansion and KVKK/legal review. Hide financial estimates if unreliable. |
 | 9 | Customer | Places F&B order from seat. | Addition-only guest order is permitted; coupon/loyalty/history require account binding before settlement. |
 | 10 | Cashier | Receives PWA order in queue. | Cashier is primary first-slice operational receiver. |
 | 11 | Cashier | Checks order and manually enters accepted order into Selcafe. | This is the mandatory Phase 1 manual bridge. |
-| 12 | PWA | Shows simplified customer status. | “Accepted + Preparing” means cashier successfully entered the order into Selcafe. No delivered tracking in first-slice UX. |
+| 12 | PWA | Shows simplified customer status. | “Accepted + Preparing” is a customer-facing simplified projection meaning cashier has entered the accepted order into Selcafe. It is not a redefinition of the accepted F&B lifecycle state model. No delivered tracking in first-slice UX. |
 | 13 | Selcafe | Prints normal receipt for kitchen/service. | Kitchen/service continue from Selcafe printed receipts. |
 | 14 | Customer | Pays final amount at cashier. | No online payment or wallet payment/spending is authorized by this operating spine. |
-| 15 | Adeks | Reads final settled amount from Selcafe where feasible. | Selcafe is source of truth. |
+| 15 | Adeks | Reads final settled amount from Selcafe where feasible. | Selcafe is source of truth. Reading final settled amount for the active `fiş` / visit is desired product direction under KD-1 but remains blocked on ADR-005 read-surface expansion, KVKK/legal review, auditability, retention, and data-minimization review before implementation. |
 | 16 | PWA | Shows settled amount, coupon status, and loyalty history where supported. | Coupon, loyalty, and settled visit history require account binding before final settlement. |
 
 ### 4.5 Error and Edge Cases
@@ -373,6 +377,17 @@ Phase 1 remains read-only toward Selcafe; Selcafe remains the settlement source 
 - Requires Pod B review: Yes — Selcafe read feasibility, matching, audit, KVKK, estimate/final settlement boundary, coupon/loyalty correctness.
 - Requires Pod C implementation: No.
 - Requires Pod D review: Later if Kerem requests PWA prototype/UX review.
+
+### 4.7 KD-1 / KD-2 Constraints
+
+| Decision | Flow implication |
+|---|---|
+| KD-1 constrained Option B | Product direction includes Selcafe-sourced active visit/bill/order-line visibility for the active `fiş` / visit, including cashier/staff-entered F&B items not submitted through Adeks PWA. Selcafe member identity/profile data must not be read or displayed. This does not authorize implementation and does not override ADR-005 by wording alone. |
+| KD-2 | K-OS-002 supersedes/subsumes K-20 PI-1 only for customer-visible PC/session estimates inside this approved operating spine. Broader real-time station/session status and reservation automation remain deferred unless separately approved. |
+
+[REQUIRES POD B REVIEW] Active bill/order-line visibility requires ADR-005 read-surface reconciliation, KVKK/legal review, auditability, retention, and data-minimization review before any implementation issue can exist.
+
+[REQUIRES POD D REVIEW LATER] The 2% mismatch warning, pilot pause visibility, and first-week admin check outputs may require Pod D UX/monitoring/operational review after Pod B defines the risk/audit boundaries.
 
 ## Review Routing
 

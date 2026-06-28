@@ -139,6 +139,10 @@ For this spine:
 - Cashier manually enters accepted PWA orders into Selcafe.
 - Kitchen/service continue from Selcafe printed receipts.
 - Selcafe remains read-only to Adeks and remains the final settlement source of truth.
+- KD-1 clarifies that Product Phase 1 direction includes Selcafe-sourced active visit/bill/order-line visibility for the active `fiş` / visit, including cashier/staff-entered F&B items not submitted through Adeks PWA.
+- Selcafe member identity/profile data must not be read or displayed as part of this operating spine.
+- This direction does not authorize implementation and does not override ADR-005 by wording alone. ADR-005 read-surface expansion, KVKK/legal review, auditability, retention, and data-minimization review remain required before any implementation issue can exist.
+- KD-2 clarifies that simple reliable customer-visible PC/session estimates are part of this operating spine only; broader real-time station/session status and reservation automation remain deferred unless separately approved.
 - Wallet payment/spending, kitchen-facing PWA workflow, delivery tracking, reservation automation, complex campaigns, tiers, and subscriptions are excluded from this operating spine.
 
 This document does not authorize Pod C implementation.
