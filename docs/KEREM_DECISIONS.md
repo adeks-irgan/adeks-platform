@@ -701,6 +701,25 @@ Kerem approved the Product Phase 1 operating-spine reconciliation plan and the f
 | KD-1 | Kerem selected constrained Option B. Product Phase 1 direction includes Selcafe-sourced active visit/bill/order-line visibility for the active `fiş` / visit, so customers can see F&B items entered directly into Selcafe by cashier/staff even when those items were not submitted through Adeks PWA. | Selcafe member identity/profile data must not be read or displayed as part of this operating spine. This does not authorize implementation and does not override ADR-005 by wording alone. ADR-005 read-surface expansion, KVKK/legal review, auditability, retention, and data-minimization review remain required before any implementation issue can exist. |
 | KD-2 | K-OS-002 supersedes/subsumes K-20 PI-1 only for customer-visible PC/session estimates inside the approved operating spine. | Simple reliable PC/session estimates are part of the Phase 1 modeling spine. This does not authorize broader real-time station/session implementation, wallet/payment behavior, direct Selcafe writes, schema/API work, or ADR drafting. |
 
+### Post-Review Kerem Decision — K-OS-008 (Adeks-Owned Discount + Selcafe Reflection)
+
+**Date:** 2026-06-28
+**Source:** Kerem decision during Pod B operating-spine reconciliation handoff preparation (correction to the discount/settlement model of the approved spine).
+**Scope note:** Discount ownership is platform-wide (it governs all Adeks discounts, not only this operating spine). It is recorded here because Kerem raised it in the operating-spine settlement context; Pod A may elevate it to a top-level decision if preferred.
+
+| ID | Decision |
+|---|---|
+| K-OS-008 | At the Adeks PWA pilot, Selcafe's member-discount mechanism is retired. Adeks determines and calculates **all** discounts (coupon and loyalty). For Phase 1, the discount is reflected into Selcafe by a **cashier-entered fixed-format record** carrying `adisyon_no` + discount code + discount amount, which the cashier enters into Selcafe `kasaislem` at settlement so the discount flows into Selcafe's final settlement. `adisyon.uye_indirim` is unused/empty. At settlement, Adeks reads the Selcafe `adisyon` sum and the `kasaislem` discount, compares them against its own discount-inclusive calculation, and gives the cashier a **green light** when the difference is within the 2% threshold (K-OS-007). Selcafe remains the settlement source of truth. |
+
+**Constraints recorded:**
+
+- Adeks **does not write directly to Selcafe**; the cashier is the human bridge (consistent with BR-OS-007). The fixed-format record is the auditability control.
+- The fixed-format record must carry a **non-identifying** discount-type code + amount + bill key — not an Adeks customer/coupon/member identifier — to avoid pushing Adeks-linked personal data into Selcafe (data minimization).
+- This is **pre-implementation**. The Selcafe `kasaislem` reflection write (reverse flow) and the `adisyon`/`kasaislem` reads are part of the constrained read-surface still under ADR-005 reconciliation + KVKK/legal review (OQ-OS-006 / OQ-OS-007). Nothing here authorizes those reads/writes to be built.
+- The fixed-format discount-record **product spec** is a separate Pod A item.
+
+**What this does NOT unlock:** This decision does **not** authorize Pod C implementation, schema/API work, ADR drafting, direct Selcafe writes, the `kasaislem` reflection write, the `adisyon`/`kasaislem` reads, or real data use. It does not override ADR-005 by wording alone.
+
 ### Product Implications
 
 - The Phase 1 operating spine is **Selcafe-linked customer visibility and ordering**.
