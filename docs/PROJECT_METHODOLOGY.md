@@ -1709,9 +1709,49 @@ Kerem. The rules below are binding unless marked as guidance.
 
 #### D. Guidance, not hard rules
 
-- Finding caps, response skeletons/templates, and "do not restate already-loaded
-  documents" are guidance to reduce noise and tokens — apply judgment, not rigid
-  enforcement.
+- Finding caps and "do not restate already-loaded documents" are guidance to
+  reduce noise and tokens — apply judgment, not rigid enforcement. The §E
+  response contract and its default skeleton are binding, not guidance.
+
+#### E. Response contract (binding)
+
+These harden the §A–§B response guidance into an enforced shape, following the
+PR #105 review-density issue:
+
+- **Answer-first skeleton.** Every review/decision response opens with mode, then
+  the single practical answer / blocker / next action, before any reasoning. Use
+  the default skeleton below unless Kerem asks for long-form.
+- **One active decision packet.** Put at most one decision to Kerem at a time.
+  Tightly-coupled sub-choices may sit inside that one packet; no second packet
+  opens until the first is resolved.
+- **Details on request only.** Withhold detailed architectural reasoning unless
+  Kerem asks or a gate requires it; lead with plain wording, reasoning second.
+- **Stop after the ask.** When the next step needs a Kerem decision, another
+  pod's review, or a repo action, end the turn at the ask. Do not pre-build what
+  comes after.
+- **One next action.** Surface exactly one next action.
+- **No future-handoff dumping.** Draft a handoff only when its step is reached
+  and authorized; never batch handoffs at the end (reaffirms the §16.1 Pod B
+  exception).
+- **Plain consequence per option.** Each option carries a one-line "if you pick
+  this, then…".
+
+Default review/decision skeleton:
+
+```
+Mode: <review | decision | design | handoff | coordination-write | repo-edit pkg>
+Practical answer: <one or two plain sentences>
+Blocker: <gate / missing artifact, or "none">
+Decision needed: <one decision, or "none">
+Options:
+  A) <option> — consequence: <one line>
+  B) <option> — consequence: <one line>
+Recommendation: <one line; [NEEDS KEREM APPROVAL] if it gates a pod>
+Stop point: <what Pod B is waiting on>
+What not to do yet: <handoffs / edits deliberately deferred>
+```
+
+Detailed reasoning is appended only if Kerem asks.
 
 ---
 
@@ -2326,6 +2366,7 @@ The following rules are mandatory:
 | 0.9 | 2026-06-08 | Pod B | K-12: Record Kerem's explicit tenancy and ORM decisions. §19 ADR-004 updated to Accepted: Prisma. §19 ADR-008 updated to Accepted: shared schema + `tenant_id` (long-term). No methodology or gate change; decision-state recording only. |
 | 0.10 | 2026-06-16 | Pod A | Documentation-only drift cleanup: removes stale K-01 through K-10 placeholders where resolved; reconciles North Star, product metrics, Selcafe feasibility spike authorization, rollback threshold, feature flag deferral, feedback intake, VERBİS/KVKK owner notes, pilot selection, and §19 ADR backlog status for ADR-006/ADR-007/ADR-015. No methodology redesign, no approval-gate change, no §11.1 refactor, no IUP, and no Pod C authorization. |
 | 0.11 | 2026-06-24 | Pod B | Adds §16.3 Pod B Working Style (response/answer-first, gate-stop, one-handoff-at-a-time, no same-file parallel work, ~50-line soft repo-edit threshold, large/mechanical edits route to a narrow non-authorizing Pod C/Codex handoff, standing coordination-write permission with limits, canonical-state-lands-in-repo) and a Pod-B-scoped §16.1 exception (one handoff at point of relevance, not batched at session end). Behavior-changing for Pod B only; Pods A/C/D unchanged. Pod Impact Matrix + Instruction Update Packet attached. No gate, scope, or Pod C authorization change. Kerem-approved. |
+| 0.12 | 2026-06-28 | Pod B | Adds §16.3-E Response Contract (binding answer-first skeleton, one active decision packet, details-on-request, stop-after-ask, one next action, no future-handoff dumping, plain consequence per option) plus a default review/decision skeleton; narrows §16.3-D so the response skeleton is binding rather than guidance. Hardens existing §16.3-A/§16.3-B soft rules after the PR #105 review-density issue. Behavior-changing for Pod B only; Pods A/C/D unchanged. Pod Impact Matrix + Instruction Update Packet attached. No gate, scope, or Pod C authorization change. Kerem-approved. |
 
 ### 28.4 Kerem Decisions — Repository-Controlled Pod Context
 
