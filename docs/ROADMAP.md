@@ -54,6 +54,8 @@ This roadmap is based on the current repository context listed below.
 | `/docs/CORE_USER_FLOWS.md` | Customer OTP/privacy-notice flow and open legal/SMS questions |
 | `/docs/architecture/FB_ORDER_LIFECYCLE_STATE_MODEL_v1.0.md` | Accepted F&B lifecycle design, still not Pod C-ready |
 | `/docs/adr/ADR-005-selcafe-read-only-adapter.md` | Accepted 2026-06-23; Phase 1 Selcafe remains read-only and implementation remains blocked pending separate readiness gates |
+| `/docs/planning/OPERATING_SLICE_DISCOVERY_v0.1.md` | Kerem-approved provisional Product Phase 1 operating-model spine: Selcafe-linked customer visibility and ordering |
+| `/docs/planning/SCOPE_RECONCILIATION_OPERATING_SPINE_ALIGNMENT_v0.1.md` | K-21 scope/business-rule reconciliation decisions for operating-spine alignment |
 | `/docs/adr/ADR-006-wallet-append-only-ledger.md` | Accepted wallet ledger design; implementation still blocked |
 | `/docs/adr/ADR-007-loyalty-append-only-ledger.md` | Accepted loyalty ledger design and F&B accrual formula; implementation still blocked |
 | `/docs/adr/ADR-015-authentication-strategy.md` | Accepted Phase 1 authentication strategy; implementation still blocked |
@@ -83,6 +85,18 @@ does not create Pod C issues, and does not authorize implementation.
 This PR reconciles Pod D audit finding F-01 / issue #100 by updating stale
 Selcafe spike, report, and ADR-005 status references. It is documentation-only
 and does not authorize Pod C implementation.
+
+K-21 / operating-spine reconciliation note: Kerem approved the Product Phase 1 operating-spine direction on 2026-06-28. The spine is Selcafe-linked customer visibility and ordering. After Pod B review, KD-1 clarified that active Selcafe visit/bill/order-line visibility is desired for the active `fiş` / visit, including cashier/staff-entered F&B items not submitted through Adeks PWA, but Selcafe member identity/profile reads remain excluded. This does not authorize implementation and does not override ADR-005 by wording alone. ADR-005 read-surface expansion, KVKK/legal review, auditability, retention, and data-minimization review remain required before any implementation issue can exist.
+
+KD-2 clarifies that K-OS-002 supersedes/subsumes K-20 PI-1 only for customer-visible PC/session estimates inside the approved operating spine. Broader real-time station/session status and reservation automation remain deferred unless separately approved.
+
+The operating model remains provisional for feasibility/risk review even though the product spine direction is approved.
+
+2% mismatch, pilot pause triggers, and first-week admin checks require later Pod B review and later Pod D review where UX, monitoring, or operational visibility is affected.
+
+This document does not authorize Pod C implementation.
+
+Phase 1 remains read-only toward Selcafe; Selcafe remains the settlement source of truth for this operating spine.
 
 No structural roadmap sequence change is made by this note. The roadmap remains
 milestone-based, planning-only, and non-implementation-authorizing.
@@ -128,6 +142,7 @@ milestone-based, planning-only, and non-implementation-authorizing.
 | 16 | ADR-005 full Selcafe read-only adapter ADR — accepted 2026-06-23; integration view remains planned | Pod B | Accepted ADR-005; future adapter/integration work still requires product alignment, read-only credential/secrets prerequisites, `architecture/INTEGRATION_VIEW.md`, and a separately approved DoR issue | Pod B | Kerem required where ADR-009 or product/data/integration gates apply | Partial; legal/KVKK/cross-border gates apply where PII or cross-border is in scope | Design-only |
 | 17 | Confirm Phase 1 remains read-only toward Selcafe | Kerem + Pod B | Any proposed change to Selcafe write posture | Pod B | Kerem explicit approval required for any change | Yes | Decision-only |
 | 18 | Reconfirm Phase 1 MVP boundary: campaigns/subscriptions/ARPU outside Phase 1 | Pod A + Kerem | OQ-MVP-001 | Pod B only if architecture/data impact | Kerem | Yes | Decision-only |
+| TBD | Reconcile Product Phase 1 scope/business rules around approved operating spine | Pod A + Kerem | K-21 approval; current product docs may contradict operating spine | Pod B later for Selcafe, loyalty, coupon, audit, KVKK implications | Kerem | Yes | Documentation-only; does not authorize Pod C |
 | 19 | Finalize remaining wallet top-up business rules | Kerem + Pod A | Wallet top-up methods; top-up correction policy; daily report fields | Pod B | Kerem | Partial; implementation waits for legal/KVKK | Decision-only |
 | 20 | Finalize remaining loyalty redemption/expiry/exclusion business rules | Kerem + Pod A + legal advisor for expiry/notifications | Redemption unit, targets, limits, expiry policy, notification classification | Pod B + legal advisor where customer notices/marketing apply | Kerem | Partial; expiry/notification cannot finalize without legal | Decision-only |
 | 21 | Reconcile accepted ADR-006 wallet design with remaining legal/data gates | Pod B | Retention, legal basis, data inventory updates, security review, approved issue readiness | Pod B | Kerem for wallet implementation issues later | Partial; no implementation | Design-only |
@@ -217,7 +232,7 @@ milestone-based, planning-only, and non-implementation-authorizing.
 | SMS provider outage/availability operational decision (spend-volume ceiling values and `ADMIN` response-path owner decided at design level — `AUTH_THREAT_MODEL.md` v0.5 §15; outage/availability path remains open) | Kerem + Pod B | Does not select provider |
 | Initial ADMIN bootstrap policy | Kerem + Pod B | Security-sensitive; no implementation |
 | Selcafe documentation/product-alignment follow-up after completed spike/report and accepted ADR-005 | Pod A + Pod B + Kerem | Read-only posture remains; reconcile product scope and planned integration view only; no implementation issue or direct Selcafe writes |
-| Reservation product-rule decisions | Kerem + Pod A | No implementation; no automated Selcafe-dependent criteria before spike |
+| Reservation product-rule decisions | Kerem + Pod A | No implementation; no automated Selcafe-dependent criteria before Pod B review confirms reliable Selcafe status support |
 | Pod D UX prototype for onboarding/F&B/reservation | Pod D | Synthetic data only |
 | Pod D monitoring/audit planning | Pod D + Pod B | Final hosting/provider details may remain pending |
 | MVP boundary decision for campaigns/subscriptions/ARPU | Kerem + Pod A | Feature discovery only; not Phase 1 implementation |

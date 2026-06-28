@@ -36,6 +36,8 @@
   - no persistent raw phone retention after failed send;
   - derived-identifier audit only.
 - K-14/K-15/K-16 are locked. The open legal questions are the exact legal text and legal-advisor sufficiency confirmations, not the flow mechanics.
+- This document does not authorize Pod C implementation.
+- Phase 1 remains read-only toward Selcafe; Selcafe remains the settlement source of truth for this operating spine.
 
 ## Open Questions
 
@@ -62,9 +64,17 @@
 | OQ-RES-002 | What reservation limits apply per customer? | Kerem | blocks Pod C | Kerem, then Pod B | Prevents hoarding; customer-facing restriction policy. |
 | OQ-RES-003 | What cancellation rules apply for customer and staff? | Kerem | blocks Pod C | Kerem, then Pod B | State-machine review required. |
 | OQ-RES-004 | What no-show grace period and consequence apply? | Kerem | blocks Pod C | Kerem, then Pod B | Future reservation restriction has customer-communication and possible KVKK implications. |
-| OQ-RES-005 | What criteria should staff use when approving/rejecting reservation requests without reliable automated PC/session status? | Kerem + Pod B | blocks Pod C | Kerem after Selcafe spike, then Pod B | Do not lock status-based approval criteria before Selcafe spike results. Phase 1 stays manual staff judgment by design unless spike supports more. |
+| OQ-RES-005 | What criteria should staff use when approving/rejecting reservation requests without reliable automated PC/session status? | Kerem + Pod B | blocks Pod C | Kerem, then Pod B | Do not lock status-based approval criteria before Pod B review confirms reliable Selcafe status support. Phase 1 stays manual staff judgment by design unless Pod B review supports more. |
 | OQ-SEL-001 | Which remaining Selcafe product-alignment items must be resolved before a separately approved implementation issue can be prepared? | Kerem + Pod A + Pod B | blocks Selcafe implementation issue prep | Kerem + Pod A, then Pod B for gate/integration implications | PR #101 reconciled ROADMAP.md after the completed Selcafe spike/report and accepted ADR-005. Phase 1 remains read-only. Do not authorize Pod C. Any future implementation requires a separate approved Definition-of-Ready issue, planned integration-view readiness, Pod B + Kerem approval, and legal/KVKK/cross-border clearance where PII or cross-border is in scope. |
-| OQ-MVP-001 | Are campaign/subscription/ARPU features explicitly excluded from Phase 1 MVP and tracked only in feature discovery? | Kerem + Pod A | not blocking yet | Kerem | Can be answered while SMS/legal replies are pending. |
+| OQ-MVP-001 | Are campaign/subscription/ARPU features explicitly excluded from Phase 1 MVP and tracked only in feature discovery? | Kerem + Pod A | resolved for operating spine | Resolved by K-21/K-OS-004 | One simple combined PC + F&B coupon/discount is included in the operating spine. Complex campaigns, tiers, subscriptions, and broad ARPU campaign modeling remain excluded from this operating spine. |
+| OQ-OS-001 | What exact eligibility rule applies to the first simple combined PC + F&B coupon? | Kerem + Pod A | blocks coupon issue prep | Kerem, then Pod B | K-21 includes one simple coupon but does not define eligibility. Options include new account, first PWA order, selected pilot users, or all pilot users. |
+| OQ-OS-002 | What exact coupon rejection/correction reason list should cashier use? | Kerem + Pod A | blocks coupon/audit issue prep | Kerem, then Pod B | K-21 allows applied/rejected/corrected status. Reason taxonomy and customer-visible explanation remain open. |
+| OQ-OS-003 | What PC/session loyalty formula applies if Pod B confirms reliable PC/session settlement data? | Kerem + Pod A + Pod B | blocks PC/session loyalty design | Kerem, then Pod B | K-21 sets F&B + PC/session as product target. K-18 remains locked for F&B only. |
+| OQ-OS-004 | Does the 2% mismatch warning apply to estimated total vs current Selcafe total, coupon-adjusted estimate, or both? | Kerem + Pod A + Pod B | blocks settlement comparison design | Kerem, then Pod B | K-21 approves 2% threshold as pre-settlement warning threshold. Final settled amount must still come from Selcafe. |
+| OQ-OS-005 | What exact first-week admin/back-office check report fields and cadence should be used? | Kerem + Pod A + Pod B | blocks pilot admin-check design | Kerem, then Pod B | K-21 approves disputed orders + ten random orders, checking coupon application and final settled amount, summarized for Kerem. Daily first-week cadence is recommended unless Kerem changes it. |
+| OQ-OS-006 | What ADR-005 read-surface reconciliation is required before active Selcafe visit/bill/order-line visibility can be implemented? | Pod B + Kerem + legal advisor | blocks active bill/order-line implementation issue prep | Pod B, then Kerem/legal | KD-1 sets product direction only. Selcafe member identity/profile data remains excluded, but active bill/order-line data may still be sensitive or PII-by-linkage. |
+| OQ-OS-007 | What KVKK/legal basis, retention, data-minimization, and auditability requirements apply to active visit/bill/order-line visibility? | Pod B + Kerem + legal advisor | blocks implementation issue prep | legal advisor + Pod B | Must be resolved before any implementation issue. Do not use real data in analysis or examples. |
+| OQ-OS-008 | What customer-facing and staff-facing UX/monitoring should support 2% mismatch warnings, pilot pause triggers, and first-week admin checks? | Pod A + Pod B + Pod D + Kerem | not implementation-ready | Pod B risk review, then Pod D UX/monitoring review | K-21 approves values/policy, but mechanics and visibility remain later review work. |
 | OQ-UX-001 | Does the Phase 1 PWA order/reservation/onboarding UX need Pod D prototype review before Pod C issues are drafted? | Pod A + Kerem | not blocking yet | Pod A, then Pod D | Can be answered while SMS/legal replies are pending. |
 | OQ-LAUNCH-001 | What launch gate checklist must be satisfied after SMS and legal advisor feedback arrive? | Kerem + Pod A + Pod B | blocks launch | Kerem + Pod A + Pod B | Should be finalized after provider/legal inputs land. |
 | OQ-AUTH-002 | What is the initial ADMIN bootstrap procedure for Phase 1? | Kerem + Pod B | blocks Pod C auth issue prep | Kerem + Pod B | From Accepted auth threat model IR-24; security-sensitive, not a Pod A decision. |
@@ -81,6 +91,20 @@
 | ADR-006 wallet append-only ledger design | Resolved at design level by accepted `/docs/adr/ADR-006-wallet-append-only-ledger.md`. | Implementation remains blocked by legal/KVKK artifacts, wallet top-up methods, top-up correction/report fields, security/DoR issue packets, and separate Pod B + Kerem-approved implementation issues. |
 | ADR-007 loyalty append-only ledger design | Resolved at design level by accepted `/docs/adr/ADR-007-loyalty-append-only-ledger.md`. | F&B accrual formula is locked. Redemption, expiry, broader exclusions, override rules, non-F&B earning if included, legal/KVKK artifacts, security/DoR issue packets, and separate Pod B + Kerem-approved implementation issues remain open. |
 | OQ-SEL-002 — Selcafe feasibility spike result | Resolved by completed `SELCAFE_SPIKE_REPORT.md` and accepted `docs/adr/ADR-005-selcafe-read-only-adapter.md`; ROADMAP.md was reconciled in PR #101. | Discovery/report/ADR status is no longer open. Remaining open work is product alignment and implementation-readiness gating under OQ-SEL-001. Does not authorize Pod C, change ADR-005, or change the Phase 1 read-only posture. |
+
+### Operating-spine reconciliation resolutions
+
+| Former issue / dependency | Resolution | Remaining open dependencies / guardrails |
+|---|---|---|
+| Guest/addition flow vs account requirement | Resolved by K-21/K-OS-001: addition-only guest may order; coupon, loyalty, and settled visit history require Adeks account binding before final settlement. | Pod B review required for auth, KVKK, audit, and abuse boundary. |
+| PC/session visibility in operating spine | Resolved by K-21/K-OS-002: customer-visible PC start/stop/duration/cost estimates are included if Selcafe read is reliable; hide financial estimates if unreliable. | Pod B review required for Selcafe read feasibility, freshness, and calculation trust. |
+| First-slice F&B status vs broader lifecycle | Resolved by K-21/K-OS-003: broader lifecycle may remain internal/later, but first-slice customer status is simplified and does not include delivered tracking. | Pod B review required to reconcile accepted lifecycle model. |
+| Simple coupon vs campaign exclusion | Resolved by K-21/K-OS-004: one simple combined PC + F&B coupon/discount is included; campaign engine, complex campaigns, tiers, and subscriptions remain excluded from this operating spine. | Coupon eligibility, rejection/correction reasons, audit, and settlement implications remain open. |
+| Operating-spine loyalty basis | Resolved by K-21/K-OS-005 as product target: F&B + PC/session earning after settlement; F&B formula remains K-18; PC/session earning falls back to F&B-only if unreliable. | Pod B review required for PC/session data, ledger, correction, and KVKK implications. |
+| Wallet payment/spending in operating spine | Resolved by K-21/K-OS-006: excluded from this operating spine only; wallet visibility/top-up may remain separate Phase 1 scope behind existing gates. | Existing wallet implementation blockers remain. |
+| Settlement trust controls | Resolved by K-21/K-OS-007: 2% pre-settlement mismatch threshold, pause triggers, and first-week admin checks approved. | Pod B review required for audit/report/monitoring mechanics. |
+| Active visit/bill/order-line product direction | Clarified by KD-1: constrained Option B selected. Product Phase 1 direction includes Selcafe-sourced active visit/bill/order-line visibility for the active `fiş` / visit, including cashier/staff-entered F&B items not submitted through Adeks PWA. | Not implementation-authorized. ADR-005 read-surface expansion, KVKK/legal review, auditability, retention, and data-minimization review remain required. Selcafe member identity/profile reads remain excluded. |
+| K-20 PI-1 relationship | Clarified by KD-2: K-OS-002 supersedes/subsumes K-20 PI-1 only for customer-visible PC/session estimates inside the approved operating spine. | Broader real-time station/session status, PC availability exposure, automatic reservation confirmation, and PC-status-dependent reservation automation remain deferred unless separately approved. |
 
 ### Kerem product-decision resolutions
 
@@ -167,7 +191,7 @@ Reasons:
 8. Decide loyalty expiry and notification policy after legal-advisor input.
 9. Decide broader loyalty exclusion rules not already fixed by accepted F&B settlement/correction design.
 10. Decide reservation slots, advance window, active limits, cancellation cutoff, no-show grace, and no-show consequence.
-11. Decide manual reservation approval policy, while avoiding automated Selcafe-status criteria until the spike result supports them.
+11. Decide manual reservation approval policy, while avoiding automated Selcafe-status criteria until Pod B review confirms reliable Selcafe status support.
 12. Decide remaining Selcafe product-alignment items required before any separately approved implementation issue can be prepared; do not authorize broader access, direct writes, or implementation from this decision alone.
 13. Approve sequencing for API/schema/security/DoR issue packets only after the relevant legal, business, architecture, and security gates are closed.
 
