@@ -124,10 +124,24 @@ The section “Current Phase 1 Gate Status” refers to **Product Phase 1**, not
 | 4 | Assumption Validation | Candidate ideas/opportunities exist; assumptions are identified; low-confidence assumptions affecting scope, architecture, personal data, Selcafe, wallet, loyalty, payments, launch, or operations are marked for validation. |
 | 5 | Prioritisation and Scoping | Assumptions are mapped or explicitly accepted as unresolved; candidate opportunities are documented; Pod A can draft scope boundaries; Pod B can identify architecture/risk dependencies. |
 | 6 | Planning and Roadmap | Scope candidate exists; dependencies are visible; roadmap can be milestone-based; blockers and review owners are known; no build start is implied. |
-| 7 | Architecture and Design | Product scope and business rules are sufficiently stable for Pod B review; architecture-sensitive areas are routed to Pod B; required ADR candidates are identified; legal/KVKK-sensitive flows are flagged. |
+| 7 | Architecture and Design | Product scope and business rules are sufficiently stable for Pod B review; architecture-sensitive areas are routed to Pod B; required ADR candidates are identified; legal/KVKK-sensitive flows are flagged; for an operating slice, the **Operating Slice Checkpoint** (see subsection below this table) must also be satisfied. |
 | 8 | Build and Test | A separate implementation issue satisfies Definition of Ready; required product docs, business rules, ADRs, API/schema contracts, security/KVKK review, synthetic data examples, test expectations, and approvals are linked; Pod C can implement without guessing. |
 | 9 | Release and Operate | Candidate implementation satisfies Definition of Done; CI passes; staging/UAT evidence exists; release, rollback, monitoring, incident, legal/KVKK, security, Pod D audit, and Kerem go/no-go gates are ready. |
 | 10 | Learn and Iterate | Product has launched or completed a controlled pilot; monitoring, feedback, support, incident, and usage data are available; post-launch review cadence is defined; Kerem is ready to decide continue/revise/defer/expand. |
+
+---
+
+### Operating Slice Checkpoint (Phase 7 entry)
+
+Operating Slice Checkpoint — Before component-level ADRs, schema/API design, or implementation-ready issue drafting for an operating slice, a Kerem-approved end-to-end operating-slice model for that slice must be committed and reconciled against locked ADRs and decisions, with no open [LOCKED PRINCIPLE CONFLICT] for the slice.
+
+Foundational platform decisions that are not tied to a specific operating slice — such as ledgers, tenancy, authentication, and the read-only Selcafe posture — are locked independently and are out of scope for this checkpoint.
+
+This criterion authorizes nothing by itself and changes no other gate.
+
+**Boundary test:**
+- If the decision can be reused across many future slices without depending on this slice's café workflow, it is foundational.
+- If the decision changes because of this slice's actors, steps, data shown, settlement path, customer-visible behavior, staff workflow, or Selcafe read surface, it is tied to the operating slice and must pass the checkpoint.
 
 ---
 
