@@ -320,7 +320,7 @@ Phase 1 remains read-only toward Selcafe; Selcafe remains the settlement source 
 |---|---|
 | Customer | Links `fiş`, confirms table, views visit information, places F&B order, later sees settled result where supported. |
 | Guest/addition-only customer | May order after `fiş` link and table confirmation; coupon, loyalty, and settled visit history require account binding before final settlement. |
-| Cashier | Receives PWA order, manually enters accepted order into Selcafe, handles final payment, resolves wrong `fiş`/table/coupon/order issues. |
+| Cashier | Receives PWA order, manually enters accepted order into Selcafe, obtains the Adeks-issued fixed-format discount record (`adisyon_no` + discount code + amount), enters that record into Selcafe `kasaislem` at settlement, handles final payment, and resolves wrong `fiş`/table/coupon/order issues. |
 | Kitchen/service staff | Continue from Selcafe printed receipts only in the first operating slice. |
 | Selcafe | Remains read-only to Adeks and remains settlement source of truth. |
 | Adeks PWA | Provides customer-facing link, confirmation, estimates, order submission, and post-settlement history where reliable. |
@@ -334,6 +334,7 @@ Phase 1 remains read-only toward Selcafe; Selcafe remains the settlement source 
 | Receipt | Customer has receipt or `fiş numarası`. |
 | Selcafe read | Adeks can read enough Selcafe data to identify visit/table and display supported information. |
 | Active bill/order-line read gate | Selcafe-sourced active visit/bill/order-line visibility is desired under KD-1, but remains blocked on ADR-005 read-surface expansion, KVKK/legal review, auditability, retention, and data-minimization review before implementation. |
+| Discount reflection / settlement green-light gate | K-OS-008 product direction includes an Adeks-issued fixed-format record (`adisyon_no` + discount code + amount), cashier entry into Selcafe `kasaislem`, and a settlement green-light check using Selcafe `adisyon` + `kasaislem` data. Adeks support for this reflection/read path remains blocked on ADR-005 read-surface reconciliation, KVKK/legal review, auditability, retention, and data-minimization review before implementation. |
 | Member identity/profile exclusion | Selcafe member identity/profile data must not be read or displayed as part of this operating spine. |
 | Customer account | Required for coupon, loyalty, and settled visit history before final settlement; not required for addition-only guest order under K-21/K-OS-001. |
 | Real data | No real customer/staff/transaction/Selcafe data may be used in non-production docs, examples, tests, or AI sessions. |
@@ -352,12 +353,16 @@ Phase 1 remains read-only toward Selcafe; Selcafe remains the settlement source 
 | 8 | PWA | Shows Selcafe-linked visit information where reliable. | May include PC start/stop/duration/cost estimates where reliable. KD-1 product direction also targets active visit/bill/order-line visibility, including cashier/staff-entered F&B items not submitted through Adeks PWA, but that part remains gated by ADR-005 read-surface expansion and KVKK/legal review. Hide financial estimates if unreliable. |
 | 9 | Customer | Places F&B order from seat. | Addition-only guest order is permitted; coupon/loyalty/history require account binding before settlement. |
 | 10 | Cashier | Receives PWA order in queue. | Cashier is primary first-slice operational receiver. |
-| 11 | Cashier | Checks order and manually enters accepted order into Selcafe. | This is the mandatory Phase 1 manual bridge. |
+| 11 | Cashier | Checks order and manually enters accepted order into Selcafe. | This is the mandatory Phase 1 manual bridge for PWA orders. |
 | 12 | PWA | Shows simplified customer status. | “Accepted + Preparing” is a customer-facing simplified projection meaning cashier has entered the accepted order into Selcafe. It is not a redefinition of the accepted F&B lifecycle state model. No delivered tracking in first-slice UX. |
 | 13 | Selcafe | Prints normal receipt for kitchen/service. | Kitchen/service continue from Selcafe printed receipts. |
-| 14 | Customer | Pays final amount at cashier. | No online payment or wallet payment/spending is authorized by this operating spine. |
-| 15 | Adeks | Reads final settled amount from Selcafe where feasible. | Selcafe is source of truth. Reading final settled amount for the active `fiş` / visit is desired product direction under KD-1 but remains blocked on ADR-005 read-surface expansion, KVKK/legal review, auditability, retention, and data-minimization review before implementation. |
-| 16 | PWA | Shows settled amount, coupon status, and loyalty history where supported. | Coupon, loyalty, and settled visit history require account binding before final settlement. |
+| 14 | Customer | Proceeds to cashier for final payment. | No online payment or wallet payment/spending is authorized by this operating spine. |
+| 15 | Adeks cashier/admin UI | Provides the cashier with the Adeks-issued fixed-format discount record (`adisyon_no` + discount code + amount) where an Adeks discount applies. | Adeks owns and calculates all discounts under K-OS-008. The discount code must be non-identifying and must not expose an Adeks customer, coupon, or member identifier in Selcafe. |
+| 16 | Cashier | Enters the fixed-format discount record into Selcafe `kasaislem`. | The cashier is the human bridge. Adeks does not write directly to Selcafe. `adisyon.uye_indirim` is unused. |
+| 17 | Adeks | Reads the Selcafe `adisyon` sum and the `kasaislem` discount where feasible. | This read path is desired product direction only and remains blocked on ADR-005 read-surface reconciliation, KVKK/legal review, auditability, retention, and data-minimization review before implementation. |
+| 18 | Adeks cashier/admin UI | Compares the Selcafe `adisyon` sum reconciled with the `kasaislem` discount against Adeks's own discount-inclusive calculation. | The cashier receives a green light when the result is within the 2% threshold under K-OS-007/K-OS-008. If not green-lit, staff handles the mismatch through later-approved operational handling. |
+| 19 | Customer | Pays the final Selcafe-settled amount at cashier. | Selcafe remains the settlement source of truth. |
+| 20 | PWA | Shows settled amount, coupon/discount status, and loyalty history where supported. | Coupon, loyalty, and settled visit history require account binding before final settlement. |
 
 ### 4.5 Error and Edge Cases
 
@@ -369,7 +374,7 @@ Phase 1 remains read-only toward Selcafe; Selcafe remains the settlement source 
 | Selcafe read stale/unreliable | Hide financial estimates if unreliable; show last-updated timestamp where possible. | Staff/cashier remains fallback. | [REQUIRES POD B REVIEW]. |
 | PWA order not in Selcafe | Customer status should not imply accepted/preparing. | Cashier checks whether order was delivered and enters/removes as appropriate. | [REQUIRES POD B REVIEW]. |
 | Coupon rejected/corrected | Customer sees simple applied/rejected/corrected status. | Cashier records reason/status where later defined. | [NEEDS KEREM APPROVAL] reason taxonomy; [REQUIRES POD B REVIEW]. |
-| Estimate mismatch above 2% | Show warning that estimate may differ and final amount is confirmed at cashier. | Staff checks Selcafe and PWA comparison. | [REQUIRES POD B REVIEW]. |
+| Estimate mismatch above 2% | Show warning that estimate may differ and final amount is confirmed at cashier. | Staff checks Selcafe and PWA comparison. At settlement, the same 2% threshold is also the K-OS-008 green-light tolerance: Adeks compares its discount-inclusive calculation against the Selcafe `adisyon` sum reconciled with the `kasaislem` discount. | [REQUIRES POD B REVIEW]. Pre-settlement warning-basis detail remains tracked by OQ-OS-004. |
 
 ### 4.6 Review Routing
 
