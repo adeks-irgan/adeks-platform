@@ -86,6 +86,8 @@ This document is a planning/control artifact only. It does not create implementa
 
 **Instruction Update Required:** No. This document does not change Pod A, B, C, or D external platform instructions. No external pod instruction update or re-paste is required.
 
+**Update (PR #110, Operating Slice Checkpoint).** PR #110 added the Operating Slice Checkpoint as a Phase 7 entry criterion (see "Operating Slice Checkpoint (Phase 7 entry)" under Phase-by-Phase Entry Criteria). That is a light behavior-changing gate: Pod A must ensure a Kerem-approved, reconciled end-to-end operating-slice model is committed before slice-level Phase 7 work, and Pod B must apply the checkpoint and its boundary test before authoring or reviewing component-level ADRs, schema/API, or implementation-ready issues for a slice. The Pod Impact Matrix and Instruction Update Packet for that change are recorded in the PR #110 body. No external pod-instruction snapshot change or re-paste is required; snapshots remain pointer-only.
+
 ---
 
 ### Gate Evidence Rule
@@ -245,7 +247,7 @@ The following blockers must be closed before any Product Phase 1 implementation 
 | ID | Open Question | Owner | Routing |
 |---|---|---|---|
 | PG-OQ-001 | Does Kerem approve this v0.1 phase-gate structure as the working gate framework? | Kerem | `[NEEDS KEREM APPROVAL]` |
-| PG-OQ-002 | Does Pod B consider any criterion here to change methodology, review gates, or ADR-009 behavior-change posture? | Pod B | `[NEEDS POD B REVIEW]` |
+| PG-OQ-002 | [RESOLVED] Pod B confirmed the Operating Slice Checkpoint (Phase 7 entry, added in PR #110) is a behavior-changing criterion that tightens the Phase 7 entry/approval gate; it was gated with a Pod Impact Matrix and Instruction Update Packet in the PR #110 body, with no external pod-instruction snapshot change (snapshots remain pointer-only). No other current criterion changes methodology, review gates, or ADR-009 behavior-change posture. | Pod B | Resolved; matrix/IUP recorded in PR #110; no external snapshot update required |
 | PG-OQ-003 | Should Product Phase 1 gate status remain in this document, or should future product-phase status move to a separate release-readiness tracker? | Kerem + Pod A | `[NEEDS KEREM APPROVAL]` |
 | PG-OQ-004 | What exact evidence threshold is sufficient for Phase 1 discovery remediation artifacts such as `VISION.md`, `PROBLEM_STATEMENT.md`, `STAKEHOLDER_MAP.md`, and user-research documents? | Kerem + Pod A | `[NEEDS KEREM APPROVAL]` |
 | PG-OQ-005 | Which legal/KVKK closure outputs must be treated as implementation blockers versus launch blockers after legal advisor feedback arrives? | Kerem + legal advisor + Pod B | `[NEEDS KEREM APPROVAL]` / `[NEEDS POD B REVIEW]` |
