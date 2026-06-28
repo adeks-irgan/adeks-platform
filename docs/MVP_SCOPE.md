@@ -75,12 +75,13 @@ For scope purposes, this means:
 5. Customer may order F&B from the PWA.
 6. Cashier manually enters accepted PWA orders into Selcafe.
 7. Kitchen/service continue from Selcafe printed receipts.
-8. Customer sees estimated PC + F&B totals and coupon/points information where reliable.
+8. Customer sees estimated PC + F&B totals and coupon/points information where reliable. Discount values are Adeks-calculated; pre-payment values remain estimates.
 9. Final payment happens at cashier.
-10. Adeks reads the final settled amount from Selcafe.
-11. Adeks updates settled amount, coupon status, and loyalty history after payment.
+10. At payment/settlement, Adeks provides the cashier with a fixed-format record (`adisyon_no` + discount code + amount) for the applicable Adeks discount. The cashier enters that record into Selcafe `kasaislem`; Adeks does not write to Selcafe, and the code must be non-identifying.
+11. Adeks reads the Selcafe `adisyon` sum and the `kasaislem` discount where feasible, compares them against its own discount-inclusive calculation, and gives the cashier a green light when the result is within the 2% threshold.
+12. Adeks updates settled amount, coupon/discount status, and loyalty history after payment where supported. Selcafe remains the settlement source of truth.
 
-This operating spine does not authorize direct Selcafe writes, wallet/payment implementation, schema/API work, ADR drafting, Pod C implementation, or real data use.
+The K-OS-008 discount reflection and settlement green-light steps are desired product direction only. They remain blocked on ADR-005 read-surface reconciliation, KVKK/legal review, auditability, retention, and data-minimization review before implementation. This operating spine does not authorize direct Selcafe writes, wallet/payment implementation, schema/API work, ADR drafting, Pod C implementation, or real data use.
 
 ### Post-Review Gate — KD-1 / KD-2
 
@@ -173,10 +174,15 @@ First-slice statuses are customer-facing simplified projections for the operatin
 | Capability | Phase 1 Position |
 |---|---|
 | One simple PC + F&B coupon/discount | Included as the first operating-spine habit driver under K-21/K-OS-004. |
+| Discount calculation authority | Adeks owns and calculates all discounts, including coupon and loyalty, under K-OS-008 / BR-OS-023. Selcafe's member-discount mechanism is retired for the PWA pilot, and `adisyon.uye_indirim` is unused. |
+| Selcafe reflection / manual bridge | For Phase 1, Adeks provides the cashier with a fixed-format record (`adisyon_no` + discount code + amount). The cashier enters that record into Selcafe `kasaislem`; Adeks does not write directly to Selcafe. The discount code must be non-identifying. See BR-OS-024. |
+| Settlement green light | At settlement, Adeks reads the Selcafe `adisyon` sum and the `kasaislem` discount where feasible, compares them against its own discount-inclusive calculation, and gives the cashier a green light when within the 2% threshold under K-OS-007/K-OS-008 and BR-OS-015/BR-OS-025. Selcafe remains the settlement source of truth. |
 | Broad campaign engine | Excluded. |
 | Complex campaigns, tiers, subscriptions, ARPU campaign modeling | Excluded from this operating spine. |
 | Coupon status | Applied, rejected, or corrected status may be shown where supported. Exact reason taxonomy and audit implications require later Pod B review. |
-| Settlement authority | Final coupon effect remains subject to cashier settlement and Selcafe final amount. |
+| Settlement authority | Final customer payment remains cashier-handled, and Selcafe remains the settlement source of truth. Adeks's green light supports cashier reconciliation; it does not replace Selcafe settlement authority. |
+
+The K-OS-008 `kasaislem` reflection path and `adisyon`/`kasaislem` reads remain pre-implementation product direction only. ADR-005 read-surface reconciliation, KVKK/legal review, retention, auditability, and data-minimization review remain required before any implementation issue.
 
 ### Wallet
 
