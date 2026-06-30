@@ -15,6 +15,8 @@
 
 ---
 
+> **SUPERSEDED POINTER - K-OS-009 QR handshake:** This discovery artifact is retained as historical operating-model discovery input. Any typed-`fiş` link, customer table-confirmation, or standalone "addition-only guest" framing in the body is superseded by K-OS-009 and `docs/planning/SESSION_LINKING_QR_HANDSHAKE_DESIGN_v0.1.md`. The current Phase 1 customer-facing app session-linking path is the desk-side, one-time QR handshake: no typed/scanned `fiş` entry exists in the Customer PWA; the QR handshake establishes the PC/session binding; guests may order F&B and see the full live bill without an account; an account is required only for discounts, coupons, and points. Do not rewrite the body when preserving this artifact as historical discovery context.
+
 ## Post-Review Clarification — KD-1 / KD-2
 
 Kerem approved this document as the provisional Product Phase 1 operating-model spine, but it remains provisional for feasibility, risk, legal/KVKK, auditability, retention, and data-minimization review.

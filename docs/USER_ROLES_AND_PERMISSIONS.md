@@ -149,15 +149,15 @@ Phase 1 remains read-only toward Selcafe; Selcafe remains the settlement source 
 
 | Role / Actor | Operating-spine responsibility | Boundary |
 |---|---|---|
-| `CUSTOMER` with Adeks account | May link `fiş`, confirm table, order F&B, use eligible coupon, earn loyalty after settlement, and view settled history where supported. | Coupon, loyalty, and settled visit history require account binding before final settlement. |
-| Addition-only guest | May link `fiş`, confirm table, and submit F&B order under K-21/K-OS-001. | No coupon, loyalty, or settled visit history unless account is bound before final settlement. |
-| `CASHIER` | Primary first-slice operational receiver for PWA F&B orders; manually enters accepted orders into Selcafe; handles final payment; resolves wrong `fiş`/table/coupon/order exceptions. | No direct Selcafe write by Adeks is implied; cashier uses Selcafe manually. Cashier actions affecting order/coupon/settlement require later audit review. |
+| `CUSTOMER` with Adeks account | May link active visit/session via the desk-side one-time QR handshake, order F&B, see the full live bill, use eligible coupon, earn loyalty after settlement, and view settled history where supported. | Account binding is required for discounts, coupons, points, and settled visit history where supported. |
+| Guest customer | May link via the QR handshake, order F&B, and view the full live bill without an Adeks account. | Account binding is required only for discounts, coupons, and points. |
+| `CASHIER` | Primary first-slice operational receiver for PWA F&B orders; manually enters accepted orders into Selcafe; handles final payment; resolves wrong PC/session, coupon, or order exceptions. | No direct Selcafe write by Adeks is implied; cashier uses Selcafe manually. Cashier actions affecting order/coupon/settlement require later audit review. |
 | `FB_STAFF` | Kitchen/service continue from Selcafe printed receipts in the first operating slice. | No kitchen-facing PWA workflow or customer-facing delivery tracking is included in the first operating slice. Existing broader order-status work may remain internal/later expansion but should not define first-slice UX. |
 | `ADMIN` | Reviews first-week disputed orders and ten random orders; receives summary/check outputs where later defined. | Exact report fields, access scope, masking, retention, and audit mechanics require Pod B/legal review. |
 | Selcafe active bill/order-line visibility | Product direction under KD-1 may allow the customer to see active visit/bill/order-line information for the active `fiş` / visit, including cashier/staff-entered F&B items not submitted through Adeks PWA. | Not implementation-authorized. Requires ADR-005 read-surface expansion, KVKK/legal review, auditability, retention, and data-minimization review. |
 | Selcafe member identity/profile data | No Phase 1 operating-spine actor should read or display Selcafe member identity/profile data. | Exclusion confirmed by KD-1. This does not fully resolve the active bill/order-line read-surface conflict. |
 
-[REQUIRES POD B REVIEW] Addition-only guest ordering, cashier exception handling, admin check reports, and Selcafe-derived visibility affect authentication, authorization, audit, KVKK, and data minimization boundaries.
+[REQUIRES POD B REVIEW] Customer/session linking, live-bill visibility, Selcafe read-surface, KVKK/customer-data handling, and member-resolution exclusions require Pod B review before implementation.
 
 ---
 
