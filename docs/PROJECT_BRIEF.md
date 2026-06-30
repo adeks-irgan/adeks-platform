@@ -110,7 +110,7 @@ It should provide:
 |---|---|
 | Customer PWA | Mobile-first customer web app |
 | Public catalog browsing | Customers may browse catalog/menu content without login |
-| Login-gated core features | Ordering, wallet, loyalty, reservations, and account features require login |
+| Account-gated features | Discounts, coupons, points, wallet, loyalty, reservations, account/profile features, and account-linked history require account context. QR-linked guest F&B ordering and live-bill visibility are governed by the Operating-Spine Alignment Note below. |
 | Web cashier/admin interface | Browser-based operational interface for staff |
 | F&B ordering from seat | Customers can place orders from their seat |
 | Cashier-only payment | Payments are handled at cashier/F&B cashier points in Phase 1 |
@@ -200,11 +200,11 @@ Expected Phase 1 customer capabilities:
 | Capability | Phase 1 Intent |
 |---|---|
 | Public catalog browsing | Customers can browse available menu/catalog content without login |
-| Login | Customers must log in for core features |
+| Login | Customers log in for account-only features. QR-linked guest ordering and live-bill visibility are governed by the Operating-Spine Alignment Note above. |
 | Account/profile view | Logged-in customers can view basic account information |
 | Wallet visibility | Logged-in customers can view wallet status and relevant wallet history |
 | Loyalty visibility | Logged-in customers can view loyalty status and relevant loyalty history |
-| F&B ordering from seat | Logged-in customers can submit food and beverage orders |
+| F&B ordering from seat | QR-linked guests/customers can submit food and beverage orders. Account context is required only for discounts, coupons, points, and account-linked features. |
 | Reservation requests | Logged-in customers can submit reservation requests |
 | Request/order status | Customers can view status feedback where supported |
 

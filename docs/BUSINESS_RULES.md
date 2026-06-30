@@ -5,11 +5,11 @@
 | Field | Value |
 |---|---|
 | Document | BUSINESS_RULES.md |
-| Version | v0.4 QR-handshake operating-spine reconciliation — 2026-06-30 |
+| Version | v0.5 operating-slice checkpoint cleanup — 2026-07-01 |
 | Owner | Pod A — Product & Planning |
 | Reviewer | Pod B — Architecture, Logic & Risk |
 | Approver | Kerem |
-| Current status | Reconciled with merged QR-handshake session-linking design for the Product Phase 1 operating spine; K-21/K-OS decision-log amendment remains Kerem-gated; not implementation-ready |
+| Current status | Reconciled with merged QR-handshake session-linking design for the Product Phase 1 operating spine; BR-FB account-boundary contradiction corrected against BR-OS-003; not implementation-ready |
 | Scope of this version | Documentation-only business-rule reconciliation. Establishes no implementation authority. |
 | Target repo path | `/docs/BUSINESS_RULES.md` |
 
@@ -60,7 +60,7 @@ Phase 1 remains read-only toward Selcafe; Selcafe remains the settlement source 
 | BR-LOYALTY-003 | Loyalty redemption actor | Loyalty redemption is handled by CASHIER/ADMIN in Phase 1. | Confirmed. |
 | BR-LOYALTY-004 | Loyalty self-redemption | Customer self-redemption is excluded from Phase 1. | Confirmed. |
 | BR-LOYALTY-005 | Loyalty ledger | Loyalty must use append-only ledger logic; no direct balance overwrite. | Confirmed principle; [REQUIRES POD B REVIEW]. |
-| BR-FB-001 | F&B order submission | Logged-in CUSTOMER can submit F&B orders from seat. | Confirmed. |
+| BR-FB-001 | F&B order submission | A QR-linked guest/customer can submit F&B orders from seat in the K-21 operating spine. Account context is not required for F&B order submission; see BR-OS-003 for the operating-spine account boundary and live-bill visibility rule. | Confirmed by K-21/K-OS-009 as product direction. [REQUIRES POD B REVIEW] for auth/KVKK/audit/abuse boundary. Does not authorize Pod C. |
 | BR-FB-002 | F&B fulfillment | FB_STAFF can receive/update order fulfillment status and mark delivered; payment remains CASHIER/ADMIN only. | Confirmed. |
 | BR-FB-003 | Customer-visible F&B order statuses | Phase 1 customer-visible statuses are: Submitted, Accepted, Preparing, Ready / On the way, Delivered, Rejected, Cancelled. | Confirmed by Kerem F&B order lifecycle decision packet; [REQUIRES POD B REVIEW] for state transitions, actors, and audit points. |
 | BR-FB-004 | Customer cancellation | CUSTOMER can cancel an order until the order reaches Preparing. [CONFIRMED by Kerem, 2026-06-12 F&B lifecycle decision packet] "Until Preparing" means cancellation is allowed before the order enters Preparing, not after Preparing has started. | Confirmed by Kerem. [REQUIRES POD B REVIEW] for exact transition boundary and cancellation effects. |
