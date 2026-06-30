@@ -5,7 +5,7 @@
 **Approver:** Kerem (any status transition **into or out of "Locked"** on a product/business-impacting decision)
 **Canonical methodology:** `/docs/PROJECT_METHODOLOGY.md`
 **Intended repo path:** `/docs/PROJECT_DECISION_INDEX.md`
-**Last updated:** 2026-06-28 (K-21 KD-1/KD-2 post-Pod-B-review constraints mirrored for PR #105; K-20/K-21 relationship annotated. Prior entry: 2026-06-28 — K-21 Product Phase 1 operating-spine scope reconciliation mirrored.)
+**Last updated:** 2026-06-30 (K-OS-009 QR-handshake session-linking mirrored; K-OS-008 mechanism corrected to the `islem_tip`/`kasaislem.aciklama`/`kasaislem.alacak` reflection; K-21 annotated with the K-OS-009 supersession. Prior entry: 2026-06-28 — K-21 KD-1/KD-2 constraints mirrored for PR #105.)
 
 > **This file mirrors ADRs, methodology, and recorded Kerem decisions. It does not *establish* decisions.** The authoritative record of any decision is its ADR (in `/docs/adr/`) plus Kerem's approval. If this index and an ADR ever disagree, the ADR wins and this index is stale until corrected. If an external platform-instruction file says a decision is locked but this index and the ADRs do not, **treat the instruction file as stale** until reconciled.
 
