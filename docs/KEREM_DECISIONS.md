@@ -10,7 +10,7 @@
           K-21 from Kerem approval on 2026-06-28 (Product Phase 1 operating-spine scope reconciliation)
           K-21 KD-1/KD-2 post-review clarifications from Kerem on 2026-06-28 after Pod B PR #105 review
   AUTHOR: Pod B (Architecture, Logic & Risk)
-  VERSION: 1.9-draft
+  VERSION: 2.0-draft
   PATH: /docs/KEREM_DECISIONS.md
 
   PURPOSE:
