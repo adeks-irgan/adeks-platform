@@ -90,12 +90,12 @@ The reconciliation therefore turns entirely on Basis 2 plus the two new findings
 ## 3. §9 reconciliation answers
 
 ### Q1 — Hard-excluded → conditionally-included-under-controls, or stay excluded?
-**Conditionally include**, for a **fiş-keyed projection of `adisyon` + `detay` + the single linked settlement `kasaislem` row**, member/staff FKs excluded — subject to §4–§6 conditions below. The key architectural distinction that makes this clean:
+**Conditionally include**, for a **fiş-keyed projection of `adisyon` + `detay` + a single Adeks-reflected discount `kasaislem` row (matched by dedicated `islem_tip` + pseudorandom code; §4/Q5)**, member/staff FKs excluded — subject to §4–§6 conditions below. The key architectural distinction that makes this clean:
 
 | Path | Disposition |
 |---|---|
 | `masa.aktif_adisyon_no` → `adisyon` → `uye_no` (resolve *who* is in a session) — the A6 / D-3a-forbidden move | **Stays forbidden.** Not reintroduced. |
-| Customer-supplied **fiş** → `adisyon_no` selector → read non-identity columns of *that one bill* + its `detay` lines + its linked settlement `kasaislem`. **No `uye_no` read, no member resolution.** | **New conditional-include class.** The customer self-identifies their own bill; Adeks never derives the member's identity. |
+| Customer-supplied **fiş** → `adisyon_no` selector → read non-identity columns of *that one bill* + its `detay` lines + the single Adeks-reflected discount `kasaislem` row (matched by dedicated `islem_tip` + code; §4/Q5). **No `uye_no` read, no member resolution.** | **New conditional-include class.** The customer self-identifies their own bill; Adeks never derives the member's identity. |
 
 This is not "read member-linked data to find the member"; it is "read one bill the customer pointed us to, with identity columns denied." That is a defensible, narrow class.
 
