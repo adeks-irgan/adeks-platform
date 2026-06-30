@@ -37,7 +37,7 @@
 
 This document defines the Phase 1 MVP scope for Adeks Platform and separates confirmed scope from blocked, deferred, and unresolved items.
 
-Phase 1 is a customer PWA plus web cashier/admin foundation. It includes public catalog browsing, login-gated customer features, F&B ordering from seat, wallet visibility and cashier/admin top-up, loyalty visibility and cashier-handled redemption, staff-approved reservation requests, audit logging, and read-only Selcafe discovery/sync if feasible. It does not replace Selcafe or Selcafe PC/session control.
+Phase 1 is a customer PWA plus web cashier/admin foundation. It includes public catalog browsing, QR-linked guest/customer F&B ordering from seat, account-gated wallet/loyalty/reservation/profile/discount/coupon/points features, cashier/admin top-up, cashier-handled redemption where later approved, staff-approved reservation requests, audit logging, and read-only Selcafe discovery/sync if feasible. It does not replace Selcafe or Selcafe PC/session control.
 
 This v0.5 draft is **documentation-only product-scope reconciliation**. This document does not authorize Pod C implementation, does not select an SMS provider, does not resolve legal/KVKK questions, and does not create implementation authority.
 
