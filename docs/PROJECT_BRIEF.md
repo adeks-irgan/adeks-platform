@@ -133,9 +133,9 @@ Kerem approved the Product Phase 1 operating spine as **Selcafe-linked customer 
 
 For this spine:
 
-- `fiş / fiş numarası` is the main customer-facing visit link.
-- Customer confirms table before ordering.
-- Addition-only guest ordering is permitted, but coupon, loyalty, and settled visit history require Adeks account binding before final settlement.
+- Customer-facing visit/session linking is the desk-side, one-time QR handshake. The printed `fiş` / receipt remains a Selcafe/cashier artifact, but the Customer PWA has no typed/scanned `fiş` or `fiş numarası` entry path.
+- The QR handshake establishes the PC/session binding. A separate customer table-confirmation step is no longer a control step; a wrong or disputed PC/session blocks ordering and routes the customer to the cashier.
+- Guests may order F&B and see the full live bill without an Adeks account. An account is required only for discounts, coupons, and points.
 - Cashier manually enters accepted PWA orders into Selcafe.
 - Kitchen/service continue from Selcafe printed receipts.
 - Selcafe remains read-only to Adeks and remains the final settlement source of truth.
