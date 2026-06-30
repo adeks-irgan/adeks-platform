@@ -5,11 +5,11 @@
 | Field | Value |
 |---|---|
 | Document | MVP_SCOPE.md |
-| Version | v0.5 operating-spine reconciliation — 2026-06-28 |
+| Version | v0.6 QR-handshake operating-spine reconciliation — 2026-06-30 |
 | Owner | Pod A — Product & Planning |
 | Reviewer | Pod B — Architecture, Logic & Risk |
 | Approver | Kerem |
-| Current status | Reconciled with Kerem-approved Product Phase 1 operating spine and K-21/K-OS decisions; not implementation-ready |
+| Current status | Reconciled with merged QR-handshake session-linking design for the Product Phase 1 operating spine; K-21/K-OS decision-log amendment remains Kerem-gated; not implementation-ready |
 | Scope of this version | Documentation-only product-scope reconciliation. Aligns Product Phase 1 around Selcafe-linked customer visibility and ordering; does not authorize Pod C. |
 | Target repo path | `/docs/MVP_SCOPE.md` |
 
@@ -68,26 +68,27 @@ Kerem approved the provisional Product Phase 1 operating spine as:
 
 For scope purposes, this means:
 
-1. Customer registers or uses a permitted addition-only guest flow.
-2. Customer links the active Selcafe visit through `fiş / fiş numarası`.
-3. Customer confirms the displayed table before ordering.
-4. Customer sees Selcafe-linked visit information where read reliability supports it.
-5. Customer may order F&B from the PWA.
-6. Cashier manually enters accepted PWA orders into Selcafe.
-7. Kitchen/service continue from Selcafe printed receipts.
-8. Customer sees estimated PC + F&B totals and coupon/points information where reliable. Discount values are Adeks-calculated; pre-payment values remain estimates.
-9. Final payment happens at cashier.
-10. At payment/settlement, Adeks provides the cashier with a fixed-format discount reflection record for the applicable Adeks discount. The cashier selects the dedicated Adeks `islem_tip` from the Selcafe Kasiyer dropdown, enters the pseudorandom one-time Adeks discount code in `kasaislem.aciklama`, and enters the discount amount as a positive credit in `kasaislem.alacak`. The Selcafe row carries no `adisyon_no` and no Adeks customer/coupon/member identifier; Adeks holds the `code → adisyon_no → expected discount` mapping internally.
-11. Adeks reads `adisyon.toplam_tutar` by `fiş` and reads the matching `kasaislem.alacak` row by dedicated Adeks `islem_tip` + pseudorandom one-time code where feasible. Adeks joins the reads inside Adeks, compares `adisyon.toplam_tutar − kasaislem.alacak` against its own discount-inclusive calculation, and gives the cashier a green light only when the result is within the 2% threshold; no clean match fails closed to manual check.
-12. Adeks updates settled amount, coupon/discount status, and loyalty history after payment where supported. Selcafe remains the settlement source of truth.
+1. Customer registers or uses the permitted guest flow.
+2. Cashier starts the Selcafe PC session and starts the matching Adeks session-link for the same PC.
+3. Customer links the PWA/app session to the active visit/session through the desk-side one-time QR handshake, not typed/scanned `fiş / fiş numarası`.
+4. The QR handshake supports both scan directions: desk/customer-facing screen QR scanned by customer, and customer app QR scanned by cashier.
+5. Customer sees the linked PC/session and, where reads are cleared and reliable, the full live bill including itemized lines.
+6. Guest customer may order F&B from the PWA after successful QR link. Signup/login is offered alongside ordering and is required only for discounts, coupons, and points.
+7. Cashier manually enters accepted PWA orders into Selcafe.
+8. Kitchen/service continue from Selcafe printed receipts.
+9. Customer sees estimated PC + F&B totals and coupon/points information where reliable and where account context exists for discounts/coupons/points. Discount values are Adeks-calculated; pre-payment values remain estimates.
+10. Final payment happens at cashier.
+11. At payment/settlement, Adeks provides the cashier with a fixed-format discount reflection record for the applicable Adeks discount. The cashier selects the dedicated Adeks `islem_tip` from the Selcafe Kasiyer dropdown, enters the pseudorandom one-time Adeks discount code in `kasaislem.aciklama`, and enters the discount amount as a positive credit in `kasaislem.alacak`. The Selcafe row carries no `adisyon_no` and no Adeks customer/coupon/member identifier; Adeks holds the `code → linked Selcafe bill/addition → expected discount` mapping internally.
+12. Adeks reads the linked Selcafe bill/addition total and reads the matching `kasaislem.alacak` row by dedicated Adeks `islem_tip` + pseudorandom one-time code where feasible. Adeks joins the reads inside Adeks, compares the Selcafe settled total net of the matched Adeks discount against its own discount-inclusive calculation, and gives the cashier a green light only when the result is within the 2% threshold; no clean match fails closed to manual check.
+13. Adeks updates settled amount, coupon/discount status, and loyalty/points status after payment where supported. Selcafe remains the settlement source of truth.
 
-The K-OS-008 discount reflection and settlement green-light steps are desired product direction only. They remain blocked on ADR-005 read-surface reconciliation, KVKK/legal review, auditability, retention, and data-minimization review before implementation. This operating spine does not authorize direct Selcafe writes, wallet/payment implementation, schema/API work, ADR drafting, Pod C implementation, or real data use.
+The QR-handshake linking path and the K-OS-008 discount reflection and settlement green-light steps are desired product direction only. They remain blocked on ADR-005 read-surface reconciliation, KVKK/legal review, auditability, retention, and data-minimization review before implementation. This operating spine does not authorize direct Selcafe writes, wallet/payment implementation, schema/API work, ADR drafting, Pod C implementation, or real data use.
 
 ### Post-Review Gate — KD-1 / KD-2
 
 K-21 locks the Product Phase 1 operating-spine direction, not implementation authority.
 
-KD-1 records constrained Option B: the product direction includes a Selcafe-sourced active visit/bill/order-line view for the active `fiş` / visit, including cashier/staff-entered F&B items not submitted through Adeks PWA. Selcafe member identity/profile data must not be read or displayed as part of this Phase 1 operating spine.
+KD-1 records constrained Option B: the product direction includes a Selcafe-sourced active visit/bill/order-line view for the QR-linked active visit/session, including cashier/staff-entered F&B items not submitted through Adeks PWA. The QR handshake binds the app session to a PC/session-link and must not read, derive, resolve, or display Selcafe member identity/profile data, including `adisyon.uye_no`.
 
 This does not authorize implementation and does not override ADR-005 by wording alone. ADR-005 read-surface expansion, KVKK/legal review, auditability, retention, and data-minimization review remain required before any implementation issue can exist.
 
@@ -97,11 +98,11 @@ KD-2 records that K-OS-002 supersedes/subsumes K-20 PI-1 only for customer-visib
 
 | Area | Included in Phase 1 | Status |
 |---|---|---|
-| Customer PWA | Mobile-first customer web app. Customers can browse public catalog/menu without login. Addition-only guest ordering is permitted after `fiş / fiş numarası` link and table confirmation under K-21/K-OS-001; wallet, loyalty visibility, reservations, account/profile, coupon, loyalty, and settled visit history require account binding where applicable. | Confirmed |
+| Customer PWA | Mobile-first customer web app. Customers can browse public catalog/menu without login. Guest ordering is permitted after desk-side QR handshake under K-21/K-OS-001 as amended by the QR-handshake design. Guests may see the full live bill including itemized lines after successful QR link, subject to the read gate. Wallet, loyalty visibility, reservations, account/profile, discounts/coupons/points, and persistent account-linked history require account context where applicable. | Confirmed |
 | Authentication dependency | Customer login uses Phone OTP (SMS). Staff use individual username/password. ADMIN uses username/password + TOTP MFA. | Confirmed by ADR-015/K-13; SMS provider not selected |
 | Public catalog/menu | Public browsing is allowed without authentication. | Confirmed |
 | Cashier/admin web interface | Browser-based staff interface for order handling, wallet top-up, loyalty redemption, reservation review, permitted customer data, and audit visibility. | Confirmed |
-| F&B ordering | Customer submits F&B order from seat after `fiş / fiş numarası` link and table confirmation. Addition-only guest ordering is permitted under K-21/K-OS-001. Cashier manually enters accepted PWA orders into Selcafe; kitchen/service continue from Selcafe printed receipts. | Confirmed. F&B lifecycle/state model remains accepted as broader/internal-or-later reference. Still blocked for implementation by API/schema/security/KVKK/DoR issue packets and separate Pod B + Kerem-approved implementation issues. No Pod C authorization. |
+| F&B ordering | Customer submits F&B order from seat after successful desk-side QR handshake. Guest ordering and full live-bill visibility are permitted under the QR-handshake design; discounts, coupons, and points require account context. Cashier manually enters accepted PWA orders into Selcafe; kitchen/service continue from Selcafe printed receipts. | Confirmed. F&B lifecycle/state model remains accepted as broader/internal-or-later reference. Still blocked for implementation by API/schema/security/KVKK/DoR issue packets and separate Pod B + Kerem-approved implementation issues. No Pod C authorization. |
 | Wallet | Customer wallet visibility and cashier/admin wallet top-up. Append-only ledger, derived balance, no direct overwrite, audit logging. | Included. ADR-006 accepted as design; top-up methods, top-up correction, daily report fields, legal/KVKK artifacts, and implementation issue packets remain blocking. |
 | Loyalty | Customer loyalty visibility, confirmed F&B accrual, automatic earning on any later-approved eligible purchases, cashier-handled redemption. Append-only ledger, derived balance, no direct overwrite, audit logging. | Included. ADR-007 accepted for loyalty ledger design and F&B accrual formula; redemption, expiry, broader exclusions, non-F&B earning if included, legal/KVKK artifacts, and implementation issue packets remain blocking. |
 | Reservations | Customer submits request. Staff approves/rejects. Automatic confirmation is excluded until reliable PC/session status exists. | Included; detailed rules unresolved; [REQUIRES POD B REVIEW] |
@@ -119,7 +120,7 @@ KD-2 records that K-OS-002 supersedes/subsumes K-20 PI-1 only for customer-visib
 | Phone OTP login/registration | Included in product scope. ADR-015 Accepted and AUTH_THREAT_MODEL v0.4 Accepted. Still blocked for implementation by provider selection, legal/KVKK dependencies, and separate approved Pod C issues. |
 | Wallet visibility | Included for own account only. |
 | Loyalty visibility | Included for own account only. |
-| F&B order submission | Included after `fiş / fiş numarası` link and table confirmation. Addition-only guest ordering is permitted under K-21/K-OS-001. Coupon, loyalty, and settled visit history require Adeks account binding before final settlement. |
+| F&B order submission | Included after successful desk-side QR handshake. Guest ordering and full live-bill visibility, including itemized lines, are permitted after QR link subject to the read gate. Account/signup is offered alongside ordering and is required only for discounts, coupons, and points. |
 | Reservation request submission | Included after login. |
 | Own order/reservation status | Included where supported by approved statuses. |
 | Customer self top-up | Excluded. |
@@ -144,8 +145,8 @@ KD-2 records that K-OS-002 supersedes/subsumes K-20 PI-1 only for customer-visib
 
 | Capability | Phase 1 Scope |
 |---|---|
-| Customer order from seat | Included after `fiş / fiş numarası` link and table confirmation. Addition-only guest ordering is permitted under K-21/K-OS-001. |
-| Receipt/session link | `fiş / fiş numarası` is the main customer-facing visit link. Table number is displayed for confirmation; customer should not manually enter table number as the primary link. |
+| Customer order from seat | Included after successful desk-side QR handshake. Guest ordering is permitted after QR link, subject to the read gate for live-bill visibility. |
+| Receipt/session link | The app customer-facing session link is the desk-side one-time QR handshake, not typed/scanned `fiş / fiş numarası`. Table/bill/addition identifiers may remain cashier/Selcafe operational details, but no bill-number entry path exists in the Customer PWA. |
 | Manual Selcafe entry | Included as mandatory Phase 1 operating bridge. Cashier manually enters accepted PWA orders into Selcafe. Adeks does not directly write PWA orders into Selcafe. |
 | Seat/PC context | Included if required for fulfillment. |
 | Staff order queue | Included. |
@@ -175,8 +176,8 @@ First-slice statuses are customer-facing simplified projections for the operatin
 |---|---|
 | One simple PC + F&B coupon/discount | Included as the first operating-spine habit driver under K-21/K-OS-004. |
 | Discount calculation authority | Adeks owns and calculates all discounts, including coupon and loyalty, under K-OS-008 / BR-OS-023. Selcafe's member-discount mechanism is retired for the PWA pilot, and `adisyon.uye_indirim` is unused. |
-| Selcafe reflection / manual bridge | For Phase 1, Adeks provides the cashier with a fixed-format discount reflection record. The cashier selects the dedicated Adeks `islem_tip` from the Selcafe Kasiyer dropdown, enters the pseudorandom one-time Adeks discount code in `kasaislem.aciklama`, and enters the discount amount as a positive credit in `kasaislem.alacak`. The Selcafe row carries no `adisyon_no` and no Adeks customer/coupon/member identifier; Adeks holds the `code → adisyon_no → expected discount` mapping internally. Adeks does not write directly to Selcafe. See BR-OS-024. |
-| Settlement green light | At settlement, Adeks reads `adisyon.toplam_tutar` by `fiş` and reads the matching `kasaislem.alacak` row by dedicated Adeks `islem_tip` + pseudorandom one-time code where feasible. Adeks joins the reads inside Adeks, compares `adisyon.toplam_tutar − kasaislem.alacak` against its own discount-inclusive calculation, and gives the cashier a green light only when within the 2% threshold under K-OS-007/K-OS-008 and BR-OS-015/BR-OS-025; no clean match fails closed to manual check. Selcafe remains the settlement source of truth. |
+| Selcafe reflection / manual bridge | For Phase 1, Adeks provides the cashier with a fixed-format discount reflection record. The cashier selects the dedicated Adeks `islem_tip` from the Selcafe Kasiyer dropdown, enters the pseudorandom one-time Adeks discount code in `kasaislem.aciklama`, and enters the discount amount as a positive credit in `kasaislem.alacak`. The Selcafe row carries no `adisyon_no` and no Adeks customer/coupon/member identifier; Adeks holds the `code → linked Selcafe bill/addition → expected discount` mapping internally. Adeks does not write directly to Selcafe. See BR-OS-024. |
+| Settlement green light | At settlement, Adeks reads the linked Selcafe bill/addition total and reads the matching `kasaislem.alacak` row by dedicated Adeks `islem_tip` + pseudorandom one-time code where feasible. Adeks joins the reads inside Adeks, compares the Selcafe settled total net of the matched Adeks discount against its own discount-inclusive calculation, and gives the cashier a green light only when within the 2% threshold under K-OS-007/K-OS-008 and BR-OS-015/BR-OS-025; no clean match fails closed to manual check. Selcafe remains the settlement source of truth. |
 | Broad campaign engine | Excluded. |
 | Complex campaigns, tiers, subscriptions, ARPU campaign modeling | Excluded from this operating spine. |
 | Coupon status | Applied, rejected, or corrected status may be shown where supported. Exact reason taxonomy and audit implications require later Pod B review. |
@@ -248,13 +249,13 @@ K-21/K-OS-006 excludes wallet payment/spending from the Selcafe-linked customer 
 | Capability | Phase 1 Scope |
 |---|---|
 | Selcafe read-only discovery/sync | Included only if feasible. |
-| `fiş / fiş numarası` linking | Included as operating-spine target; exact Selcafe field/read feasibility requires Pod B review. |
-| Table confirmation | Included before ordering. Wrong or unknown table blocks ordering and routes customer to cashier. |
-| Active visit/bill/order-line view | Product direction under K-21/KD-1: desired for the active `fiş` / visit so the customer can see F&B items entered directly into Selcafe by cashier/staff, even if not submitted through Adeks PWA. Not implementation-authorized; requires ADR-005 read-surface expansion, KVKK/legal review, auditability, retention, and data-minimization review. |
-| Selcafe member identity/profile data | Excluded from this operating spine. Must not be read or displayed. This exclusion does not fully resolve the ADR-005 read-surface conflict for active bill/order-line data. |
+| QR handshake linking | The Customer PWA links to the active visit/session through the desk-side one-time QR handshake, not typed/scanned `fiş / fiş numarası`. Manual cashier PC/session association is the Phase 1 path; auto-detect remains a fast-follow behind read/legal clearance. |
+| Wrong PC/session correction | Wrong or disputed PC/session links block ordering and route the customer to cashier for correction. No in-seat late-joiner fallback exists; the customer revisits cashier for a fresh QR handshake. |
+| Active visit/bill/order-line view | Product direction under K-21/KD-1 and the QR-handshake design: desired for the QR-linked active visit/session so the customer, including guest customer, can see the full live bill including itemized lines and F&B items entered directly into Selcafe by cashier/staff, even if not submitted through Adeks PWA. Not implementation-authorized; requires ADR-005 read-surface expansion, KVKK/legal review, auditability, retention, and data-minimization review. |
+| Selcafe member identity/profile data | Excluded from this operating spine. The QR handshake binds the app session to a PC/session-link and must not read, derive, resolve, or display Selcafe member identity/profile data, including `adisyon.uye_no`. This exclusion does not fully resolve the ADR-005 read-surface conflict for active bill/order-line data. |
 | PC start/stop/duration/cost estimates | Included in the Product Phase 1 modeling spine if reliable. KD-2 clarifies this supersedes/subsumes K-20 PI-1 only for customer-visible PC/session estimates inside the approved operating spine. |
 | Final settled amount | Selcafe is source of truth. Adeks reads final settled amount where feasible; normal-flow manual final-total entry into Adeks is not acceptable. |
-| Settlement comparison | Product target: compare PWA orders, Selcafe items, selected coupon, and final settled amount where feasible. |
+| Settlement comparison | Product target: compare PWA orders, Selcafe items, selected coupon, and final settled amount where feasible for the QR-linked active visit/session. |
 | Selcafe write access | Excluded unless Kerem explicitly approves later. |
 | Selcafe replacement | Excluded. |
 | Core domain modeled on Selcafe internals | Prohibited. |

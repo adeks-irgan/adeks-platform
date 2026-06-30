@@ -6,11 +6,11 @@
 | --------------------- | ------------------------------------------------------------------------------------- |
 | Document              | CORE_USER_FLOWS.md                                                                    |
 | Project               | Adeks Platform                                                                        |
-| Version               | v0.3                                                                                  |
+| Version               | v0.4 product-flow QR handshake reconciliation                                          |
 | Owner                 | Pod A — Product & Planning                                                            |
 | Reviewer              | Pod B — Architecture, Logic & Risk                                                    |
 | Approver              | Kerem                                                                                 |
-| Current status        | Kerem decisions OQ-CUF-AUTH-002/003/004 recorded 2026-06-10 (K-14/15/16; Pod B annotation pass v0.3). Open: OQ-CUF-AUTH-001 (notice legal text), OQ-CUF-AUTH-005 (SMS provider) |
+| Current status        | Kerem decisions OQ-CUF-AUTH-002/003/004 recorded 2026-06-10 (K-14/15/16; Pod B annotation pass v0.3). §4 reconciled to merged QR-handshake session-linking design. Open: OQ-CUF-AUTH-001 (notice legal text), OQ-CUF-AUTH-005 (SMS provider), Kerem-gated K-21/K-OS QR amendment. |
 | Target location       | `/docs/CORE_USER_FLOWS.md`                                                            |
 | Implementation status | Does not authorize Pod C implementation                                               |
 
@@ -33,6 +33,7 @@ This flow is constrained by:
 * `/docs/USER_ROLES_AND_PERMISSIONS.md`
 * `/docs/PROJECT_METHODOLOGY.md` §20.2 KVKK Compliance Process
 * `/docs/PROJECT_DECISION_INDEX.md`
+* `/docs/planning/SESSION_LINKING_QR_HANDSHAKE_DESIGN_v0.1.md`
 
 ---
 
@@ -304,11 +305,13 @@ This flow defines the approved Product Phase 1 operating spine:
 
 > Selcafe-linked customer visibility and ordering.
 
-It starts from the real café visit and uses `fiş / fiş numarası` as the main customer-facing visit link.
+It starts from the real café visit and binds the customer's phone/PWA session to the cashier-started Selcafe PC session through a **desk-side, one-time QR handshake**.
+
+The QR handshake replaces typed/scanned `fiş / fiş numarası` entry as the customer-facing app linking path. The printed receipt and Selcafe addition/bill identifiers may still exist in cashier/Selcafe operations, but they are not exposed as the app's customer-entered visit-link key.
 
 This flow does not authorize direct Selcafe writes, schema/API work, ADR drafting, Pod C implementation, wallet/payment implementation, or real data use.
 
-Post-review constraint: K-21 locks the product direction only. It does not authorize implementation and does not override ADR-005 by wording alone.
+Post-review constraint: K-21 locks the product direction only. It does not authorize implementation and does not override ADR-005 by wording alone. The K-21/K-OS wording requires a Kerem-gated amendment to reflect the QR handshake.
 
 This document does not authorize Pod C implementation.
 
@@ -318,86 +321,107 @@ Phase 1 remains read-only toward Selcafe; Selcafe remains the settlement source 
 
 | Actor | Role in flow |
 |---|---|
-| Customer | Links `fiş`, confirms table, views visit information, places F&B order, later sees settled result where supported. |
-| Guest/addition-only customer | May order after `fiş` link and table confirmation; coupon, loyalty, and settled visit history require account binding before final settlement. |
-| Cashier | Receives PWA order, manually enters accepted order into Selcafe, obtains the Adeks-issued fixed-format discount reflection record, selects the dedicated Adeks `islem_tip` from the Selcafe Kasiyer dropdown, enters the pseudorandom one-time Adeks discount code in `kasaislem.aciklama`, enters the discount amount as a positive credit in `kasaislem.alacak`, handles final payment, and resolves wrong `fiş`/table/coupon/order issues. |
+| Customer | Starts visit through cashier/Selcafe, links their phone/PWA to the active PC session through the desk-side QR handshake, views the live bill, places F&B order, and later sees settled result where supported. |
+| Guest customer | May link through the QR handshake, view the full live bill including itemized lines, and order F&B without an Adeks account. Signup/login is offered alongside ordering and is required only for discounts, coupons, and points. Persistent account-linked history requires account context. |
+| Cashier | Starts the PC session in Selcafe, starts the matching Adeks session-link for the same PC, presents or scans the one-time QR depending on scan direction, receives PWA orders, manually enters accepted orders into Selcafe, obtains the Adeks-issued fixed-format discount reflection record where applicable, handles final payment, and resolves wrong-PC/session/coupon/order issues. |
 | Kitchen/service staff | Continue from Selcafe printed receipts only in the first operating slice. |
-| Selcafe | Remains read-only to Adeks and remains settlement source of truth. |
-| Adeks PWA | Provides customer-facing link, confirmation, estimates, order submission, and post-settlement history where reliable. |
-| Adeks cashier/admin UI | Provides cashier queue, comparison, coupon status support, and admin check support where later approved. |
+| Selcafe | Creates and owns the PC session/addition and remains read-only to Adeks and the settlement source of truth. |
+| Adeks PWA | Scans or shows the one-time QR, displays the linked live bill where allowed, offers guest ordering, offers signup/login alongside ordering, and shows estimates/order/settlement status where reliable. |
+| Adeks cashier/admin UI | Lets the cashier manually select the PC/session, start the Adeks session-link, display the desk-side QR, scan the customer app QR, manage the order queue, support coupon status, and support admin checks where later approved. |
+| Customer-facing desk screen / scanner | Supports the QR handshake at the desk. Direction A displays the Adeks QR for the customer to scan; Direction B lets the cashier scan the customer's app QR. |
+| Adeks backend | Mints and validates the one-time QR token, binds the app session to the Adeks-native session-link, burns the token on first successful scan, and performs only gated read-only Selcafe reads where later approved. |
 
 ### 4.3 Preconditions
 
 | Item | Requirement |
 |---|---|
-| Selcafe visit | Cashier has started the customer visit/session in Selcafe. |
-| Receipt | Customer has receipt or `fiş numarası`. |
-| Selcafe read | Adeks can read enough Selcafe data to identify visit/table and display supported information. |
-| Active bill/order-line read gate | Selcafe-sourced active visit/bill/order-line visibility is desired under KD-1, but remains blocked on ADR-005 read-surface expansion, KVKK/legal review, auditability, retention, and data-minimization review before implementation. |
-| Discount reflection / settlement green-light gate | K-OS-008 product direction includes an Adeks-issued fixed-format discount reflection record: dedicated Adeks `islem_tip` selected by the cashier from the Selcafe Kasiyer dropdown, pseudorandom one-time code in `kasaislem.aciklama`, and positive discount amount in `kasaislem.alacak`. The Selcafe row carries no `adisyon_no` and no Adeks customer/coupon/member id. Adeks holds the `code → adisyon_no → expected discount` mapping internally and joins `adisyon.toplam_tutar` with the matched `kasaislem.alacak` row inside Adeks. Adeks support for this reflection/read path remains blocked on ADR-005 read-surface reconciliation, KVKK/legal review, auditability, retention, and data-minimization review before implementation. |
-| Member identity/profile exclusion | Selcafe member identity/profile data must not be read or displayed as part of this operating spine. |
-| Customer account | Required for coupon, loyalty, and settled visit history before final settlement; not required for addition-only guest order under K-21/K-OS-001. |
+| Selcafe visit | Cashier has started the customer visit/session in Selcafe for a specific PC/station. |
+| Adeks session-link | Cashier starts the matching Adeks session-link for the same PC in the Adeks cashier UI. Manual PC selection is the Phase 1 path. Auto-detecting the PC is a fast-follow behind ADR-005 read-surface expansion and legal/KVKK clearance. |
+| QR handshake | Linking is exclusively through a desk-side, one-time QR handshake. No typed/scanned `fiş` entry field exists in the Customer PWA. |
+| Two scan directions | Direction A: desk/customer-facing screen shows QR and customer scans it. Direction B: customer app shows QR and cashier scans it. |
+| Token properties | The QR token is cryptographically random, single-use, bound to exactly one `(PC, Adeks session-link)`, seconds-scale, and burned on first successful scan. Re-display mints a fresh token and invalidates the prior token. |
+| Selcafe read | Adeks may show live-bill data only after the read surface is approved. The read remains blocked on ADR-005 read-surface expansion, KVKK/legal review, auditability, retention, and data-minimization review before implementation. |
+| Active bill/order-line read gate | Selcafe-sourced active visit/bill/order-line visibility is desired under KD-1 and SL-6, including itemized lines, but remains gated. QR opt-in improves the legal posture; it does not clear the gate. |
+| Discount reflection / settlement green-light gate | K-OS-008 product direction includes an Adeks-issued fixed-format discount reflection record: dedicated Adeks `islem_tip` selected by the cashier from the Selcafe Kasiyer dropdown, pseudorandom one-time code in `kasaislem.aciklama`, and positive discount amount in `kasaislem.alacak`. The Selcafe row carries no `adisyon_no` and no Adeks customer/coupon/member id. Adeks holds the `code → linked Selcafe bill/addition → expected discount` mapping internally and joins Selcafe reads inside Adeks. Adeks support for this reflection/read path remains blocked on ADR-005 read-surface reconciliation, KVKK/legal review, auditability, retention, and data-minimization review before implementation. |
+| Member identity/profile exclusion | The handshake binds app session to PC/session-link, never app session to Selcafe member. Selcafe member identity/profile data, including `adisyon.uye_no`, must not be read, derived, resolved, or displayed as part of this operating spine. |
+| Customer account | Not required for QR linking, live-bill visibility, or F&B ordering. Required only for discounts, coupons, and points. Signup/login is offered alongside ordering, not as an ordering gate. |
 | Real data | No real customer/staff/transaction/Selcafe data may be used in non-production docs, examples, tests, or AI sessions. |
 
 ### 4.4 Main Flow
 
+#### 4.4.1 Direction A — Desk/customer-facing screen shows QR
+
 | Step | Actor | Action | Product requirement |
 |---:|---|---|---|
 | 1 | Customer | Arrives at Adeks and starts visit through cashier/Selcafe. | Flow starts from real café operation, not from app-only session ownership. |
-| 2 | Cashier | Starts seat/session in Selcafe and gives receipt. | Selcafe remains operational source for Phase 1. |
-| 3 | Customer | Opens Adeks PWA. | PWA may be opened by QR, typed URL, saved PWA, or staff prompt. |
-| 4 | Customer | Enters/scans `fiş / fiş numarası`. | `fiş / fiş numarası` is the customer-facing visit link. |
-| 5 | Adeks | Reads Selcafe in read-only mode to find linked visit data. | No Selcafe write is implied. |
-| 6 | PWA | Shows table for confirmation. | Customer must confirm table before ordering. |
-| 7 | Customer | Confirms “Yes, this is my table.” | Ordering remains blocked until confirmation. |
-| 8 | PWA | Shows Selcafe-linked visit information where reliable. | May include PC start/stop/duration/cost estimates where reliable. KD-1 product direction also targets active visit/bill/order-line visibility, including cashier/staff-entered F&B items not submitted through Adeks PWA, but that part remains gated by ADR-005 read-surface expansion and KVKK/legal review. Hide financial estimates if unreliable. |
-| 9 | Customer | Places F&B order from seat. | Addition-only guest order is permitted; coupon/loyalty/history require account binding before settlement. |
-| 10 | Cashier | Receives PWA order in queue. | Cashier is primary first-slice operational receiver. |
-| 11 | Cashier | Checks order and manually enters accepted order into Selcafe. | This is the mandatory Phase 1 manual bridge for PWA orders. |
-| 12 | PWA | Shows simplified customer status. | “Accepted + Preparing” is a customer-facing simplified projection meaning cashier has entered the accepted order into Selcafe. It is not a redefinition of the accepted F&B lifecycle state model. No delivered tracking in first-slice UX. |
-| 13 | Selcafe | Prints normal receipt for kitchen/service. | Kitchen/service continue from Selcafe printed receipts. |
-| 14 | Customer | Proceeds to cashier for final payment. | No online payment or wallet payment/spending is authorized by this operating spine. |
-| 15 | Adeks cashier/admin UI | Provides the cashier with the Adeks-issued fixed-format discount reflection record where an Adeks discount applies. | The record instructs the cashier to select the dedicated Adeks `islem_tip`, enter the pseudorandom one-time Adeks discount code in `kasaislem.aciklama`, and enter the discount amount as a positive credit in `kasaislem.alacak`. The code must be non-identifying and must not expose an Adeks customer, coupon, member, or `adisyon_no` value in Selcafe. |
-| 16 | Cashier | Reflects the Adeks discount into Selcafe `kasaislem`. | The cashier is the human bridge. Adeks does not write directly to Selcafe. `adisyon.uye_indirim` is unused. The `kasaislem` row is selected later by dedicated Adeks `islem_tip` + pseudorandom one-time code, not by `adisyon.kasaislem_no`. |
-| 17 | Adeks | Reads `adisyon.toplam_tutar` by `fiş` and reads the matching Adeks discount row from `kasaislem` by dedicated Adeks `islem_tip` + pseudorandom one-time code where feasible. | The reads are joined inside Adeks using the internally held `code → adisyon_no → expected discount` mapping. This read path is desired product direction only and remains blocked on ADR-005 read-surface reconciliation, KVKK/legal review, auditability, retention, and data-minimization review before implementation. |
-| 18 | Adeks cashier/admin UI | Compares `adisyon.toplam_tutar − kasaislem.alacak` against Adeks's own discount-inclusive calculation. | The cashier receives a green light only when the result is within the 2% threshold under K-OS-007/K-OS-008. No clean `islem_tip` + code match, multiple matches, malformed code, missing `alacak`, or amount mismatch fails closed: no green light and manual check required. |
-| 19 | Customer | Pays the final Selcafe-settled amount at cashier. | Selcafe remains the settlement source of truth. |
-| 20 | PWA | Shows settled amount, coupon/discount status, and loyalty history where supported. | Coupon, loyalty, and settled visit history require account binding before final settlement. |
+| 2 | Cashier | Starts seat/session in Selcafe for the selected PC/station. | Selcafe remains operational source for Phase 1. |
+| 3 | Cashier | Starts the matching Adeks session-link for the same PC in the Adeks cashier UI. | PC/session association is manual first. The UI should support selecting only eligible/unlinked sessions where later approved. |
+| 4 | Adeks backend / desk screen | Mints a one-time QR token bound to that `(PC, Adeks session-link)` and shows it on the customer-facing desk screen. | Token is random, single-use, seconds-scale, and burned on first successful scan. No bill number is typed or exposed as a customer-entered link. |
+| 5 | Customer | Scans the desk QR with their phone or PWA. | First-timer lands as guest; signup/login is offered alongside ordering. |
+| 6 | Adeks backend | Validates the token and binds the PWA/app session to the Adeks-native session-link. | Fail closed on expired, reused, mismatched, or invalid token. Burn token after first successful scan. |
+| 7 | PWA | Displays the linked PC/session and live bill where allowed. | Guests can see the full live bill including itemized lines after successful QR link, subject to ADR-005/legal/KVKK read gate. Hide financial values if unreliable or not cleared. |
+| 8 | Customer | Places F&B order from seat. | Guest ordering is permitted after successful QR link. Account is required only for discounts, coupons, and points. |
+| 9 | Cashier | Receives PWA order in queue. | Cashier is primary first-slice operational receiver. |
+| 10 | Cashier | Checks order and manually enters accepted order into Selcafe. | This is the mandatory Phase 1 manual bridge for PWA orders. |
+| 11 | PWA | Shows simplified customer status. | “Accepted + Preparing” is a customer-facing simplified projection meaning cashier has entered the accepted order into Selcafe. It is not a redefinition of the accepted F&B lifecycle state model. No delivered tracking in first-slice UX. |
+| 12 | Selcafe | Prints normal receipt for kitchen/service. | Kitchen/service continue from Selcafe printed receipts. |
+| 13 | Customer | Proceeds to cashier for final payment. | No online payment or wallet payment/spending is authorized by this operating spine. |
+| 14 | Adeks cashier/admin UI | Provides the cashier with the Adeks-issued fixed-format discount reflection record where an Adeks discount applies. | The record instructs the cashier to select the dedicated Adeks `islem_tip`, enter the pseudorandom one-time Adeks discount code in `kasaislem.aciklama`, and enter the discount amount as a positive credit in `kasaislem.alacak`. The code must be non-identifying and must not expose an Adeks customer, coupon, member, or Selcafe bill/addition value in Selcafe. |
+| 15 | Cashier | Reflects the Adeks discount into Selcafe `kasaislem`. | The cashier is the human bridge. Adeks does not write directly to Selcafe. `adisyon.uye_indirim` is unused. The `kasaislem` row is selected later by dedicated Adeks `islem_tip` + pseudorandom one-time code, not by `adisyon.kasaislem_no`. |
+| 16 | Adeks | Reads the linked Selcafe bill/addition total and reads the matching Adeks discount row from `kasaislem` by dedicated Adeks `islem_tip` + pseudorandom one-time code where feasible. | The reads are joined inside Adeks using the internally held `code → linked Selcafe bill/addition → expected discount` mapping. This read path is desired product direction only and remains blocked on ADR-005 read-surface reconciliation, KVKK/legal review, auditability, retention, and data-minimization review before implementation. |
+| 17 | Adeks cashier/admin UI | Compares the Selcafe settled total net of the matched Adeks discount against Adeks's own discount-inclusive calculation. | The cashier receives a green light only when the result is within the 2% threshold under K-OS-007/K-OS-008. No clean `islem_tip` + code match, multiple matches, malformed code, missing `alacak`, or amount mismatch fails closed: no green light and manual check required. |
+| 18 | Customer | Pays the final Selcafe-settled amount at cashier. | Selcafe remains the settlement source of truth. |
+| 19 | PWA | Shows settled amount, coupon/discount status, and loyalty/points status where supported. | Discounts, coupons, and points require account context. Guest live bill and F&B ordering do not. |
+
+#### 4.4.2 Direction B — Customer app shows QR, cashier scans
+
+| Step | Actor | Action | Product requirement |
+|---:|---|---|---|
+| 1 | Customer | Opens the Customer PWA at the desk. | The app may be opened from saved PWA, URL, staff prompt, or first-timer landing. |
+| 2 | PWA | Shows a customer app one-time QR. | This QR is used only for desk-side linking. It does not reveal account existence or Selcafe member identity. |
+| 3 | Cashier | Starts the PC session in Selcafe and selects the same PC/session in the Adeks cashier UI. | Manual PC/session association remains the Phase 1 path. |
+| 4 | Cashier | Scans the customer's app QR at the desk for that specific PC/session. | Physical co-presence at the desk remains the linking control. |
+| 5 | Adeks backend | Validates the token and binds the PWA/app session to the Adeks-native session-link for that PC/session. | Fail closed on expired, reused, mismatched, or invalid token. Burn token after first successful scan. |
+| 6 | PWA / Cashier / Customer | Continue from Direction A step 7 onward. | Live bill, ordering, settlement, discount reflection, and review gates are the same as Direction A. |
 
 ### 4.5 Error and Edge Cases
 
 | Case | Customer-facing behavior | Staff behavior | Routing |
 |---|---|---|---|
-| Unknown `fiş` | Block ordering; tell customer to ask cashier. | Cashier resolves receipt/addition issue. | [REQUIRES POD B REVIEW] matching/failure handling. |
-| Wrong table shown | Block ordering; tell customer to ask cashier. | Cashier checks Selcafe and corrects operational assignment. | [REQUIRES POD B REVIEW]. |
-| Customer confirmed wrong table | Cashier handles correction; casual customer relinking is not allowed. | Complete rollback and assignment to correct addition is mandatory as operating principle. | [REQUIRES POD B REVIEW]. |
+| QR expires before scan | Customer is told to ask cashier to show/scan a fresh QR. | Cashier re-displays/re-mints a fresh QR; prior token is invalidated. | [REQUIRES POD B REVIEW] exact token TTL, rate limits, and retry behavior. |
+| QR already used / replayed | Linking fails closed; do not reveal whether the token was previously valid. | Cashier starts a fresh QR handshake if customer is physically present. | [REQUIRES POD B REVIEW] abuse handling and audit. |
+| Wrong PC/session linked | Customer sees the linked PC/session and asks cashier for correction if it is wrong; ordering should not continue on a disputed link. | Cashier resolves the operational assignment and correction. Complete rollback and assignment to the correct session is mandatory as operating principle. | [REQUIRES POD B REVIEW] correction handling. |
+| Customer wants to link later | No in-seat late-joiner fallback. Customer revisits cashier for a fresh QR handshake. | Cashier performs a new desk-side QR handshake. The earlier “link within ~10 minutes” concept is dropped. | [REQUIRES POD B REVIEW] late-link audit and abuse boundary. |
+| Customer declines to link | Customer continues the Selcafe visit normally without Adeks session features. | No Adeks order/live-bill surface is created. | No Pod C authorization. |
+| Selcafe read not legally/technically cleared | Hide live-bill financial values and itemized lines; show only non-sensitive placeholder/status where approved, or block the live-bill surface. | Staff/cashier remains fallback. | ADR-005 read-surface expansion + KVKK/legal review remain required. |
 | Selcafe read stale/unreliable | Hide financial estimates if unreliable; show last-updated timestamp where possible. | Staff/cashier remains fallback. | [REQUIRES POD B REVIEW]. |
 | PWA order not in Selcafe | Customer status should not imply accepted/preparing. | Cashier checks whether order was delivered and enters/removes as appropriate. | [REQUIRES POD B REVIEW]. |
-| Coupon rejected/corrected | Customer sees simple applied/rejected/corrected status. | Cashier records reason/status where later defined. | [NEEDS KEREM APPROVAL] reason taxonomy; [REQUIRES POD B REVIEW]. |
-| Estimate mismatch above 2% | Show warning that estimate may differ and final amount is confirmed at cashier. | Staff checks Selcafe and PWA comparison. At settlement, the same 2% threshold is also the K-OS-008 green-light tolerance: Adeks compares its discount-inclusive calculation against `adisyon.toplam_tutar − kasaislem.alacak`, where the `kasaislem` row is matched by dedicated Adeks `islem_tip` + pseudorandom one-time code. No clean match fails closed to manual check. | [REQUIRES POD B REVIEW]. Pre-settlement warning-basis detail remains tracked by OQ-OS-004. |
+| Coupon rejected/corrected | Customer sees simple applied/rejected/corrected status only if account/discount flow is used. | Cashier records reason/status where later defined. | [NEEDS KEREM APPROVAL] reason taxonomy; [REQUIRES POD B REVIEW]. |
+| Estimate mismatch above 2% | Show warning that estimate may differ and final amount is confirmed at cashier. | Staff checks Selcafe and PWA comparison. At settlement, the same 2% threshold is also the K-OS-008 green-light tolerance. No clean match fails closed to manual check. | [REQUIRES POD B REVIEW]. Pre-settlement warning-basis detail remains tracked by OQ-OS-004. |
 
 ### 4.6 Review Routing
 
-- Requires Kerem approval: K-21 approved 2026-06-28; final UX copy and unresolved reason taxonomies still require Kerem approval.
-- Requires Pod B review: Yes — Selcafe read feasibility, matching, audit, KVKK, estimate/final settlement boundary, coupon/loyalty correctness.
+- Requires Kerem approval: K-21 approved 2026-06-28; QR-handshake amendment to K-21/K-OS remains Kerem-gated via PR body draft; final UX copy and unresolved reason taxonomies still require Kerem approval.
+- Requires Pod B review: Yes — QR/session-link consistency, token/linking safety, Selcafe read feasibility, never-resolve-member rule, matching, audit, KVKK, estimate/final settlement boundary, coupon/loyalty correctness.
 - Requires Pod C implementation: No.
-- Requires Pod D review: Later if Kerem requests PWA prototype/UX review.
+- Requires Pod D review: Later if Kerem requests desk-screen/scanner/PWA prototype or UX review.
 
-### 4.7 KD-1 / KD-2 Constraints
+### 4.7 KD-1 / KD-2 / QR-Handshaking Constraints
 
 | Decision | Flow implication |
 |---|---|
-| KD-1 constrained Option B | Product direction includes Selcafe-sourced active visit/bill/order-line visibility for the active `fiş` / visit, including cashier/staff-entered F&B items not submitted through Adeks PWA. Selcafe member identity/profile data must not be read or displayed. This does not authorize implementation and does not override ADR-005 by wording alone. |
+| KD-1 constrained Option B | Product direction includes Selcafe-sourced active visit/bill/order-line visibility for the QR-linked active visit/session, including cashier/staff-entered F&B items not submitted through Adeks PWA. Selcafe member identity/profile data must not be read, derived, resolved, or displayed. This does not authorize implementation and does not override ADR-005 by wording alone. |
 | KD-2 | K-OS-002 supersedes/subsumes K-20 PI-1 only for customer-visible PC/session estimates inside this approved operating spine. Broader real-time station/session status and reservation automation remain deferred unless separately approved. |
+| SL-1…SL-7 | The app link is the desk-side QR handshake, not typed/scanned `fiş`. Guests can link, see the full live bill including itemized lines, and order F&B. Account/signup is offered alongside and is required only for discounts, coupons, and points. Late joiners revisit the cashier; there is no in-seat fallback. |
 
 [REQUIRES POD B REVIEW] Active bill/order-line visibility requires ADR-005 read-surface reconciliation, KVKK/legal review, auditability, retention, and data-minimization review before any implementation issue can exist.
 
-[REQUIRES POD D REVIEW LATER] The 2% mismatch warning, pilot pause visibility, and first-week admin check outputs may require Pod D UX/monitoring/operational review after Pod B defines the risk/audit boundaries.
+[REQUIRES POD D REVIEW LATER] Desk-side QR display/scanner UX, the 2% mismatch warning, pilot pause visibility, and first-week admin check outputs may require Pod D UX/monitoring/operational review after Pod B defines the risk/audit boundaries.
 
 ## Review Routing
 
 * Ready for commit: Yes — Kerem decisions recorded 2026-06-10 (K-14/15/16).
 * Requires Kerem approval: OQ-CUF-AUTH-002/003/004 resolved 2026-06-10 (K-14/15/16). Still required — OQ-CUF-AUTH-001 final Aydınlatma Metni legal text, OQ-CUF-AUTH-005 SMS provider, and final Turkish UX/legal copy.
-* Requires Pod B review: Pod B review complete 2026-06-10 for v0.2 requested changes. Re-review required only if Kerem decisions materially alter acknowledgment persistence, OTP resend behavior, or legal/privacy data handling.
+* Requires Pod B review: Pod B review complete 2026-06-10 for v0.2 auth requested changes. Re-review required for §4 QR-handshake reconciliation to confirm flow/decision consistency, read-gating, and the never-resolve-member rule.
 * Requires Pod C implementation: Later only. This document lists downstream requirements but does not create implementation issues. K-15/K-16 require K-08 legal-advisor confirmation before any Pod C issue is derived from them.
 * Requires Pod D prototype/audit/monitoring review: Optional later for PWA onboarding UX review and before Phase 1 go-live consistency audit.
