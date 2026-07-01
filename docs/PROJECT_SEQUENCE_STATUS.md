@@ -9,7 +9,7 @@
 | Confirmation | Kerem confirms on gate movement. |
 | Authority | Mirror-only. Establishes no decisions. Authorizes no implementation. Creates no phase or gate. If this file conflicts with a canonical source, the canonical source governs. |
 | Last confirmed | 2026-07-01 |
-| Source pin | HEAD `e5af9b3` |
+| Source pin | HEAD `d1e2f0f` |
 | Data rule | Synthetic examples only; no real customer/staff/transaction/Selcafe data. |
 
 ## 1. Current gate
@@ -22,6 +22,7 @@
 - P16 KVKK legal-advisor input (`legal/P16_Selcafe_QR_Live_Bill_KVKK_Consolidated_Advisor_Comment.md`) and the ADR-005 v1.2 read-surface direction analysis (`planning/ADR-005_v1.2_READ_SURFACE_DIRECTION_ANALYSIS_v0.1.md`) are recorded as **evidence** in this PR.
 - Neither moves the gate: the **Operating Slice Checkpoint remains not satisfied**; ADR-005 v1.2 remains a later Kerem-approved ADR change.
 - **Update (2026-07-01, #130):** ADR-005 **v1.2 is now merged** (§5A QR-linked live-bill conditional read surface; D-5 corrected to personal data / KVKK Art. 5/2(c); SR-003-5…13). The checkpoint's ADR-005 read-surface-reconciliation condition is **met**; remaining conditions — compliance artifacts (KVKK legal basis / retention / privacy notice / DPI / cross-border-conditional) + auditability/retention/minimization + Kerem approval — keep the **Operating Slice Checkpoint not satisfied**. Supersedes the "v1.2 remains a later ADR change" note above.
+- **Update (2026-07-01, #134):** the **P16 compliance-artifact set is now merged** — `KVKK_LEGAL_BASIS.md`, `DATA_PROCESSING_INVENTORY.md` v0.3, `DATA_RETENTION_POLICY.md`, `PRIVACY_NOTICE_TR.md`, `CROSS_BORDER_TRANSFER_ASSESSMENT.md` (status shell), `P16_PILOT_RISK_REGISTER.md`, and the `SECURITY_REVIEW.md` P16 SR-003-5…13 / SR-006 reconciliation. These are **drafts requiring legal-advisor sign-off + Kerem approval**, not final policy or implementation clearance. The compliance-artifact-drafting condition **advances**; remaining conditions — legal-advisor sign-off, cross-border infra fact-finding, `detay`/`siparis` schema elicitation, PI-3/PI-4 product definitions, and a separately approved DoR issue — keep the **Operating Slice Checkpoint not satisfied**.
 
 ## 2. Authorized next move
 - Governance/planning artifacts may proceed under the command-keyword gate (e.g., phase-gate criteria, this surface). (`PROJECT_METHODOLOGY.md` §16.2)
@@ -31,7 +32,7 @@
 - **Pod C implementation** — blocked across all feature areas. (`PHASE_GATES.md`, "Blockers Before Pod C Implementation")
 - **Operating-slice component ADR / schema / API / implementation-ready issue drafting** — blocked by the **Operating Slice Checkpoint** (now a live `PHASE_GATES.md` Phase 7 entry criterion); not yet satisfied for this slice pending ADR-005 read-surface reconciliation + KVKK/legal review. (`PHASE_GATES.md` Phase 7 entry; `SCOPE_RECONCILIATION_OPERATING_SPINE_ALIGNMENT_v0.1.md` §1, §6, §7)
 - **Selcafe live reads of active visit/bill/order-line** — blocked; Phase 1 posture is read-only; ADR-005 currently hard-excludes the candidate read surfaces until revised. (`adr/ADR-005-selcafe-read-only-adapter.md`; reconciliation §2, KD-1)
-- **Personal-data implementation / KVKK claims** — blocked pending `DATA_PROCESSING_INVENTORY.md`, `KVKK_LEGAL_BASIS.md`, `DATA_RETENTION_POLICY.md`, `CROSS_BORDER_TRANSFER_ASSESSMENT.md` + legal advisor + Kerem. (`PHASE_GATES.md`; manifest "Legal / KVKK compliance artifacts")
+- **Personal-data implementation / KVKK claims** — the P16 compliance-artifact drafts (`KVKK_LEGAL_BASIS.md`, `DATA_PROCESSING_INVENTORY.md` v0.3, `DATA_RETENTION_POLICY.md`, `PRIVACY_NOTICE_TR.md`, `CROSS_BORDER_TRANSFER_ASSESSMENT.md` shell, `P16_PILOT_RISK_REGISTER.md`, `SECURITY_REVIEW.md` P16 reconciliation) **landed via #134**; still blocked pending **legal-advisor sign-off + Kerem approval**, cross-border infra fact-finding, `detay`/`siparis` elicitation, PI-3/PI-4, and a separately approved DoR issue. (`PHASE_GATES.md`; manifest "Legal / KVKK compliance artifacts")
 - **SMS provider selection (BL-1)** — open; gates auth implementation. (`PHASE_GATES.md`)
 
 ## 4. Required approval before moving forward
