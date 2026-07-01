@@ -38,6 +38,8 @@ The **decision direction** (read-only Selcafe integration in Phase 1 via the `Ca
 
 ---
 
+**v1.2 (2026-07-01) — P16 amendment.** ADR-005 gains §5A (QR-linked live-bill conditional read surface): `adisyon`/`detay`/discount-`kasaislem` conditionally included for the QR-linked active session; D-5 corrected (live bill is personal data, lawful under KVKK Art. 5/2(c)); SR-003-5…13 added. Read-only posture preserved; no Pod C authorization. Kerem-approved for controlled pilot (5a–5e). See §5A.
+
 ## 1. Context
 
 ### 1.1 Selcafe as a legacy dependency
@@ -82,6 +84,8 @@ In Phase 1, Adeks integrates Selcafe as a **read-only data source** through the 
 The decision is stated in seven parts (D-1…D-7) in §3–§5.
 
 ---
+
+**v1.2 note.** The "bounded, PII-free read surface" summarized above is **extended for the P16 slice** by §5A: a memberless projection of the active bill / order lines / discount reflection that is **personal data** (contract-performance basis, KVKK Art. 5/2(c)), included only under SR-003-5…13. Member-linked reads remain excluded; read-only posture is preserved.
 
 ## 3. Decision (detail) — integration architecture
 
@@ -130,7 +134,7 @@ The following are **excluded from the Phase-1 read surface** and **must not** ap
 | **Any `sifre` column** (`uye.sifre`, `basvuru.sifre`, `kullanici.sifre`) | Credential-storage risk; never read under any circumstance (OQ-SC-NEW-004). |
 | `uye.bakiye` | **Mutable `float` legacy balance** — incompatible with the Adeks append-only wallet (ADR-006). Must never be exposed as the Adeks wallet balance (OQ-SC-NEW-003). |
 | `adisyon.uye_no`, `kasaislem.uye_no`, `kuyruk.uye_no` | Member-linkage columns → **PII by linkage** (OQ-SC-PRE-004, confirmed by spike §8). |
-| `dbo.adisyon`, `dbo.kasaislem` (as member-linked transaction tables) | Contain member linkage and SP-computed financial values; not required for the Phase-1 non-PII surface. |
+| `dbo.adisyon`, `dbo.kasaislem` (member-linkage + free-text columns) | Member-linkage and free-text columns remain hard-excluded. **v1.2 (§5A):** a memberless, QR-session-scoped projection of the active `adisyon`/`detay` and the single Adeks-reflected discount `kasaislem` row is **conditionally included** for the P16 slice under SR-003-5…13; identity/free-text/stub columns stay denied. |
 
 **Spike v2 — stub and deprecated column classification:** The following columns belong to already-excluded tables. They are classification records only; the hard-exclusion status of their parent tables is unchanged.
 
@@ -151,6 +155,8 @@ Even though `uye.bakiye` is hard-excluded above, the ADR records an explicit iso
 "Active sessions" in the locked direction is satisfied **PII-free** by reading **`masa` status only** (`durum`, `baslangic_zaman`): i.e. *whether a station is occupied and since when*, **not who occupies it**. The adapter **must not** resolve `masa.aktif_adisyon_no` → `adisyon` → `uye_no`. To prevent linkage drift, the adapter **derives an occupancy boolean and session-start time** and **does not propagate `aktif_adisyon_no`** as a usable foreign key into Adeks. `masa.mac`, `masa.idle_exe*`, and `masa.busy_exe*` are **not read** (device/client-config data, unnecessary; data minimization).
 
 > **If a Phase-1 feature genuinely requires identifying *which member* is in a live session, that is a NEW PII surface** → it flips the KVKK gate (§5) and is **`[NEEDS KEREM APPROVAL]`** plus a legal-advisor gate plus a `DATA_PROCESSING_INVENTORY.md` update. It is **not** authorized by this ADR.
+
+> **v1.2 carve-out (§5A.2).** For the P16 slice, a **server-internal** resolution `linked PC → masa.aktif_adisyon_no → the one active adisyon` is permitted **solely** to fetch the memberless bill projection, **triggered only by a valid burned QR handshake token** (K-OS-009). All D-3a guarantees are preserved: no `uye_no`/member resolution; no propagation of `aktif_adisyon_no`/raw `adisyon_no` to the client; no customer-supplied bill-number lookup. See §5A.2.
 
 ### 4.3 Product-implication gates on the INCLUDED set
 
@@ -207,6 +213,8 @@ The Phase-1 control for PII is **hard exclusion at the read surface** (§4.2) pl
 2. **Any member-linked read** (session→member, `uye`, `basvuru`, balance) → **`[NEEDS KEREM APPROVAL]` + legal-advisor gate + inventory update.** Not authorized here.
 3. **Cross-border processing of the *source*** (see D-6) is a **separate** KVKK gate, independent of what the adapter ingests.
 
+> **v1.2 correction (§5A.5).** The D-5 answer above ("read path touches no customer personal data") is **corrected for the P16 slice**: the QR-linked live bill and itemized lines **are** personal data (minimized, low-sensitivity, service-context), lawful under **KVKK Art. 5/2(c) contract performance**. Not a `[LOCKED PRINCIPLE CONFLICT]`. See §5A.5.
+
 ### D-6 — Physical read source (FLAGGED — not locked by this ADR)
 
 The spike characterized a **direct connection to the live Selcafe SQL Server**. A second candidate source has been raised in prior project context:
@@ -224,6 +232,69 @@ The spike characterized a **direct connection to the live Selcafe SQL Server**. 
 - **the cross-border assessment** (`CROSS_BORDER_TRANSFER_ASSESSMENT.md`) **if** a replica/pipeline source is in use **or** if the Selcafe→GCP replication exists at all.
 
 > **Important:** if the BigQuery/Airbyte replication is confirmed to exist, the **cross-border transfer obligation already applies today** — it is created by the replication pipeline, not by the Adeks adapter — and must be declared in `CROSS_BORDER_TRANSFER_ASSESSMENT.md` independently of this adapter's read surface.
+
+---
+
+## 5A. v1.2 Amendment (2026-07-01) — P16 QR-Linked Live-Bill Conditional Read Surface
+
+**Status of this amendment.** Additive amendment to Accepted ADR-005, recording the Product Phase 1 operating-slice read surface for QR-linked customer live-bill visibility and F&B ordering (P16). Kerem-approved for a **controlled pilot** (decisions 5a–5e, 2026-07-01), grounded on the P16 KVKK legal-advisor input (`docs/legal/P16_Selcafe_QR_Live_Bill_KVKK_Consolidated_Advisor_Comment.md`) and the Pod B direction analysis (`docs/planning/ADR-005_v1.2_READ_SURFACE_DIRECTION_ANALYSIS_v0.1.md`). Read-only posture (D-1) is **preserved**: this authorizes **reads only**; the Adeks discount reflection into Selcafe remains the human-cashier bridge (K-OS-008), not an Adeks write. Authorizes **no** Pod C implementation, schema/API, or direct Selcafe writes. Governed by ADR-009 §3 (Selcafe integration + customer personal data + security-sensitive → Pod B + Kerem) and §4.1 heavy lane (Pod Impact Matrix + Instruction Update Packet); merge is Kerem-only.
+
+### 5A.1 Conditional-include class (personal data, contract-performance, QR-session-scoped)
+
+Superseding the blanket §4.2 exclusion of `dbo.adisyon`/`dbo.kasaislem` **for the QR-linked active session only**, the adapter may read a **memberless, session-scoped projection**. This is the *memberless* projection and is distinct from the §7 A6-rejected **member-linked** read — no member identity is read.
+
+| Selcafe object | Minimal projection (memberless) | Neutral read model | Notes |
+|---|---|---|---|
+| `dbo.adisyon` (active bill) | running/settled total + line-roll fields **only**; `float` → money-coerced | `LiveBill` (total, status) | No `uye_no`, no `aciklama`/`iptal_aciklama`, no `uye_indirim*`, no `kasaislem_no`. |
+| `dbo.detay` (active-bill order lines) [and `dbo.siparis` where applicable] | item ref, quantity, line amount for the active bill | `LiveBillLine[]` | **Column set PROVISIONAL — `detay`/`siparis` schema gap; finalize by targeted elicitation before any implementation-ready spec (see §5A.8).** Shows all lines on the active bill regardless of entry source — covers cashier/staff-entered F&B not submitted through the Adeks PWA. |
+| `dbo.kasaislem` (single Adeks-reflected discount row) | dedicated Adeks `islem_tip` + pseudorandom one-time code + discount amount + timestamp | `DiscountReflection` | Matched by `islem_tip` + code and joined **inside Adeks**, never via the `kasaislem_no` stub. No `uye_no`; no free-text beyond the fixed code format. |
+
+This class is **personal data** (§5A.5), included **only** under SR-003-5…13 (§5A.4). It is a distinct class from the §4.1 non-PII surface.
+
+### 5A.2 D-3a carve-out (server-internal reach, identity-free)
+
+**Permit** a server-side-internal resolution `linked PC (masa) → masa.aktif_adisyon_no → the one active adisyon`, used **only** to fetch the §5A.1 projection, and **triggered only by a valid, burned QR handshake token** that bound the app session to that PC (K-OS-009). The physical desk-side QR opt-in is the authorization factor; no client-supplied identifier is involved.
+
+**Continue to forbid** (all D-3a guarantees preserved): reading/deriving `adisyon.uye_no` or any member resolution (the chain terminates at the bill projection, never at identity); propagating `aktif_adisyon_no` or any raw `adisyon_no` to the client or into Adeks domain models (server-internal only); any customer-supplied raw bill-number lookup (enumeration surface stays closed); following transfer/merge pointers; historical-bill access on the guest path.
+
+### 5A.3 Reinforced hard-exclusions (unchanged, load-bearing)
+
+Non-negotiable, enforced by **column-level deny grants on the read-only login at the DB grant/query layer (not UI)** — the login physically cannot select these: `adisyon.uye_no` / `kasaislem.uye_no` / `kuyruk.uye_no` (never read, even to "confirm" the guest) · entire `dbo.uye` / `dbo.basvuru` / `dbo.kullanici` · any `sifre` · `uye.bakiye` + `uyesinif` credit/balance · staff FKs (`kullanici_no`, `iptal_kullanici_no`) · member points/balance/history/profile · free-text likely to carry PII (`adisyon.aciklama`/`iptal_aciklama`; `kasaislem.aciklama` beyond the fixed code) · `adisyon.uye_indirim`/`_oran`/`ek_indirim` (stub/retired) · `adisyon.kasaislem_no` (stub) · `masa.aktif_adisyon_no` as a propagated FK · transfer/merge targets and historical bills. Evidenced by the `SECURITY_REVIEW.md` SR-006 security-regression tests.
+
+### 5A.4 Mandatory controls SR-003-5…13 (preconditions to any implementation)
+
+| SR | Constraint |
+|---|---|
+| SR-003-5 | QR token as auth factor: crypto-random, single-use, seconds-TTL, bound to one (PC, session-link), burned on first scan, **staff-revocable**. |
+| SR-003-6 | Column-deny grants at **DB grant/query layer** (not UI) for all §5A.3 member/staff/free-text columns. |
+| SR-003-7 | QR-session-scoped selector only; **no raw `adisyon_no` to the client**; no customer-supplied raw bill-number lookup. |
+| SR-003-8 | Read-as-display only; `float` → money coerce + range/sanity; tolerance-based float-safe compare; never recompute Selcafe pricing. |
+| SR-003-9 | Discount reflection: dedicated `islem_tip` + pseudorandom one-time code + fixed format + amount + timestamp; mapping kept in Adeks only; no identity in Selcafe (incl. no coupon id if avoidable); fail-closed on mismatch; log issued codes. |
+| SR-003-10 | Logging minimization: metadata only where possible; **avoid full order-line persistence**; no member identity in logs; pseudonymize Adeks references. |
+| SR-003-11 | Current-bill-only: no historical bills on the guest path. |
+| SR-003-12 | **No transfer/merge-link following**: resolve only the directly-linked active bill. |
+| SR-003-13 | Age-restricted ordering: block age-restricted F&B items in guest mode **or** require staff confirmation. |
+| Retention (hard TTLs) | Live bill projection = **do not persist**; order-line cache = session-only + 15–60 min TTL; session-link metadata / view-evidence = **30 days** (metadata only); discount-code mapping = **90–180 days** (unless finance/legal requires longer); audit = 6–12 months; fiscal Selcafe-side records per applicable accounting/tax/commercial rules. |
+
+Guest payment in the pilot is **staff-mediated only — no in-app guest payment** (Kerem 5c). Should-have (recommended, not pilot-gating): station/session UI notice; abnormal-QR-attempt monitoring; pilot mis-link/complaint log.
+
+### 5A.5 D-5 correction (KVKK scope)
+
+The ADR-005 v1.1 D-5 answer — "the Phase-1 read path touches **no** customer personal data" — is **corrected for the P16 slice**. Per the P16 advisor input, the live bill and itemized order lines **are personal data** (minimized, low-sensitivity, service-context), lawful under **KVKK Art. 5/2(c) — processing necessary for the performance of a contract** (the café/PC/F&B service relationship at the venue/session level; an Adeks account is not required for this basis). This is a scope-position correction, **not** a `[LOCKED PRINCIPLE CONFLICT]` (D-5 was a scope position, not a locked principle). Consent is **not** used for core bill viewing. Secondary bases: legitimate interest (QR security, anti-abuse, short audit logs); rights protection (dispute/fraud/chargeback evidence); legal obligation (fiscal/accounting records where applicable).
+
+### 5A.6 Product-implication gates (new)
+
+`[PRODUCT IMPLICATION — POD A ALIGNMENT NEEDED]`
+- **PI-3** — SR-003-13 needs a catalog attribute flagging age-restricted `urun` items; no such attribute is confirmed in the spike (likely a catalog gap).
+- **PI-4** — SR-003-12 needs a product definition of "the current active bill" under Selcafe transfers/merges.
+
+### 5A.7 Retirement-agnostic invariance
+
+Member-linkage exclusion is **unconditional** and applies to **every** bill read; no control may key off member presence/absence. If Selcafe member sessions continue, the excluded columns are populated but never read (memberless projection by construction); if later retired, new bills carry null `uye_no` and the same controls apply unchanged. Selcafe member-session retirement is defense-in-depth, not a load-bearing assumption, and is a separate later K-OS decision — v1.2 can be piloted now and retirement decided later; neither forces re-deciding the other.
+
+### 5A.8 Implementation gating (this slice)
+
+Because the P16 read is a **personal-data** track, the legal-artifact gate now **binds this slice**: `KVKK_LEGAL_BASIS.md`, `DATA_RETENTION_POLICY.md`, `PRIVACY_NOTICE_TR.md`, the `DATA_PROCESSING_INVENTORY.md` update, and — **conditionally** — `CROSS_BORDER_TRANSFER_ASSESSMENT.md` (if any Adeks backend/logs/monitoring/analytics/backups/support/AI tooling processes P16 data outside Türkiye) must be drafted, legal-advisor-signed-off, and Kerem-approved before implementation. The `detay`/`siparis` schema elicitation is required before an implementation-ready spec. **`[LOCKED PRINCIPLE CONFLICT]`: none** — read-only D-1 preserved; append-only ledgers (ADR-006/007) untouched; member-identity exclusion preserved.
 
 ---
 
@@ -337,3 +408,4 @@ New questions surfaced while drafting this ADR (delivered as the Section 17 upda
 | v1.0 (full text) | 2026-06-23 | Pod B | Full ADR authored from `SELCAFE_SPIKE_REPORT.md` v1.1 (PR #91). Adds: integration architecture (D-1/D-2/D-7); bounded PII-free Phase-1 read surface + hard-exclusion list + no-member-resolution rule (D-3/D-3a); SR-003-1…4 read-path controls; KVKK scope position (D-5); flagged physical-source sub-decision incl. cross-border (D-6); consequences + residual risks; alternatives A1–A8; acceptance criteria + Pod B+Kerem merge gate + preserved Pod C gating. Raises `[NEEDS KEREM APPROVAL]` K-A1…K-A5 and `[PRODUCT IMPLICATION]` PI-1/PI-2. Resolves OQ-SC-PRE-001…004. Synthetic/schema-name-only data. |
 | v1.0 — Accepted | 2026-06-23 | Pod B / Kerem | **Kerem approval recorded.** Status → Accepted. Decisions: K-A1 = Option A (direct live SQL; replica deferred); K-A2 authorized (dedicated least-privilege read-only login); K-A4/K-A5 carried as gating items for any future PII/cross-border expansion. `PROJECT_DECISION_INDEX.md` ADR-005 row Backlog → Accepted and `AGENT_CONTEXT_MANIFEST.md` Selcafe row updated in the same PR. Does NOT authorize Pod C. |
 | v1.1 — Spike v2 reconciliation | 2026-06-24 | Pod B | §4.1 narrowed: `ayar` row removed (open hours Adeks-native; OQ-SC-NEW-005 closed; K-A3 closed); `uyesinif` row removed (data minimization — no live Phase-1-consumed column; dormant credit/balance mechanism); `urun` projection tightened (`tip` added, `menu` removed; `tip=1 AND aktif=1` F&B filter; category = `kod`-prefix convention only; D-2 rule 1 reaffirmed). §4.2 stub/deprecated classification notes added (`adisyon.uye_indirim_oran` STUB; `adisyon.ek_indirim` STUB; `uyesinif.indirim_oran` DEPRECATED). §4.2a reinforced (`uyesinif` credit/balance cols = dormant, same hard-exclusion basis). §9 K-A3 OPEN → CLOSED. §10 OQ-SC-NEW-001 → RESOLVED. Governance: Pod Impact Matrix + INSTRUCTION_UPDATE_PACKET attached to PR. |
+| v1.2 | 2026-07-01 | Pod B | P16 amendment (§5A): QR-linked live-bill conditional read surface — memberless `adisyon`/`detay`/discount-`kasaislem` projection (§5A.1); D-3a carve-out (§5A.2); reinforced hard-exclusions (§5A.3); SR-003-5…13 + retention TTLs (§5A.4); D-5 corrected to personal-data / KVKK Art. 5/2(c) contract performance (§5A.5); PI-3/PI-4 (§5A.6); retirement-agnostic (§5A.7); legal-artifact gate binds this slice (§5A.8). Read-only preserved; no Pod C authorization. Kerem-approved controlled pilot (5a–5e). Synthetic/schema-name-only data. |
