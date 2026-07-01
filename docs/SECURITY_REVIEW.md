@@ -13,11 +13,11 @@
              no decision. If this review and any of those sources disagree, the
              source wins and this review is stale until corrected.
   MERGE GATE: Pod B + Kerem (strictest §11.1 / ADR-009 §3 trigger). Kerem is sole merge authority.
-  REPO RECONCILIATION: DATA_PROCESSING_INVENTORY.md present, Kerem-approved 2026-06-15;
-             inventory-artifact prerequisite satisfied at inventory level.
-             /docs/DATA_RETENTION_POLICY.md and /docs/KVKK_LEGAL_BASIS.md remain ABSENT from main.
-             Per AGENT_CONTEXT_MANIFEST.md (Wallet / Loyalty / Auth rows) this artifact is
-             review/design only and MUST NOT issue Pod C work.
+  REPO RECONCILIATION: DATA_PROCESSING_INVENTORY.md present and updated in the P16 compliance PR;
+             /docs/KVKK_LEGAL_BASIS.md, /docs/DATA_RETENTION_POLICY.md,
+             /docs/PRIVACY_NOTICE_TR.md, /docs/CROSS_BORDER_TRANSFER_ASSESSMENT.md,
+             and /docs/P16_PILOT_RISK_REGISTER.md are drafted in the same P16 package.
+             This artifact reconciles ADR-005 v1.2 SR-003-5…13 and SR-006 regression-test evidence at review level.
   IMPLEMENTATION AUTHORITY: This document does NOT authorize Pod C. It creates no issues,
              designs no endpoints, writes no migrations, and invents no retention periods.
   STABILITY: Pending Pod B + Kerem review. Update only via ADR-009-compliant PR.
@@ -32,9 +32,9 @@
 | Project | Adeks Platform |
 | Owner / Author | Pod B — Architecture, Logic & Risk |
 | Reviewer / Approver | Pod B (self-review) + Kerem |
-| Current status | **Draft for Pod B + Kerem review.** Resolves the manifest's `SECURITY_REVIEW.md` dependency for the Wallet / Loyalty / Auth rows at the **review** level. Implementation remains blocked. |
+| Current status | **Draft for Pod B + Kerem review. Updated for P16 ADR-005 v1.2 reconciliation: SR-003-5…13, QR access-control constraints, DB/query-layer deny enforcement, minimized logging, rate-limit expectations, and SR-006 regression-test evidence. Implementation remains blocked.** |
 | Scope class | Architecture / security review. **Not** an ADR, **not** a DB migration, **not** an API contract, **not** a Pod C issue. |
-| Repo reconciliation | `DATA_PROCESSING_INVENTORY.md` **present, Kerem-approved 2026-06-15**; inventory-artifact prerequisite satisfied at inventory level. `/docs/DATA_RETENTION_POLICY.md`, `/docs/KVKK_LEGAL_BASIS.md` remain absent from `main` (manifest fallback: review only, no Pod C work). |
+| Repo reconciliation | P16 compliance artifacts are drafted in this PR. This file reconciles P16 security/access-control documentation required by issue #133 and ADR-005 v1.2. |
 | Implementation status | **Does NOT authorize Pod C.** Creates no issues, designs no endpoints, writes no migrations, sets no retention periods. |
 | Merge gate | **Pod B + Kerem** (strictest applicable §11.1 / ADR-009 §3 trigger). Kerem is sole merge authority. |
 
@@ -54,16 +54,18 @@ Baseline pinned to current HEAD `c4832ab30cf8131df2ed26390cc2f995fba9332e`. In t
 | `adr/ADR-015-authentication-strategy.md` | `39e900785e06` | **Accepted.** Security requirements (binding); KVKK requirements; audit consequences; risks accepted. |
 | `USER_ROLES_AND_PERMISSIONS.md` | `acc1f08cb423` | v0.2 RBAC matrix §3; shared-credentials prohibition §4; audit requirement §5; KVKK data-access flags §6; masked-phone §6.1; minimization §6.2. |
 | `ROLLBACK_POLICY.md` | `3f1eadad8151` | T-1/T-2 non-discretionary triggers; SEV classification; 72-hour KVKK breach clock; post-rollback record; open `[NEEDS KEREM APPROVAL]` operational items. |
-| `adr/ADR-005-selcafe-read-only-adapter.md` | `f51efe65838e` | Locked direction: Selcafe read-only Phase 1 via `CafeManagementAdapter`; no writes to Selcafe; Adeks ledgers authoritative. (Full ADR text pending.) |
+| `adr/ADR-005-selcafe-read-only-adapter.md` | re-read in P16 package | **Accepted v1.2.** P16 QR-linked live-bill conditional read surface; SR-003-5…13; hard exclusions; read-only posture preserved; no Pod C authorization. |
+| `legal/P16_Final_KVKK_Position.md` | re-read in P16 package | Final legal residual position for P16: live bill personal data; contract-performance basis; guest mismatch acceptable only under pilot controls; no in-app guest payment; cross-border conditional on infra facts. |
+| `P16_PILOT_RISK_REGISTER.md` | new in P16 package | Pilot residual-risk register for shared-session, mis-link, transfer/merge, over-retention, discount-code, age-restricted item, and cross-border risks. |
 | `legal/LEGAL_ADVISOR_KVKK_basis_and_notice_FINAL.md` | `d18fe6cfd210` | Proposed legal-basis matrix P1–P15; notice-content recommendations; retention floors named as legal input (5651 2-yr log floor; VUK/TTK financial). **Advisor question set, `[NEEDS KEREM APPROVAL]`, not policy.** |
 | `adr/ADR-009-pr-approval-policy.md` | `082270d26590` | PR gates; §3 risk categories (strictest governs); §4 behavior-change classification (§10 of this review). |
 | `adr/ADR-013-repository-controlled-pod-context.md` | `9605241f724f` | Repo-as-source-of-truth; snapshot authority. |
 | `BUSINESS_RULES.md` | `c8c00ad447e4` | BR-AUDIT-001 (coverage), BR-AUDIT-002 (immutability), BR-AUDIT-003 (auth baseline) — referenced via AUDIT_EVENT_SCHEMA §2. |
 | `OPEN_QUESTIONS.md` | `70bfe6aeddd0` | OQ-LEGAL-005 (retention); OQ-CUF-AUTH-001 (notice text); OQ-WAL-001/002/003 (top-up); OQ-LOY-001/004 (top-up earning / redemption). |
-| `SECURITY_REVIEW.md` | — | **This file (new).** Was ABSENT; satisfies the manifest's named dependency at the review level. |
-| `DATA_PROCESSING_INVENTORY.md` | — | **PRESENT, Kerem-approved 2026-06-15.** Inventory-artifact prerequisite satisfied (§20.2). Personal-data implementation remains blocked by retention (OQ-LEGAL-005, KD-D), legal basis (`KVKK_LEGAL_BASIS.md`, absent), cross-border assessment (`CROSS_BORDER_TRANSFER_ASSESSMENT.md`, absent), SMS/provider gates (BL-1), and separately approved Pod C issues. |
-| `DATA_RETENTION_POLICY.md` | — | **ABSENT (planned).** Retention periods are OQ-LEGAL-005; **not set or invented here (KD-D).** Legal floors named as *input* only (5651 2-yr access-log floor; VUK/TTK financial retention — legal package P5/P6/P7). |
-| `KVKK_LEGAL_BASIS.md` | — | **ABSENT (planned).** Legal basis is K-08 advisor work; the FINAL advisor package is a *proposed* input, not the file. |
+| `SECURITY_REVIEW.md` | — | **This file.** Reconciled in the P16 package for ADR-005 v1.2 SR-003-5…13 and SR-006 expectations at review level. |
+| `DATA_PROCESSING_INVENTORY.md` | — | **PRESENT; v0.3 draft in the P16 package.** Inventory-artifact prerequisite remains review-gated for P16. Personal-data implementation remains blocked by retention, legal basis, cross-border assessment, SMS/provider gates (BL-1), legal sign-off, and separately approved Pod C issues. |
+| `DATA_RETENTION_POLICY.md` | — | **DRAFTED in the P16 package.** P16 retention schedule requires legal advisor sign-off, Pod B review, and Kerem approval; not final policy. |
+| `KVKK_LEGAL_BASIS.md` | — | **DRAFTED in the P16 package.** P16 legal-basis rows require legal advisor sign-off and Kerem approval; not final policy. |
 | `architecture/SECURITY_VIEW.md` | — | **ABSENT (planned)** — named by the manifest Auth row. A separate architecture security-view artifact; **this review is not that file** (see SR-008). |
 | `SECURE_SDLC.md` | — | **ABSENT (referenced by §20.1).** Separate detailed-process file; this review covers the SDLC *posture*, not the process doc (SR-009). |
 
@@ -83,6 +85,7 @@ It does **not** re-decide anything those sources already decide; it **references
 - The KVKK/privacy review and the gating legal artifacts (§6).
 - The review's own cross-cutting findings and gaps, marked as recommendations/open items (§7).
 - The consolidated approval/blocker register (§8), residual-risk summary (§9), merge gate + ADR-009 assessment (§10), and routing (§11).
+- P16 security/access-control reconciliation for ADR-005 v1.2: SR-003-5…13, QR token controls, DB/query-layer deny enforcement, logging minimization, rate-limit expectations, staff revocation, and SR-006 regression-test evidence.
 
 **Out of scope (designed elsewhere or pending):**
 
@@ -91,7 +94,7 @@ It does **not** re-decide anything those sources already decide; it **references
 | The decisions themselves (ledger taxonomy, balance derivation, auth mechanisms, audit envelope, RBAC matrix, rollback triggers) | ADR-006/007/015 (Accepted), AUTH_THREAT_MODEL (Accepted), AUDIT_EVENT_SCHEMA (Kerem-accepted), USER_ROLES (v0.2), ROLLBACK_POLICY (Authoritative). Referenced, never redefined. |
 | API endpoints, request/response shapes, DB migrations, DDL, physical types | Pod B API/schema deliverables → Pod C **after** approved issues. **Not designed here.** |
 | Retention periods (any audit/ledger/PII class) | **OQ-LEGAL-005** (Kerem + legal advisor + Pod B). **Not invented here.** |
-| KVKK legal-basis determination; data-inventory entries; notice legal text | `KVKK_LEGAL_BASIS.md` / `DATA_PROCESSING_INVENTORY.md` / `PRIVACY_NOTICE_TR.md` (absent / legal review; OQ-CUF-AUTH-001). |
+| KVKK legal-basis determination; data-inventory entries; notice legal text | `KVKK_LEGAL_BASIS.md` / `DATA_PROCESSING_INVENTORY.md` / `PRIVACY_NOTICE_TR.md` (P16 drafts in this package; legal review and Kerem approval still required; OQ-CUF-AUTH-001 remains where broader notice work is not covered). |
 | SMS provider selection and provider-side OTP/KVKK assessment | **BL-1** — separate Pod B SMS provider report + Kerem decision. **No provider endorsed here.** |
 | CI security-tool selection (SAST/DAST/dep-scan/secret-scan vendors) | Pod B + Pod C, with Kerem approval where vendor/data-processing impact exists (§20.1). Open (SR-007). |
 | Hash-chain canonical serialization, covered-field set, and pseudonymization-vs-hash interaction detail | Pod B schema/migration deliverable (AUDIT_EVENT_SCHEMA §7 explicitly leaves this as an implementation constraint). Open (SR-002). |
@@ -165,22 +168,51 @@ This maps the §20.1 stages to the current Adeks position. **Status reflects whe
 
 - **Existing controls (referenced).** Phone number is the primary PII anchor (§20.2). `CASHIER` sees masked last-4 only during top-up (`+90 555 *** ** 01`, IR-21, USER_ROLES §6.1); full phone is limited to `CUSTOMER` (own) and `ADMIN` (USER_ROLES §3). Every `ADMIN` full-phone access produces an audit record; bulk access is a step-up action (IR-09/IR-17, T-P2). No raw phone/OTP/secret in claims, logs, or audit records — UUID / phone hash only (IR-03, R-2, ADR-015 §4). Aydınlatma Metni displayed and acknowledged **before** OTP send — before any PII is committed (ADR-015 KVKK §1, T-P3; K-14/15/16). Data minimization: `FB_STAFF` sees no wallet/loyalty/payment data (USER_ROLES §6.2). Erasure-vs-immutability resolved by **pseudonymize-without-delete** (ADR-006 §13 / ADR-007 §11 / AUDIT_EVENT_SCHEMA §6.12). Confirmed PII exposure = **T-2** → immediate rollback + 72-hour KVKK clock (T-P5, ROLLBACK_POLICY §3.1).
 - **Residual risk.** Low for the modelled access paths given masking + audit + minimization. The main residual sits at the *legal* layer (basis/retention) and at *mutation flow completeness* (SR-005), not the access controls.
-- **Open / blocking items.** `DATA_PROCESSING_INVENTORY.md` **present, Kerem-approved 2026-06-15**; inventory-artifact prerequisite satisfied (KD-E). Personal-data implementation remains blocked by: retention (`DATA_RETENTION_POLICY.md`, OQ-LEGAL-005, KD-D, absent), legal basis (`KVKK_LEGAL_BASIS.md`, absent), cross-border assessment (`CROSS_BORDER_TRANSFER_ASSESSMENT.md`, absent), SMS/provider gates (BL-1), and separately approved Pod C issues. Customer **profile mutation** flow + its audit trigger (e.g. phone-number change) is not yet fully specified at the per-event level (SR-005). K-15 acknowledgment-persistence touches the consent-capture surface and is **pending K-08 legal-advisor confirmation** before Pod C propagation.
+- **Open / blocking items.** `DATA_PROCESSING_INVENTORY.md` is present and v0.3 is drafted for P16 in this package. Personal-data implementation remains blocked by: retention sign-off (`DATA_RETENTION_POLICY.md`, OQ-LEGAL-005, KD-D), legal-basis sign-off (`KVKK_LEGAL_BASIS.md`), cross-border assessment, SMS/provider gates (BL-1), legal advisor/Kerem approval, and separately approved Pod C issues. Customer **profile mutation** flow + its audit trigger (e.g. phone-number change) is not yet fully specified at the per-event level (SR-005). K-15 acknowledgment-persistence touches the consent-capture surface and is **pending K-08 legal-advisor confirmation** before Pod C propagation.
 - **Verdict: Dependent.** Access controls are design-complete and consistent; the area is **dependent** on the absent KVKK artifacts and OQ-LEGAL-005, and on SR-005. No real customer data is used anywhere.
 
 ### 4.5 Audit-log logic
 
 - **Existing controls (referenced).** One canonical, cross-domain, append-only `audit_event` store (KD-A) with the §5 envelope. Hard rules **R-1** (append-only; app role `INSERT`+`SELECT` only; no role incl. `ADMIN` may edit/delete), **R-2** (no raw phone/OTP/password/token/TOTP secret — UUID/hash only), **R-3** (no balance overwrite — derived/referenced only), **R-4** (completeness — every BR-AUDIT-001 action emits exactly one event; a missing event is a detectable control failure). Tamper-evidence = DB-grant append-only baseline (IR-20, Kerem-approved 2026-06-10) **plus** the adopted **KD-C Option B per-row hash chain** with periodic external anchoring (AUDIT_EVENT_SCHEMA §7). Closed `workflow_source` taxonomy, **fails closed** on unknown (§6.5). Scoped IP/device capture (KD-B). System-derived events attributed to the triggering human via `on_behalf_of_actor_id` (§6.4). Pod D consumes seq-gap / missing-event / hash-chain verification signals (§6.10).
 - **Residual risk.** A DB superuser who recomputes the **entire** chain — **mitigated** by periodic external anchoring of the head hash + Pod D completeness/chain-verification monitoring (AUDIT_EVENT_SCHEMA §10). Otherwise Low–Med (DB-grant append-only) reduced by the hash chain.
-- **Open / blocking items.** **SR-002** — the exact canonical serialization, the covered-field set for `row_hash`, and the pseudonymization-vs-hash interaction are left to the Pod B schema/migration deliverable (AUDIT_EVENT_SCHEMA §7 calls this an implementation constraint, not re-decided here). Audit store retention is OQ-LEGAL-005 (KD-D); the audit store is itself a personal-data store (IP, reason notes, linkage) and implementation remains blocked by retention (OQ-LEGAL-005, KD-D), legal basis (`KVKK_LEGAL_BASIS.md`, absent), cross-border assessment, and separately approved Pod C issues. (`DATA_PROCESSING_INVENTORY.md` present, Kerem-approved 2026-06-15; KD-E inventory-artifact prerequisite satisfied.) Any `DROP`/`ALTER` of the audit table is a Pod B + Kerem schema-migration gate (§4.9).
+- **Open / blocking items.** **SR-002** — the exact canonical serialization, the covered-field set for `row_hash`, and the pseudonymization-vs-hash interaction are left to the Pod B schema/migration deliverable (AUDIT_EVENT_SCHEMA §7 calls this an implementation constraint, not re-decided here). Audit store retention is OQ-LEGAL-005 (KD-D); the audit store is itself a personal-data store (IP, reason notes, linkage) and implementation remains blocked by retention sign-off, legal-basis sign-off, cross-border assessment, and separately approved Pod C issues. (`DATA_PROCESSING_INVENTORY.md` present; v0.3 P16 update drafted in this package.) Any `DROP`/`ALTER` of the audit table is a Pod B + Kerem schema-migration gate (§4.9).
 - **Verdict: Design-complete, blocked.** The audit design (envelope + R-1…R-4 + KD-C chain) is Kerem-accepted and adopted by this review per AUDIT_EVENT_SCHEMA §6.13. Implementation gated by the absent KVKK artifacts and SR-002.
 
-### 4.6 Selcafe adapter data ingestion
+### 4.6 Selcafe ingestion / adapter read path, including P16 QR-linked live bill
 
-- **Existing controls (referenced).** ADR-005 locked direction: Selcafe is a **read-only** data source via `CafeManagementAdapter`; **no writes to Selcafe in Phase 1**; Adeks native ledgers are authoritative. AUTH_THREAT_MODEL trust boundary treats external dependencies as untrusted. Pseudonymization-without-delete applies to Selcafe-derived data too (ADR-006 §13 / ADR-007 §11). Any Selcafe-side adjustment is performed **manually by ADMIN/operator outside Adeks** and is **not** an Adeks runtime write and **not** part of the correction gate (ADR-006 §8.1).
-- **Residual risk / review observations (this review adds).** **SR-003** — because ingestion is read-only, the dominant risks are: (a) **injection / unsafe query construction** against the Selcafe data source (the read path must use parameterized/least-privilege access — no string-built SQL); (b) **trust of ingested data** — Selcafe data (open hours, categories, menu items, active sessions) must be **validated/sanitized at the adapter boundary** and never treated as trusted input into Adeks logic; (c) **credential handling** for the Selcafe connection (a read-only, least-privilege account; secret stored per a secrets-management approach — SR-001); (d) **PII in active-session records** — if session records carry a customer reference, that linkage is personal data and must be inventoried (§20.2) and pseudonymizable. The full ADR-005 text is **pending** (currently a stub), and `SELCAFE_INTEGRATION_ANALYSIS.md` / `INTEGRATION_ASSUMPTIONS.md` are stubs.
-- **Open / blocking items.** ADR-005 full text pending (Pod B). The four SR-003 controls above are **recommendations** to be confirmed when ADR-005 is written and when the integration view exists; they are **not** implemented or issued here.
-- **Verdict: Partial.** Read-only posture is locked and removes the write-side attack surface; the read-side ingestion controls (SR-003) are not yet documented in an Accepted ADR-005 and are flagged for that work. KVKK cross-border for any provider/hosting remains a legal item (K-08).
+- **Existing controls (referenced).** ADR-005 is Accepted and governs the Selcafe read-only Phase 1 adapter. Selcafe remains a read-only source behind `CafeManagementAdapter` / `SelcafeAdapter`; Adeks issues no direct writes to Selcafe. The P16 amendment in ADR-005 v1.2 conditionally permits a QR-session-scoped, memberless projection of the active bill/order lines/discount reflection under SR-003-5…13. Adeks native ledgers remain authoritative for Adeks value records.
+
+- **SR-003-1…4 status.** The original Selcafe read-path controls are formalized in ADR-005: parameterized least-privilege read access, adapter-boundary validation/sanitization, credential handling through the secrets-management approach, and PII/member-linkage hard exclusion for the non-P16 read surface.
+
+- **P16 SR-003-5 — QR token as authorization factor.** P16 access depends on a crypto-random, non-guessable, short-TTL QR token, bound to one station/session-link, burned on first scan, and staff-revocable. The QR token is the access-control factor for the current physical session, not a general member-account authorization.
+
+- **P16 SR-003-6 — DB/query-layer deny enforcement.** Member, staff, credential, balance, and free-text identity-risk exclusions must be enforced by column-deny grants on the dedicated Selcafe read-only login at the DB grant/query layer, not by UI-only filtering. The login must physically be unable to select the hard-excluded ADR-005 §5A.3 surfaces.
+
+- **P16 SR-003-7 — QR-session-scoped selector.** The selector resolves only the directly linked active bill server-internally. No raw bill number is exposed to the client, and no customer-supplied raw bill-number lookup is allowed.
+
+- **P16 SR-003-8 — Read-as-display only.** P16 reads are display/reconciliation inputs only. The adapter must coerce and sanity-check numeric values and must not recompute Selcafe pricing.
+
+- **P16 SR-003-9 — Discount reflection discipline.** Discount reflection uses a dedicated Adeks transaction type, pseudorandom one-time code, fixed format, amount, and timestamp. Mapping remains in Adeks only. Fail closed on mismatch. Do not put Adeks account identity, Selcafe member identity, phone, name, email, profile, or avoidable coupon identity into Selcafe.
+
+- **P16 SR-003-10 — Logging minimization.** Logs should use metadata only where possible, avoid full order-line persistence, avoid member identity, and pseudonymize Adeks references where feasible.
+
+- **P16 SR-003-11 — Current bill only.** Guest mode must not display historical bills.
+
+- **P16 SR-003-12 — No transfer/merge-link following.** P16 pilot resolves only the directly linked active bill. Transfer/merge targets are not followed automatically.
+
+- **P16 SR-003-13 — Age-restricted ordering.** Guest mode must block age-restricted F&B items or require staff confirmation. PI-3 remains open because no confirmed catalog attribute for age-restricted `urun` items is yet recorded.
+
+- **Residual risk / review observations.** P16 remains personal-data processing. The accepted residual risk is limited to a QR-linked physical session participant viewing the current active bill/order lines under the controls above. If member identity/profile/history, transferred/historical bills, raw bill lookup, full order-line persistence, or guest in-app payment are introduced, the P16 legal/security position must be reassessed.
+
+- **Open / blocking items.**
+  - `KVKK_LEGAL_BASIS.md`, `DATA_PROCESSING_INVENTORY.md` v0.3, `PRIVACY_NOTICE_TR.md`, `DATA_RETENTION_POLICY.md`, `CROSS_BORDER_TRANSFER_ASSESSMENT.md`, and `P16_PILOT_RISK_REGISTER.md` must be reviewed/signed off/approved as required.
+  - `detay` / `siparis` projection remains provisional until targeted elicitation.
+  - PI-3 age-restricted item handling remains open.
+  - PI-4 current active bill definition under transfers/merges remains open.
+  - Cross-border status remains blocked on infrastructure facts.
+  - No Pod C work is authorized.
+
+- **Verdict: Design-partial, blocked.** P16 security controls are now documented at review level and align with ADR-005 v1.2, but implementation remains blocked by compliance artifacts, risk-register approval, legal sign-off, cross-border fact-finding, `detay` / `siparis` elicitation, and later separately approved DoR issue.
 
 ### 4.7 Admin privilege (escalation)
 
@@ -229,6 +261,14 @@ Consolidates the §20.1 mandated abuse cases plus the per-domain abuse tables. *
 | Cross-tenant read of customer/auth/ledger records | Mandatory Prisma Client Extension + `tenant_id NOT NULL` (IR-22, ADR-004/008); single tenant in Phase 1, seam must hold | **Covered** |
 | Confirmed PII exposure | **T-2** → immediate rollback + incident record + 72-hour KVKK clock (T-P5, ROLLBACK_POLICY §3.1) | **Covered (incident path)** |
 | Ingested Selcafe data trusted / injection on read path | Read-only posture (ADR-005) + boundary validation + parameterized least-privilege read access (**SR-003 — recommendation**) | **Partial (SR-003)** |
+| QR token guessed, reused, or replayed | SR-003-5: crypto-random, short TTL, bound to one station/session-link, burned on first scan, staff-revocable | **Covered at design level; implementation blocked** |
+| Customer attempts raw bill-number enumeration | SR-003-7: no raw bill number to client; no customer-supplied raw bill lookup | **Covered at design level; implementation blocked** |
+| Wrong QR scan / mis-link exposes current shared bill | Staff revocation, current-bill-only, metadata-only evidence, pilot risk register | **Mitigated, not eliminated** |
+| Transfer/merge following exposes unrelated bill | SR-003-12: no transfer/merge-link following in pilot; PI-4 remains open | **Blocked until product definition confirmed** |
+| Member identity leaks through query/log/join | ADR-005 §5A.3 hard exclusions + SR-003-6 DB/query-layer deny + SR-006 tests | **Must be regression-tested** |
+| Full order-line persistence creates over-retention | SR-003-10 logging minimization + `DATA_RETENTION_POLICY.md` TTLs | **Policy target; implementation blocked** |
+| Guest minor orders age-restricted item | SR-003-13; PI-3 catalog/product gap | **Open** |
+| Discount code becomes durable cross-system identifier | SR-003-9 one-time pseudorandom fixed-format code; mapping in Adeks only; retention 90–180 days | **Mitigated, not eliminated** |
 
 ---
 
@@ -237,16 +277,16 @@ Consolidates the §20.1 mandated abuse cases plus the per-domain abuse tables. *
 | §20.2 obligation | Artifact / action | Status at baseline |
 |---|---|---|
 | VERBİS registration | Kerem + legal advisor | `[NEEDS KEREM APPROVAL — legal]`; advisor to determine (legal package §3). |
-| Data processing inventory | `DATA_PROCESSING_INVENTORY.md` (Pod A drafts, Pod B reviews, Kerem approves) | **PRESENT, Kerem-approved 2026-06-15.** Inventory-artifact prerequisite satisfied (KD-E). Personal-data implementation remains blocked by retention (OQ-LEGAL-005, KD-D), legal basis (`KVKK_LEGAL_BASIS.md`, absent), cross-border assessment (`CROSS_BORDER_TRANSFER_ASSESSMENT.md`, absent), SMS/provider gates (BL-1), and separately approved Pod C issues. |
-| Legal basis per data type | `KVKK_LEGAL_BASIS.md` (Kerem + advisor) | **ABSENT.** A *proposed* basis matrix (P1–P15) exists in the FINAL advisor package as an **advisor question set** `[NEEDS KEREM APPROVAL]`; it is **not** the file and **not** policy. |
-| Privacy notice (Aydınlatma Metni) | `PRIVACY_NOTICE_TR.md` + PWA copy | **Legal text open** (OQ-CUF-AUTH-001 / BL-5). Flow side resolved (K-14 build-time embedded; K-15 persisted on verified OTP; K-16 same-session reuse). |
+| Data processing inventory | `DATA_PROCESSING_INVENTORY.md` (Pod A drafts, Pod B reviews, Kerem approves) | **PRESENT; v0.3 draft in the P16 package.** Personal-data implementation remains blocked by retention, legal basis, cross-border assessment, SMS/provider gates (BL-1), legal sign-off, Kerem approval, and separately approved Pod C issues. |
+| Legal basis per data type | `KVKK_LEGAL_BASIS.md` (Kerem + advisor) | **DRAFTED in the P16 package.** P16 rows require legal advisor sign-off and Kerem approval before they become policy. |
+| Privacy notice (Aydınlatma Metni) | `PRIVACY_NOTICE_TR.md` + PWA copy | **DRAFTED in the P16 package for P16; not approved for customer display.** Flow side resolved (K-14 build-time embedded; K-15 persisted on verified OTP; K-16 same-session reuse). |
 | Data-subject rights (Art. 11) | `DATA_SUBJECT_RIGHTS_PROCESS.md` | Pending; erasure resolved at design via **pseudonymize-without-delete** (ADR-006 §13 / ADR-007 §11 / AUDIT §6.12). |
 | 72-hour breach notification | `BREACH_NOTIFICATION_PROCESS.md`; Pod B defines incident criteria | **T-2** criteria defined (ROLLBACK_POLICY §3.1); the standalone process file is pending; several operational items `[NEEDS KEREM APPROVAL]` (§8). |
-| Data retention policy | `DATA_RETENTION_POLICY.md` (Kerem approves, Pod B reviews) | **ABSENT.** Periods are **OQ-LEGAL-005 — not invented here (KD-D).** Legal floors named as *input* only (5651 2-yr access-log floor; VUK/TTK financial retention — legal package P5/P6/P7). |
-| Cross-border transfer | `CROSS_BORDER_TRANSFER_ASSESSMENT.md` | **ABSENT** (OQ-LEGAL-006); depends on hosting/SMS provider decisions (K-08, BL-1). |
+| Data retention policy | `DATA_RETENTION_POLICY.md` (Kerem approves, Pod B reviews) | **DRAFTED in the P16 package.** P16 retention schedule requires legal advisor sign-off, Pod B review, and Kerem approval. |
+| Cross-border transfer | `CROSS_BORDER_TRANSFER_ASSESSMENT.md` | **STATUS SHELL drafted in the P16 package.** Final determination remains blocked on infrastructure/vendor/logging/support/replication facts and legal advisor/Kerem approval. |
 | Phone as primary PII | In inventory + notice | Masked last-4 to `CASHIER` (IR-21); full-phone audited for `ADMIN` (IR-09/T-P2); never in claims/logs/audit plaintext (IR-03/R-2). |
 
-**Privacy posture summary.** The privacy-by-design controls in the design corpus are strong and self-consistent (minimization, masking, pseudonymization, audited full-phone access, notice-before-OTP). `DATA_PROCESSING_INVENTORY.md` is **present, Kerem-approved 2026-06-15**; the inventory-artifact prerequisite is satisfied. The remaining privacy **gating gap** is at the **legal** layer: `DATA_RETENTION_POLICY.md` and `KVKK_LEGAL_BASIS.md` remain absent; OQ-LEGAL-005/006 remain open. Per the manifest fallback, **no personal-data feature may be built** — and this review issues no Pod C work — until OQ-LEGAL-005 sets retention, the legal basis is confirmed by the K-08 advisor, and the cross-border assessment (`CROSS_BORDER_TRANSFER_ASSESSMENT.md`) is completed. The legal-basis matrix and notice content in `legal/LEGAL_ADVISOR_KVKK_basis_and_notice_FINAL.md` are **proposed advisor inputs `[NEEDS KEREM APPROVAL]`**, not project policy, and include items the advisor must still rule on (minors, İYS/ETK boundary, consent records, cross-border, VERBİS).
+**Privacy posture summary.** The privacy-by-design controls in the design corpus are strong and self-consistent (minimization, masking, pseudonymization, audited full-phone access, notice-before-OTP). P16 compliance artifacts are drafted in this package, but they are **not** final policy and do **not** authorize implementation. The remaining privacy **gating gap** is at the **legal/sign-off** layer: `DATA_RETENTION_POLICY.md`, `KVKK_LEGAL_BASIS.md`, `PRIVACY_NOTICE_TR.md`, `CROSS_BORDER_TRANSFER_ASSESSMENT.md`, and `DATA_PROCESSING_INVENTORY.md` v0.3 require the reviews, legal advisor sign-off where applicable, and Kerem approval stated in those files. Per the manifest fallback, **no personal-data feature may be built** — and this review issues no Pod C work — until retention, legal basis, privacy notice, cross-border status, security review, pilot-risk acceptance, and separately approved Pod C issues are complete.
 
 ---
 
@@ -258,13 +298,34 @@ These are Pod B security-review observations. They are **recommendations / open 
 |---|---|---|---|
 | **SR-001** | **Secrets management is implied but not consolidated.** Multiple high-value secrets exist or will exist: JWT signing key (IR-04), TOTP secret encryption key (IR-14), the SMS provider API credential (ADR-015 §4), the Selcafe read-only DB credential (SR-003), and the audit hash-chain anchoring signing material (AUDIT §7). No single secrets-management approach is documented. | Pod B to define a secrets-management approach (storage, rotation, least-privilege, no secrets in logs/repo) as a future design item; do **not** invent it here. | recommendation |
 | **SR-002** | **Hash-chain implementation detail is deferred.** The exact canonical serialization, the covered-field set for `row_hash`, the anchoring cadence/format, and the pseudonymization-vs-hash interaction are open. | Pod B schema/migration deliverable to specify, per AUDIT_EVENT_SCHEMA §7 (called out there as an implementation constraint). | open (Pod B) |
-| **SR-003** | **Selcafe read-path ingestion controls are not in an Accepted ADR.** Read-only removes write-side risk but not: injection on read, trust of ingested data, credential handling, PII in session records. | Confirm these four controls when ADR-005 full text + integration view are written (Pod B). | recommendation |
+| **SR-003** | **Selcafe read-path ingestion controls are now formalized in ADR-005, with P16 extensions in v1.2.** Read-only removes write-side risk but not: injection on read, trust of ingested data, credential handling, QR-session-scoped P16 access control, DB/query-layer deny enforcement, logging minimization, retention, and cross-border risk. | Treat §4.6 and ADR-005 §5A as the P16 review baseline. Implementation remains blocked until compliance artifacts, SR-006 expectations, `detay`/`siparis` elicitation, legal sign-off, and a separate approved DoR issue are complete. | design-partial, blocked |
 | **SR-004** | **F&B order-status and reservation per-event audit trigger points are not yet designed.** They consume the audit envelope but their trigger catalogs live in the (planned) F&B state model / reservation state machine. | Define in those Pod B deliverables; not re-derived here (AUDIT_EVENT_SCHEMA §6.11). | gap (routed) |
 | **SR-005** | **Customer profile-mutation flow + its audit trigger are not fully specified at the per-event level** (e.g. a phone-number change records the *fact* with derived identifiers, never raw old/new PII — AUDIT §6.7 — but the flow itself is not designed). | Pod A flow + Pod B audit-point review when customer-data mutation is specified. | gap (routed) |
 | **SR-006** | **Security-regression test coverage** is named in §21 (audit-on-sensitive-action tests; RBAC per-role tests; ledger/audit tests) but no test plan exists. | `QA_STRATEGY.md` / `UAT_PLAN.md` (referenced by §21) are absent; security-regression tests must exist before the relevant Pod C work is accepted. | gap (routed) |
 | **SR-007** | **CI security gates are unselected.** SAST/DAST, dependency scanning (e.g. Trivy/Snyk), secret scanning, and the append-only-grant / unique-index / audit-table-DROP-ALTER verification (§4.9) are not configured. | Pod B + Pod C select tooling; Kerem approves where vendor/data-processing impact exists (§20.1). | open |
 | **SR-008** | **`SECURITY_VIEW.md` (architecture security view) is named by the manifest Auth row but absent.** This review (`SECURITY_REVIEW.md`) is the §20.3 *security review*, not the architecture security *view*. | Reconcile: either produce `SECURITY_VIEW.md` (Pod B) or update the manifest Auth row if the two are intended to be one artifact (Pod A owns the manifest, Pod B reviews). | reconciliation |
 | **SR-009** | **`SECURE_SDLC.md` (detailed process, named by §20.1) is absent.** This review covers the SDLC *posture* (§3), not the process document. | Pod A/Pod B to produce if the detailed process file is wanted; not a blocker for this review. | reconciliation |
+
+### SR-006 P16 regression-test expectations
+
+[REQUIRES POD B REVIEW] [NO POD C AUTHORIZATION]
+
+For P16, SR-006 must include regression-test expectations that prove the controls in ADR-005 §5A and this review do not regress. These are review-level expectations only; they do not create implementation issues.
+
+| Test expectation | Required evidence |
+|---|---|
+| Hard-excluded columns cannot be selected | Test/verification plan confirms the dedicated read-only login cannot select ADR-005 §5A.3 excluded surfaces |
+| No member identity in P16 projection/logs | Projection/log review shows no member profile, member number, member balance, member points, member history, or staff identity |
+| No raw bill number exposed to client | Client-facing API/DTO/log review proves raw bill identifiers are not exposed |
+| No customer-supplied raw bill lookup | Route/API review proves P16 access only follows QR-session selector |
+| QR token single-use / short TTL / bound to station-session | Test plan covers burn-on-first-use, expiry, station/session binding, and staff revocation |
+| No historical bill access in guest mode | Test plan covers closed/historical bill denial |
+| No transfer/merge following | Test plan covers transfer/merge target non-following |
+| Logging minimization | Logs contain metadata only where possible and no full order-line persistence unless separately approved |
+| Discount reflection fixed format | Test plan covers dedicated transaction type, pseudorandom one-time code, fixed format, amount, timestamp, fail-closed mismatch |
+| Age-restricted item control | Test plan covers block or staff-confirmation rule once PI-3 is resolved |
+| Retention/TTL enforcement | Test plan covers session-only order-line cache, bill-close deletion where detectable, and hard TTL fail-safe |
+| Cross-border payload minimization | Test plan/review confirms logs/monitoring/backups/support/AI tooling do not process P16 data outside approved assessment |
 
 ---
 
@@ -289,8 +350,8 @@ OQ-LEGAL-005 (retention periods, **KD-D**), legal basis per data type (**BL-4**,
 | Blocker | Effect |
 |---|---|
 | `DATA_PROCESSING_INVENTORY.md` (**KD-E**) | **Present, Kerem-approved 2026-06-15.** Inventory-artifact prerequisite satisfied. Personal-data implementation remains blocked by the items below (retention, legal basis, cross-border, BL-1, approved Pod C issues). |
-| `DATA_RETENTION_POLICY.md` absent + OQ-LEGAL-005 open (**KD-D**) | Refresh-token + account + audit/PII retention undefined; **no period invented here** (blocks ADR-015 go-live tie; BL-3). |
-| `KVKK_LEGAL_BASIS.md` absent (**BL-4**) | Phone-as-identity processing basis not on record. |
+| `DATA_RETENTION_POLICY.md` drafted for P16 + OQ-LEGAL-005 open (**KD-D**) | P16 retention schedule requires legal advisor sign-off, Pod B review, and Kerem approval; broader retention remains unresolved where not covered. |
+| `KVKK_LEGAL_BASIS.md` drafted for P16 (**BL-4 remains until sign-off**) | P16 legal-basis rows require legal advisor sign-off and Kerem approval before policy/implementation use. |
 | BL-1 (SMS provider), BL-5 (notice text) | Customer OTP + registration notice cannot complete. |
 | BL-6 / ADR-006/007 dependencies | No separately Pod B + Kerem approved Pod C issues exist; **none created here.** |
 
@@ -312,7 +373,7 @@ Consolidated from the per-area assessments; accepted residuals reference their A
 | Insider skim/collusion via ledger correction | **Mitigated, not eliminated**; daily masked ADMIN report + immutable audit + customer-visible change + KD-C chain | ADR-006 §12; ADR-007 §10; AUDIT §10 |
 | Full audit-chain recompute by a DB superuser | **Mitigated** by periodic external anchoring + Pod D chain verification | AUDIT §7/§10 |
 | Provider-side OTP / KVKK / cross-border exposure | **Open — cannot be assessed until BL-1 resolved** | AUTH §8 |
-| Selcafe read-path ingestion (injection / trust / credential / session-PII) | **Open recommendation (SR-003)**; read-only posture removes write-side risk | ADR-005; SR-003 |
+| Selcafe read-path ingestion and P16 QR live-bill access | **Design-partial, blocked (SR-003 / SR-003-5…13)**; read-only posture removes write-side risk, but implementation remains blocked by compliance artifacts, deny-grant evidence, SR-006 expectations, legal sign-off, and approved DoR issue | ADR-005 v1.2; SR-003; SR-006 |
 | Personal-data processing without inventory/basis/retention | **Open — dependent on absent KVKK artifacts + OQ-LEGAL-005** (inventory-artifact prerequisite now satisfied) | §6; KD-D |
 
 **`[LOCKED PRINCIPLE CONFLICT]`: none identified.** Every control and observation in this review is consistent with the locked principles (append-only wallet & loyalty ledgers; all admin actions auditable; KVKK required; human approval for wallet/payment/refund/security/customer-data; Selcafe read-only Phase 1; synthetic data only), with ADR-004/008, and with the Accepted ADRs and threat model.
@@ -349,3 +410,4 @@ Consolidated from the per-area assessments; accepted residuals reference their A
 | v0.1 | 2026-06-15 | Pod B | Initial draft. Covers §20.1 SDLC posture (§3); §20.3 mandatory review areas + schema-migration security (§4); cross-domain abuse-case register (§5); KVKK/privacy review (§6); cross-cutting findings SR-001…SR-009 (§7); consolidated approval/blocker register (§8); residual-risk summary (§9); ADR-009 assessment (§10). Adopts AUDIT_EVENT_SCHEMA R-1…R-4 / IR-03/IR-20 alignment / KD-C hash chain / §10 residual risks per its §6.13. Marked **Needs repo reconciliation** (DATA_PROCESSING_INVENTORY.md / DATA_RETENTION_POLICY.md / KVKK_LEGAL_BASIS.md absent). No retention periods invented; no Pod C authorization; no issues; no endpoints/migrations; synthetic data only. Merge gate Pod B + Kerem. |
 | v0.2 | 2026-06-16 | Pod B | B-2 status reconciliation (Kerem-authorized). `DATA_PROCESSING_INVENTORY.md` now **present, Kerem-approved 2026-06-15** — updated REPO RECONCILIATION header, Status table, freshness baseline, §4.4/§4.5/§6/§8.3 references, and §6 privacy-posture summary. `DATA_RETENTION_POLICY.md`, `KVKK_LEGAL_BASIS.md` remain absent and remain blockers. Three genuinely absent legal files (DATA_RETENTION_POLICY.md, KVKK_LEGAL_BASIS.md, CROSS_BORDER_TRANSFER_ASSESSMENT.md) not altered. Pod C gate unchanged. Status-only correction; no new decisions. Merge gate Pod B + Kerem. |
 | v0.3 | 2026-06-19 | Pod B | IR-25 mirror reconciliation (Kerem-authorized, `gitpkm`). Removed stale IR-25 open-item language now resolved at design level by AUTH_THREAT_MODEL.md v0.5 §15 (app-side SMS ceiling values + operational response-path owner = `ADMIN`): §4.1 (`[NEEDS KEREM APPROVAL]` open-items trimmed to IR-24 only; verdict “two→one”), §4.8 (open-items no longer lists the IR-25 value/owner, points to v0.5 §15; provider-side OTP/KVKK/cross-border + BL-1 remain open), §8.1 (removed the IR-25 SMS spend/volume ceiling value + response-path owner row). Corrected the Source freshness baseline `AUTH_THREAT_MODEL.md` row to v0.5 / blob `bb1f270c4019` and pinned the baseline to current HEAD `c4832ab3`; other source rows retain their 2026-06-15 (`7374adf4`) read and were not re-verified this session. No new K-xx; no `PROJECT_DECISION_INDEX.md` change; no SMS provider selected; no Pod C authorization. BL-1/BL-3/BL-4/BL-5/BL-6 remain open; Pod C remains blocked. Synthetic data only. Merge gate Pod B + Kerem. |
+| v0.2 draft | 2026-07-01 | Pod B / Pod A package | Reconciles P16 ADR-005 v1.2 security/access-control requirements: SR-003-5…13, DB/query-layer deny enforcement, QR token controls, logging minimization, and SR-006 regression-test expectations. No Pod C authorization. |
