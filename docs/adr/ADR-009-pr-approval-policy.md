@@ -27,6 +27,8 @@ Note on prior approval: the core PR approval policy recorded here was already ap
 
 Pod B review: Approved (self-review, process / governance ADR).
 
+**Amendment — 2026-07-01 (risk-tiered §4 ceremony; Kerem-approved).** §4 gains a subsection (§4.1) that tiers the Pod Impact Matrix + `INSTRUCTION_UPDATE_PACKET.md` requirement by risk, reusing the §3 risk-category table as the activation boundary. Higher-risk and behavior-changing PRs keep full ceremony unchanged; pure decision-state mirroring that changes no gate, behavior, methodology, template, bootloader, or §3 category takes a one-line attestation instead. This weakens no §3 review trigger, no merge-is-Kerem-only rule, and no no-direct-`main` rule, and authorizes no Pod C implementation. Additive and dated to preserve ADR history (methodology §19). This ADR is the canonical record of the tiering decision — no separate MD-entry is created.
+
 ---
 
 ## Context
@@ -99,6 +101,20 @@ Any PR that changes **pod behavior, responsibilities, review or approval gates, 
 - an **`INSTRUCTION_UPDATE_PACKET.md`** (a planned PR-3 artifact) specifying which instruction snapshots need updating and whether external platform re-paste is required.
 
 This is enforced by a **single universal yes/no question** in `.github/PULL_REQUEST_TEMPLATE.md` ("Does this PR change pod behavior, gates, methodology, templates, decision state, or platform instructions?"). A `yes` answer triggers the full matrix and the update packet; a `no` answer skips them. This conditional design deliberately avoids checkbox fatigue on routine implementation PRs while guaranteeing process-changing PRs carry their impact accounting. (Source: ADR-013 §7; governance decision MD-6.)
+
+#### 4.1 Risk-tiered ceremony (amendment — 2026-07-01)
+
+The §4 requirement is tiered by risk, with the §3 risk-category table as the activation boundary. This refines MD-6's decision-state trigger; it does not remove the conditional gate.
+
+**Heavy lane — full Pod Impact Matrix + `INSTRUCTION_UPDATE_PACKET.md`.** Any PR that (a) touches any §3 risk category, or (b) changes pod behavior, responsibilities, review or approval gates, context-loading rules, output format, methodology, templates, or external AI platform instructions. Scrutiny here is unchanged from §4.
+
+**Fast lane — one-line attestation; no matrix, no update packet.** A PR that only mirrors already-Kerem-approved decision state into an index/mirror/status surface (e.g., `PROJECT_DECISION_INDEX.md`, `PROJECT_SEQUENCE_STATUS.md`, a status table) or edits gate-neutral `/docs` prose, and changes none of the heavy-lane items. The PR carries one line: *"Fast lane: decision-state mirror / gate-neutral docs; no pod-behavior, gate, methodology, template, bootloader, or §3-risk change; no re-paste."*
+
+**Activation question.** *Does this PR touch money, law, security, Selcafe integration, schema/migration, pod behavior, or a gate?* Yes → heavy lane. No → fast lane. If ambiguous, take the heavy lane.
+
+**Invariants (unchanged).** No §3 review trigger is weakened. Merge remains Kerem-only. No direct commits to `main`. No lane authorizes Pod C implementation, Definition-of-Ready / Definition-of-Done bypass, legal/KVKK bypass, or real-data use. Mirror drift is non-blocking and never a merge gate; a stale mirror is a correctable pointer fix under the fast lane.
+
+**Template reconciliation (Pod B note).** The live `.github/PULL_REQUEST_TEMPLATE.md` universal question does not yet carry the lane split. A follow-on PR should add it; until that merges, this §4.1 is the authoritative source (same pattern as the §3 template-reconciliation note). That follow-on is itself heavy-lane.
 
 ### 5. Approval authority
 
@@ -174,3 +190,4 @@ Each ADR-013 implementation PR requires the reviews and approvals specified by t
 - **Approver:** Kerem
 - **Date proposed:** 2026-06-05
 - **Date approved:** 2026-06-05
+- **Amended:** 2026-07-01 — risk-tiered §4 ceremony (fast + heavy lanes); Kerem-approved.
