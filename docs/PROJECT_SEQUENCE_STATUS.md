@@ -9,7 +9,7 @@
 | Confirmation | Kerem confirms on gate movement. |
 | Authority | Mirror-only. Establishes no decisions. Authorizes no implementation. Creates no phase or gate. If this file conflicts with a canonical source, the canonical source governs. |
 | Last confirmed | 2026-07-01 |
-| Source pin | HEAD `a0c8c32` |
+| Source pin | HEAD `e5af9b3` |
 | Data rule | Synthetic examples only; no real customer/staff/transaction/Selcafe data. |
 
 ## 1. Current gate
@@ -21,6 +21,7 @@
 - PR #127 landed the Pod-A Operating Slice Checkpoint status artifact (`planning/OPERATING_SLICE_CHECKPOINT_SELCAFE_LINKED_VISIBILITY_ORDERING_v0.1.md`) plus the BR-FB account-boundary correction and MVP_SCOPE/PROJECT_BRIEF prose cleanup; the slice is **product-clean**.
 - P16 KVKK legal-advisor input (`legal/P16_Selcafe_QR_Live_Bill_KVKK_Consolidated_Advisor_Comment.md`) and the ADR-005 v1.2 read-surface direction analysis (`planning/ADR-005_v1.2_READ_SURFACE_DIRECTION_ANALYSIS_v0.1.md`) are recorded as **evidence** in this PR.
 - Neither moves the gate: the **Operating Slice Checkpoint remains not satisfied**; ADR-005 v1.2 remains a later Kerem-approved ADR change.
+- **Update (2026-07-01, #130):** ADR-005 **v1.2 is now merged** (§5A QR-linked live-bill conditional read surface; D-5 corrected to personal data / KVKK Art. 5/2(c); SR-003-5…13). The checkpoint's ADR-005 read-surface-reconciliation condition is **met**; remaining conditions — compliance artifacts (KVKK legal basis / retention / privacy notice / DPI / cross-border-conditional) + auditability/retention/minimization + Kerem approval — keep the **Operating Slice Checkpoint not satisfied**. Supersedes the "v1.2 remains a later ADR change" note above.
 
 ## 2. Authorized next move
 - Governance/planning artifacts may proceed under the command-keyword gate (e.g., phase-gate criteria, this surface). (`PROJECT_METHODOLOGY.md` §16.2)
