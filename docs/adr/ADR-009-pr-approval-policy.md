@@ -140,7 +140,7 @@ Kerem is the sole final approver for any merge. Pod B is the architecture, logic
 
 - No change reaches `main` outside a reviewed PR.
 - A documentation-only PR cannot merge without Kerem visibility.
-- A PR that touches behavior, gates, methodology, templates, decision state, or platform instructions cannot merge without its Pod Impact Matrix and update packet.
+- A PR that touches behavior, gates, methodology, templates, or platform instructions cannot merge without its Pod Impact Matrix and update packet; decision-state changes follow the §4.1 lane split.
 
 ### Risks accepted
 
